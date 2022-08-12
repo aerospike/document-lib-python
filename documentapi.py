@@ -6,24 +6,27 @@ import json
 from typing import Any
 
 class DocumentClient:
+    """Client to run JSON queries"""
+
     def __init__(self, client: Client):
         self.client = client
 
-    """
-    Get object(s) from a JSON document using JSON path.
-
-    If multiple objects are matched, they will be returned as a :class:`list`.
-    Otherwise, the object itself is returned.
-
-    :param tuple key: the key of the record
-    :param str binName: the name of the bin containing the JSON document
-    :param str jsonPath: JSON path to retrieve the object
-    :param dict readPolicy: the read policy for get() operation
-
-    :return: :py:obj:`Any`
-    :raises: :exc:`KeyNotFound`
-    """
     def get(self, key: tuple, binName: str, jsonPath: str, readPolicy: dict = None) -> Any:
+        """
+        Get object(s) from a JSON document using JSON path.
+
+        If multiple objects are matched, they will be returned as a :class:`list`.
+        Otherwise, the object itself is returned.
+
+        :param tuple key: the key of the record
+        :param str binName: the name of the bin containing the JSON document
+        :param str jsonPath: JSON path to retrieve the object
+        :param dict readPolicy: the read policy for get() operation
+
+        :return: :py:obj:`Any`
+        :raises: :exc:`KeyNotFound`
+
+        """
         # Get bin containing JSON document
         _, _, bins = self.client.select(key, [binName], readPolicy)
         
@@ -45,35 +48,38 @@ class DocumentClient:
         else:
             return results
 
-    """
-    Put an object into a JSON document using JSON path
-
-    :param tuple key: the key of the record
-    :param str binName: the name of the bin containing the JSON document
-    :param str jsonPath: JSON path location to store the object
-    :param dict writePolicy: the write policy for put() operation
-    """
     def put(self, key: tuple, binName: str, jsonPath: str, obj: Any, writePolicy: dict = None):
+        """
+        Put an object into a JSON document using JSON path
+
+        :param tuple key: the key of the record
+        :param str binName: the name of the bin containing the JSON document
+        :param str jsonPath: JSON path location to store the object
+        :param dict writePolicy: the write policy for put() operation
+        
+        """
         pass
 
-    """
-    Append an object to a list in a JSON document using JSON path
-
-    :param tuple key: the key of the record
-    :param str binName: the name of the bin containing the JSON document
-    :param str jsonPath: JSON path ending with a list
-    :param dict writePolicy: the write policy for operate() operation
-    """
     def append(self, key: tuple, binName: str, jsonPath: str, obj, writePolicy: dict = None):
+        """
+        Append an object to a list in a JSON document using JSON path
+
+        :param tuple key: the key of the record
+        :param str binName: the name of the bin containing the JSON document
+        :param str jsonPath: JSON path ending with a list
+        :param dict writePolicy: the write policy for operate() operation
+        
+        """
         pass
 
-    """
-    Delete an object in a JSON document using JSON path
-
-    :param tuple key: the key of the record
-    :param str binName: the name of the bin containing the JSON document
-    :param str jsonPath: JSON path of object to delete
-    :param dict writePolicy: the write policy for operate() operation
-    """
     def delete(self, key: tuple, binName: str, jsonPath: str):
+        """
+        Delete an object in a JSON document using JSON path
+
+        :param tuple key: the key of the record
+        :param str binName: the name of the bin containing the JSON document
+        :param str jsonPath: JSON path of object to delete
+        :param dict writePolicy: the write policy for operate() operation
+
+        """
         pass

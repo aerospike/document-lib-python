@@ -10,7 +10,7 @@ Welcome to Document Library Python's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+   api
 
 Indices and tables
 ==================
