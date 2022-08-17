@@ -4,6 +4,7 @@ from aerospike import Client
 from aerospike_helpers import cdt_ctx
 from aerospike_helpers.operations import map_operations
 from aerospike_helpers.operations import list_operations
+from aerospike_helpers.operations import operations
 
 import re
 
@@ -21,13 +22,13 @@ class DocumentClient:
         # First divide JSON path into "big" tokens
         # using map separator "."
         # Example:
-        # "a[1].b.c[2]" -> ["a[1]", "b", "c[2]]"
+        # "$[1].b.c[2]" -> ["$[1]", "b", "c[2]]"
         bigTokens = jsonPath.split(".")
 
         # Then divide each big token into "small" tokens
         # using list separator "[<index>]"
         # Example:
-        # "[a[1], b, c[2]]" -> ["a", 1, "b", "c", 2]
+        # "[$[1], b, c[2]]" -> ["$", 1, "b", "c", 2]
         results = []
         for bigToken in bigTokens:
             smallTokens = re.split("\[|\]", bigToken)
@@ -45,20 +46,19 @@ class DocumentClient:
                 else:
                     # Encode map access token as a string
                     foundMapAccessOrRoot = True
-                    if smallToken == "$":
-                        # Don't treat root as a map access
-                        continue
 
                 results.append(smallToken)
         return results
 
     def buildContextArray(self, tokens):
-        # Build context array
         ctxs = []
         for token in tokens:
             if type(token) == int:
                 # List access
                 ctx = cdt_ctx.cdt_ctx_list_index(token)
+            elif token == '$':
+                # Don't need context for root
+                continue
             else:
                 # Map access
                 ctx = cdt_ctx.cdt_ctx_map_key(token)
@@ -112,6 +112,9 @@ class DocumentClient:
         if type(lastToken) == int:
             # List access
             op = list_operations.list_get_by_index(binName, lastToken, aerospike.LIST_RETURN_VALUE, ctxs)
+        elif lastToken == "$":
+            # Get whole document
+            op = operations.read(binName)
         else:
             # Map access
             op = map_operations.map_get_by_key(binName, lastToken, aerospike.MAP_RETURN_VALUE, ctxs)
