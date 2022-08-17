@@ -82,13 +82,9 @@ class DocumentClient:
         :return: :py:obj:`Any`
         :raises: :exc:`KeyNotFound`
         """
-        # JSON path cannot be empty
-        if len(jsonPath) == 0:
-            return
 
-        # Must start with $
-        if jsonPath[0] != "$":
-            return
+        # Validate JSON path
+        parse(jsonPath)
 
         # Find the index to start processing advanced queries
         # Advanced queries are processed by the client, not server
