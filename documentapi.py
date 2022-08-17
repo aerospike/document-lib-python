@@ -15,37 +15,42 @@ class DocumentClient:
     def __init__(self, client: Client):
         self.client = client
 
-    # Split up JSON path into tokens of map and list accesses
+    # Assume JSON path is valid
+    # Split up JSON path into map and list access tokens
     def tokenize(self, jsonPath):
-        # First divide JSON path using map separator "."
+        # First divide JSON path into "big" tokens
+        # using map separator "."
         # Example:
         # "a[1].b.c[2]" -> ["a[1]", "b", "c[2]]"
-        tokens = jsonPath.split(".")
+        bigTokens = jsonPath.split(".")
 
-        # Remove $
-        tokens.pop(0)
-
-        # Then divide tokens further using list separator "[<index>]"
+        # Then divide each big token into "small" tokens
+        # using list separator "[<index>]"
         # Example:
         # "[a[1], b, c[2]]" -> ["a", 1, "b", "c", 2]
-        smallTokens = []
-        for token in tokens:
-            splitTokens = re.split("\[|\]", token)
-
-            # Remove empty string tokens
-            while "" in splitTokens:
-                splitTokens.remove("")
-
-            foundMapAccess = False
-            for smallToken in splitTokens:
-                if foundMapAccess:
-                    # Use integer to encode a list access
+        results = []
+        for bigToken in bigTokens:
+            smallTokens = re.split("\[|\]", bigToken)
+            # Remove empty small tokens
+            while "" in smallTokens:
+                smallTokens.remove("")
+    
+            # First small token is always a map access or $
+            # Every small token after it is a list access
+            foundMapAccessOrRoot = False
+            for smallToken in smallTokens:
+                if foundMapAccessOrRoot:
+                    # Encode list access token as an integer
                     smallToken = int(smallToken)
                 else:
-                    # First token is always a map access
-                    foundMapAccess = True
-                smallTokens.append(smallToken)
-        return smallTokens
+                    # Encode map access token as a string
+                    foundMapAccessOrRoot = True
+                    if smallToken == "$":
+                        # Don't treat root as a map access
+                        continue
+
+                results.append(smallToken)
+        return results
 
     def buildContextArray(self, tokens):
         # Build context array
