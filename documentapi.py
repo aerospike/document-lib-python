@@ -107,7 +107,7 @@ class DocumentClient:
             # Advanced queries found
             # Only get JSON document before that point
             # Save advanced query for processing later
-            advancedJsonPath = jsonPath[startIndex:]
+            advancedJsonPath = "$" + jsonPath[startIndex:]
             jsonPath = jsonPath[:startIndex]
 
         # Split up JSON path into tokens
