@@ -147,6 +147,21 @@ class TestCorrectGets(unittest.TestCase):
         results = self.documentClient.get(self.keyTuple, self.listBinName, "$[*]")
         self.assertEqual(results, self.listJsonObj)
 
+    def testGetWildstarKey(self):
+        results = self.documentClient.get(self.keyTuple, self.mapBinName, "$.*")
+        expected = [self.mapJsonObj["map"], self.mapJsonObj["list"]]
+        self.assertEqual(results, expected)
+
+    def testGetNestedWildstarIndex(self):
+        results = self.documentClient.get(self.keyTuple, self.listBinName, "$[1][*]")
+        expected = self.listJsonObj[1]
+        self.assertEqual(results, expected)
+
+    def testGetNestedWildstarKey(self):
+        results = self.documentClient.get(self.keyTuple, self.mapBinName, "$.map.*")
+        expected = list(self.mapJsonObj["map"].values())
+        self.assertEqual(results, expected)
+
 # Test incorrect paths
 
 # Reference a list as if it were a map
