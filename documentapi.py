@@ -125,29 +125,6 @@ class DocumentClient:
 
         # 2. Use JSONPath library on client side
 
-        '''
-        # Get bin containing JSON document
-        _, _, bins = self.client.select(key, [binName], readPolicy)
-        
-        # Check if bin exists
-        if binName not in bins:
-            raise KeyError(f"Bin with name {binName} not found")
-        
-        # Parse the document into Python object
-        document = bins[binName]
-        jsonObj = json.loads(document)
-
-        # Get matching objects
-        expression = parse(jsonPath)
-        results = [match.value for match in expression.find(jsonObj)]
-
-        # Either return as list of multiple results or a single result
-        if len(results) == 1:
-            return results[0]
-        else:
-            return results
-        '''
-
     def put(self, key: tuple, binName: str, jsonPath: str, obj: Any, writePolicy: dict = None):
         """
         Put an object into a JSON document using JSON path
