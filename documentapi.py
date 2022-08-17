@@ -54,11 +54,9 @@ class DocumentClient:
             if type(token) == int:
                 # List access
                 ctx = cdt_ctx.cdt_ctx_list_index(token)
-                print("List ctx")
             else:
                 # Map access
                 ctx = cdt_ctx.cdt_ctx_map_key(token)
-                print("Map ctx")
             ctxs.append(ctx)
         return ctxs
 
@@ -109,11 +107,9 @@ class DocumentClient:
         if type(lastToken) == int:
             # List access
             op = list_operations.list_get_by_index(binName, lastToken, aerospike.LIST_RETURN_VALUE, ctxs)
-            print("List operation")
         else:
             # Map access
             op = map_operations.map_get_by_key(binName, lastToken, aerospike.MAP_RETURN_VALUE, ctxs)
-            print("Map operation")
 
         _, _, bins = self.client.operate(key, [op])
         print(bins)
