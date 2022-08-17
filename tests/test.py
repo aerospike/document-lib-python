@@ -141,6 +141,12 @@ class TestCorrectGets(unittest.TestCase):
         results = self.documentClient.get(self.keyTuple, self.listBinName, "$[1][1][0]")
         self.assertEqual(results, self.listJsonObj[1][1][0])
 
+    # Wildstar tests
+
+    def testGetWildstarIndex(self):
+        results = self.documentClient.get(self.keyTuple, self.listBinName, "$[*]")
+        self.assertEqual(results, self.listJsonObj)
+
 # Test incorrect paths
 
 # Reference a list as if it were a map
