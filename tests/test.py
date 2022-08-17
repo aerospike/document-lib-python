@@ -24,13 +24,17 @@ import unittest
 # $.key1.key2[i][j]
 
 from unittest.mock import MagicMock
+import json
+import aerospike
 
+# Must add parent directory to system path
+# So we can import documentapi
 import sys
 import os
-sys.path.insert(0, os.path.abspath(".."))
-from documentapi import DocumentClient
+parentDirAbsPath = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
+sys.path.insert(0, parentDirAbsPath)
 
-import json
+from documentapi import DocumentClient
 
 class TestCorrectGets(unittest.TestCase):
     def setUp(self):
@@ -42,25 +46,34 @@ class TestCorrectGets(unittest.TestCase):
         self.listBinName = "listBinName"
         self.mapBinName = "mapBinName"
 
+        config = {
+            "hosts": [("127.0.0.1", 3000)]
+        }
+        self.client = aerospike.client(config).connect()
+
+        self.keyTuple = ('test', 'demo', 'key')
+        self.client.put(self.keyTuple, {self.listBinName: self.listJsonObj})
+        self.client.put(self.keyTuple, {self.mapBinName: self.mapJsonObj})
+
         # Mimic client behavior
         # Assume this client is connected to an Aerospike server
         # and the server has the JSON document encoded as nested maps and lists
-        client = MagicMock()
-        client.select.return_value = (
-            ('test', 'demo', None, bytearray(b';\xd4u\xbd\x0cs\xf2\x10\xb6~\xa87\x930\x0e\xea\xe5v(]')),
-            {'ttl': 2591990, 'gen': 1},
-            {
-                self.listBinName: self.listJsonObj,
-                self.mapBinName: self.mapJsonObj
-            }
-        )
+        # client = MagicMock()
+        # client.select.return_value = (
+        #     ('test', 'demo', None, bytearray(b';\xd4u\xbd\x0cs\xf2\x10\xb6~\xa87\x930\x0e\xea\xe5v(]')),
+        #     {'ttl': 2591990, 'gen': 1},
+        #     {
+        #         self.listBinName: self.listJsonObj,
+        #         self.mapBinName: self.mapJsonObj
+        #     }
+        # )
 
-        self.documentClient = DocumentClient(client)
-        self.keyTuple = ('test', 'demo', 'key')
+        self.documentClient = DocumentClient(self.client)
 
     def tearDown(self):
         self.mapJsonFile.close()
         self.listJsonFile.close()
+        self.client.close()
 
     def testGetRoot(self):
         results = self.documentClient.get(self.keyTuple, self.mapBinName, "$")
@@ -73,6 +86,7 @@ class TestCorrectGets(unittest.TestCase):
         self.assertEqual(results, self.mapJsonObj["map"])
 
     def testGetList(self):
+        print("testGetList")
         results = self.documentClient.get(self.keyTuple, self.listBinName, "$[0]")
         self.assertEquals(results, self.listJsonObj[0])
 
