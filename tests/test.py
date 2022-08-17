@@ -81,66 +81,65 @@ class TestCorrectGets(unittest.TestCase):
 
     # First order elements
     
-    def testGetMap(self):
+    def testGetKey(self):
         results = self.documentClient.get(self.keyTuple, self.mapBinName, "$.map")
         self.assertEqual(results, self.mapJsonObj["map"])
 
-    def testGetList(self):
-        print("testGetList")
+    def testGetIndex(self):
         results = self.documentClient.get(self.keyTuple, self.listBinName, "$[0]")
         self.assertEqual(results, self.listJsonObj[0])
 
     # Second order elements
 
-    def testGetTwoMaps(self):
+    def testGetTwoKeys(self):
         results = self.documentClient.get(self.keyTuple, self.mapBinName, "$.map.map")
         self.assertEqual(results, self.mapJsonObj["map"]["map"])
 
-    def testGetMapThenList(self):
-        results = self.documentClient.get(self.keyTuple, self.mapBinName, '$.map[0]')
-        self.assertEqual(results, self.mapJsonObj["map"][0])
+    def testGetKeyThenIndex(self):
+        results = self.documentClient.get(self.keyTuple, self.mapBinName, '$.list[0]')
+        self.assertEqual(results, self.mapJsonObj["list"][0])
 
-    def testGetListThenMap(self):
+    def testGetIndexThenKey(self):
         results = self.documentClient.get(self.keyTuple, self.listBinName, '$[0].map')
         self.assertEqual(results, self.listJsonObj[0]["map"])
 
-    def testGetTwoLists(self):
-        results = self.documentClient.get(self.keyTuple, self.listBinName, '$[0][0]')
-        self.assertEqual(results, self.listJsonObj[0][0])
+    def testGetTwoIndices(self):
+        results = self.documentClient.get(self.keyTuple, self.listBinName, '$[1][0]')
+        self.assertEqual(results, self.listJsonObj[1][0])
 
     # Third order elements
 
-    def testGetThreeMaps(self):
+    def testGetThreeKeys(self):
         results = self.documentClient.get(self.keyTuple, self.mapBinName, "$.map.map.int")
         self.assertEqual(results, self.mapJsonObj["map"]["map"]["int"])
 
-    def testGetTwoMapsThenList(self):
-        results = self.documentClient.get(self.keyTuple, self.mapBinName, "$.map.map[0]")
-        self.assertEqual(results, self.mapJsonObj["map"]["map"][0])
+    def testGetTwoKeysThenIndex(self):
+        results = self.documentClient.get(self.keyTuple, self.mapBinName, "$.map.list[0]")
+        self.assertEqual(results, self.mapJsonObj["map"]["list"][0])
 
-    def testGetMapListMap(self):
-        results = self.documentClient.get(self.keyTuple, self.mapBinName, "$.map[0].int")
-        self.assertEqual(results, self.mapJsonObj["map"][0]["int"])
+    def testGetKeyIndexKey(self):
+        results = self.documentClient.get(self.keyTuple, self.mapBinName, "$.list[0].int")
+        self.assertEqual(results, self.mapJsonObj["list"][0]["int"])
 
-    def testGetMapThenTwoLists(self):
-        results = self.documentClient.get(self.keyTuple, self.mapBinName, "$.map[0][0]")
-        self.assertEqual(results, self.mapJsonObj["map"][0][0])
+    def testGetKeyThenTwoIndices(self):
+        results = self.documentClient.get(self.keyTuple, self.mapBinName, "$.list[1][0]")
+        self.assertEqual(results, self.mapJsonObj["list"][1][0])
 
-    def testGetListThenTwoMaps(self):
+    def testGetIndexThenTwoKeys(self):
         results = self.documentClient.get(self.keyTuple, self.listBinName, "$[0].map.int")
         self.assertEqual(results, self.listJsonObj[0]["map"]["int"])
 
-    def testGetListMapList(self):
-        results = self.documentClient.get(self.keyTuple, self.listBinName, "$[0].map[0]")
-        self.assertEqual(results, self.listJsonObj[0]["map"][0])
+    def testGetIndexKeyIndex(self):
+        results = self.documentClient.get(self.keyTuple, self.listBinName, "$[0].list[0]")
+        self.assertEqual(results, self.listJsonObj[0]["list"][0])
 
-    def testGetTwoListsThenMap(self):
-        results = self.documentClient.get(self.keyTuple, self.listBinName, "$[0][0].int")
-        self.assertEqual(results, self.listJsonObj[0][0]["int"])
+    def testGetTwoIndicesThenKey(self):
+        results = self.documentClient.get(self.keyTuple, self.listBinName, "$[1][0].int")
+        self.assertEqual(results, self.listJsonObj[1][0]["int"])
 
-    def testGetThreeLists(self):
-        results = self.documentClient.get(self.keyTuple, self.listBinName, "$[0][0][0]")
-        self.assertEqual(results, self.listJsonObj[0][0][0])
+    def testGetThreeIndices(self):
+        results = self.documentClient.get(self.keyTuple, self.listBinName, "$[1][1][0]")
+        self.assertEqual(results, self.listJsonObj[1][1][0])
 
 # Test incorrect paths
 
