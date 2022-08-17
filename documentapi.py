@@ -6,6 +6,8 @@ from aerospike_helpers.operations import map_operations
 from aerospike_helpers.operations import list_operations
 from aerospike_helpers.operations import operations
 
+from jsonpath_ng import jsonpath, parse
+
 import re
 
 from typing import Any
@@ -93,11 +95,12 @@ class DocumentClient:
         clientSideOps = ["[*]", "..", "[?"]
         startIndex = min([jsonPath.find(op) for op in clientSideOps])
 
+        advancedJsonPath = None
         if startIndex > 0:
             # Advanced queries found
             # Only get JSON document before that point
             # Save advanced query for processing later
-            # advancedJsonPath = jsonPath[startIndex:]
+            advancedJsonPath = jsonPath[startIndex:]
             jsonPath = jsonPath[:startIndex]
             
         # Split up JSON path into tokens
@@ -121,9 +124,13 @@ class DocumentClient:
 
         _, _, bins = self.client.operate(key, [op])
         results = bins[binName]
-        return results
 
-        # 2. Use JSONPath library on client side
+        # Use JSONPath library to perform advanced queries on JSON document
+        if advancedJsonPath:
+            jsonPathExpr = parse(advancedJsonPath)
+            results = [match.value for match in jsonPathExpr.find(results)]
+
+        return results
 
     def put(self, key: tuple, binName: str, jsonPath: str, obj: Any, writePolicy: dict = None):
         """
