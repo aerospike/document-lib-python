@@ -117,7 +117,8 @@ class DocumentClient:
             op = map_operations.map_get_by_key(binName, lastToken, aerospike.MAP_RETURN_VALUE, ctxs)
 
         _, _, bins = self.client.operate(key, [op])
-        print(bins)
+        results = bins[binName]
+        return results
 
         # 2. Use JSONPath library on client side
 
