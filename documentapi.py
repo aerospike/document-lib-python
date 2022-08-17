@@ -90,10 +90,17 @@ class DocumentClient:
         if jsonPath[0] != "$":
             return
 
-        # Find the starting point of processing advanced queries
+        # Find the index to start processing advanced queries
         # Advanced queries are processed by the client, not server
-        clientSideOps = ["[*]", "..", "[?"]
-        startIndex = min([jsonPath.find(op) for op in clientSideOps])
+        advancedOps = ["[*]", "..", "[?"]
+        locations = [jsonPath.find(op) for op in advancedOps]
+
+        # Operation must exist in the JSON path
+        locations = list(filter(lambda index: index >= 1, locations))
+        if locations:
+            startIndex = min(locations)
+        else:
+            startIndex = 0
 
         advancedJsonPath = None
         if startIndex > 0:
@@ -102,7 +109,7 @@ class DocumentClient:
             # Save advanced query for processing later
             advancedJsonPath = jsonPath[startIndex:]
             jsonPath = jsonPath[:startIndex]
-            
+
         # Split up JSON path into tokens
         tokens = self.tokenize(jsonPath)
 
