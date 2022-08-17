@@ -139,6 +139,20 @@ class TestCorrectGets(unittest.TestCase):
         expected = list(self.mapJsonObj["map"].values())
         self.assertEqual(results, expected)
 
+    # Syntax errors
+
+    def testGetTrailingPeriod(self):
+        self.assertRaises(ValueError, self.documentClient.get, self.keyTuple, self.mapBinName, "$.")
+
+    def testGetTrailingOpeningBracket(self):
+        self.assertRaises(ValueError, self.documentClient.get, self.keyTuple, self.mapBinName, "$.list[")
+
+    def testGetEmptyBrackets(self):
+        self.assertRaises(ValueError, self.documentClient.get, self.keyTuple, self.mapBinName, "$.list[]")
+
+    def testGetUnmatchedClosingBracket(self):
+        self.assertRaises(ValueError, self.documentClient.get, self.keyTuple, self.mapBinName, "$.list]")
+
 # Test incorrect paths
 
 # Reference a list as if it were a map

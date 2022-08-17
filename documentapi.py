@@ -84,7 +84,10 @@ class DocumentClient:
         """
 
         # Validate JSON path
-        parse(jsonPath)
+        try:
+            parse(jsonPath)
+        except Exception:
+            raise ValueError("Invalid JSON path")
 
         # Find the index to start processing advanced queries
         # Advanced queries are processed by the client, not server
