@@ -88,13 +88,13 @@ class TestCorrectGets(unittest.TestCase):
     def testGetList(self):
         print("testGetList")
         results = self.documentClient.get(self.keyTuple, self.listBinName, "$[0]")
-        self.assertEquals(results, self.listJsonObj[0])
+        self.assertEqual(results, self.listJsonObj[0])
 
     # Second order elements
 
     def testGetTwoMaps(self):
         results = self.documentClient.get(self.keyTuple, self.mapBinName, "$.map.map")
-        self.assertEquals(results, self.mapJsonObj["map"]["map"])
+        self.assertEqual(results, self.mapJsonObj["map"]["map"])
 
     def testGetMapThenList(self):
         results = self.documentClient.get(self.keyTuple, self.mapBinName, '$.map[0]')
