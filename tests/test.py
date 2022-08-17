@@ -1,28 +1,5 @@
 import unittest
 
-# These JSONPaths should retrieve document content
-# First order elements
-# $
-# $.key1
-# $.key1[i]
-
-# Second order elements
-# $.key1.key2
-# $.key1.key2[i]
-# $.key1[i].key2
-# $.key1[i].key2[j]
-
-# Third order elements
-# $.key1.key2.key3
-# $.key1.key2.key3[i]
-# $.key1.key2[i].key3
-# $.key1.key2[i].key3[j]
-# $.key1[i].key2.key3
-# $.key1[i].key2.key3[j]
-# $.key1[i].key2[j].key3
-# $.key1[i].key2[j].key3[k]
-# $.key1.key2[i][j]
-
 from unittest.mock import MagicMock
 import json
 import aerospike
