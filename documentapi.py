@@ -1,7 +1,11 @@
+import aerospike
 from aerospike import Client
-from jsonpath_ng import parse
 
-import json
+from aerospike_helpers import cdt_ctx
+from aerospike_helpers.operations import map_operations
+from aerospike_helpers.operations import list_operations
+
+import re
 
 from typing import Any
 
@@ -10,6 +14,53 @@ class DocumentClient:
 
     def __init__(self, client: Client):
         self.client = client
+
+    # Split up JSON path into tokens of map and list accesses
+    def tokenize(self, jsonPath):
+        # First divide JSON path using map separator "."
+        # Example:
+        # "a[1].b.c[2]" -> ["a[1]", "b", "c[2]]"
+        tokens = jsonPath.split(".")
+
+        # Remove $
+        tokens.pop(0)
+
+        # Then divide tokens further using list separator "[<index>]"
+        # Example:
+        # "[a[1], b, c[2]]" -> ["a", 1, "b", "c", 2]
+        smallTokens = []
+        for token in tokens:
+            splitTokens = re.split("\[|\]", token)
+
+            # Remove empty string tokens
+            while "" in splitTokens:
+                splitTokens.remove("")
+
+            foundMapAccess = False
+            for smallToken in splitTokens:
+                if foundMapAccess:
+                    # Use integer to encode a list access
+                    smallToken = int(smallToken)
+                else:
+                    # First token is always a map access
+                    foundMapAccess = True
+                smallTokens.append(smallToken)
+        return smallTokens
+
+    def buildContextArray(self, tokens):
+        # Build context array
+        ctxs = []
+        for token in tokens:
+            if type(token) == int:
+                # List access
+                ctx = cdt_ctx.cdt_ctx_list_index(token)
+                print("List ctx")
+            else:
+                # Map access
+                ctx = cdt_ctx.cdt_ctx_map_key(token)
+                print("Map ctx")
+            ctxs.append(ctx)
+        return ctxs
 
     def get(self, key: tuple, binName: str, jsonPath: str, readPolicy: dict = None) -> Any:
         """
@@ -25,8 +76,51 @@ class DocumentClient:
 
         :return: :py:obj:`Any`
         :raises: :exc:`KeyNotFound`
-
         """
+        # JSON path cannot be empty
+        if len(jsonPath) == 0:
+            return
+
+        # Must start with $
+        if jsonPath[0] != "$":
+            return
+
+        # Find the starting point of processing advanced queries
+        # Advanced queries are processed by the client, not server
+        clientSideOps = ["[*]", "..", "[?"]
+        startIndex = min([jsonPath.find(op) for op in clientSideOps])
+
+        if startIndex > 0:
+            # Advanced queries found
+            # Only get JSON document before that point
+            # Save advanced query for processing later
+            # advancedJsonPath = jsonPath[startIndex:]
+            jsonPath = jsonPath[:startIndex]
+            
+        # Split up JSON path into tokens
+        tokens = self.tokenize(jsonPath)
+
+        # Then use tokens to build context arrays
+        # But only before last access token
+        lastToken = tokens.pop()
+        ctxs = self.buildContextArray(tokens)
+
+        # Get operation for last access token
+        if type(lastToken) == int:
+            # List access
+            op = list_operations.list_get_by_index(binName, lastToken, aerospike.LIST_RETURN_VALUE, ctxs)
+            print("List operation")
+        else:
+            # Map access
+            op = map_operations.map_get_by_key(binName, lastToken, aerospike.MAP_RETURN_VALUE, ctxs)
+            print("Map operation")
+
+        _, _, bins = self.client.operate(key, [op])
+        print(bins)
+
+        # 2. Use JSONPath library on client side
+
+        '''
         # Get bin containing JSON document
         _, _, bins = self.client.select(key, [binName], readPolicy)
         
@@ -47,6 +141,7 @@ class DocumentClient:
             return results[0]
         else:
             return results
+        '''
 
     def put(self, key: tuple, binName: str, jsonPath: str, obj: Any, writePolicy: dict = None):
         """
