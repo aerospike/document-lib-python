@@ -160,18 +160,3 @@ class DocumentClient:
 
         """
         pass
-
-if __name__ == "__main__":
-    config = {
-        'hosts': [("127.0.0.1", 3000)]
-    }
-    client = aerospike.client(config).connect()
-    documentClient = DocumentClient(client)
-
-    keyTuple = ("test", "demo", "key")
-
-    jsonDocument = '{"array": [1, 2]}'
-    client.put(keyTuple, {"bin": jsonDocument})
-    documentClient.get(keyTuple, "bin", "$.array")
-
-    client.truncate("test", None, 0)
