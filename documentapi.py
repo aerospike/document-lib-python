@@ -84,6 +84,12 @@ class DocumentClient:
         """
 
         # Validate JSON path
+
+        # All JSON queries must start at document root
+        if jsonPath and jsonPath.startswith("$") == False:
+            raise ValueError("Invalid JSON path")
+
+        # Check for syntax errors
         try:
             parse(jsonPath)
         except Exception:
