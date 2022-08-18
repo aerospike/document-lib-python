@@ -103,17 +103,7 @@ class DocumentClient:
             results = obj
         
         # Send updated document to server
-
-        # Create put operation
-        # TODO: list and map operations must be configured properly
-        if type(lastToken) == int:
-            op = list_operations.list_set(binName, lastToken, results, ctx=ctxs)
-        elif lastToken == "$":
-            # Get whole document
-            op = operations.write(binName, results)
-        else:
-            op = map_operations.map_put(binName, lastToken, results, ctx=ctxs)
-
+        op = self.createPutOperation(binName, ctxs, lastToken, obj)
         self.client.operate(key, [op], writePolicy)
 
     def append(self, key: tuple, binName: str, jsonPath: str, obj, writePolicy: dict = None):
@@ -240,6 +230,20 @@ class DocumentClient:
         else:
             op = map_operations.map_get_by_key(binName, lastToken, aerospike.MAP_RETURN_VALUE, ctxs)
         
+        return op
+
+    @staticmethod
+    def createPutOperation(binName, ctxs, lastToken, obj):
+        # Create put operation
+        # TODO: list and map operations must be configured properly
+        if type(lastToken) == int:
+            op = list_operations.list_set(binName, lastToken, obj, ctx=ctxs)
+        elif lastToken == "$":
+            # Get whole document
+            op = operations.write(binName, obj)
+        else:
+            op = map_operations.map_put(binName, lastToken, obj, ctx=ctxs)
+
         return op
 
     @staticmethod
