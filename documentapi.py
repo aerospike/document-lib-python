@@ -116,7 +116,40 @@ class DocumentClient:
         :param dict writePolicy: the write policy for operate() operation
         
         """
-        pass
+        self.validateJsonPath(jsonPath)
+ 
+        jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
+
+        # Split up JSON path into tokens
+        tokens = self.tokenize(jsonPath)
+
+        # Then use tokens to build context arrays
+        # except the last token
+        lastToken = tokens.pop()
+        ctxs = self.buildContextArray(tokens)
+
+        op = self.createGetOperation(binName, ctxs, lastToken)
+
+        # Remove keys from read policy that aren't in operate policy
+        writePolicy = self.convertToOperatePolicy(writePolicy)
+
+        # Fetch document
+        _, _, bins = self.client.operate(key, [op], writePolicy)
+        fetchedDocument = bins[binName]
+
+        # Use JSONPath library to perform advanced ops on fetched document
+        if advancedJsonPath:
+            # Append object to all matching lists
+            # TODO: add error handling
+            jsonPathExpr = parse(advancedJsonPath)
+            matches = jsonPathExpr.find(fetchedDocument)
+            for match in matches:
+                match.value.append(obj)
+                match.full_path.update(match.value)
+
+            # Send new document to server
+            op = self.createPutOperation(binName, ctxs, lastToken, obj)
+            self.client.operate(key, [op], writePolicy)
 
     def delete(self, key: tuple, binName: str, jsonPath: str):
         """
