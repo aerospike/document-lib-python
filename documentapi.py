@@ -98,7 +98,7 @@ class DocumentClient:
         
         return jsonPath, advancedJsonPath
 
-    def commonHelper(self, jsonPath):
+    def getSmallestJSONDocument(self, key, binName, jsonPath, readPolicy):
         self.validateJsonPath(jsonPath)
 
         # Divide JSON path into two parts
@@ -114,7 +114,22 @@ class DocumentClient:
         lastToken = tokens.pop()
         ctxs = self.buildContextArray(tokens)
 
-        return ctxs, lastToken, advancedJsonPath
+        # Create get operation using last token
+        if type(lastToken) == int:
+            op = list_operations.list_get_by_index(binName, lastToken, aerospike.LIST_RETURN_VALUE, ctxs)
+        elif lastToken == "$":
+            # Get whole document
+            op = operations.read(binName)
+        else:
+            op = map_operations.map_get_by_key(binName, lastToken, aerospike.MAP_RETURN_VALUE, ctxs)
+
+        # Remove keys that aren't in operate policy
+        if readPolicy and "deserialize" in readPolicy:
+            readPolicy.pop("deserialize")
+        
+        _, _, bins = self.client.operate(key, [op], readPolicy)
+        fetchedDoc = bins[binName]
+        return fetchedDoc, advancedJsonPath
 
     def get(self, key: tuple, binName: str, jsonPath: str, readPolicy: dict = None) -> Any:
         """
@@ -131,23 +146,7 @@ class DocumentClient:
         :return: :py:obj:`Any`
         :raises: :exc:`KeyNotFound`
         """
-        ctxs, lastToken, advancedJsonPath = self.commonHelper(jsonPath)
-
-        # Create get operation using last token
-        if type(lastToken) == int:
-            op = list_operations.list_get_by_index(binName, lastToken, aerospike.LIST_RETURN_VALUE, ctxs)
-        elif lastToken == "$":
-            # Get whole document
-            op = operations.read(binName)
-        else:
-            op = map_operations.map_get_by_key(binName, lastToken, aerospike.MAP_RETURN_VALUE, ctxs)
-
-        # Remove keys from read policy that aren't in operate policy
-        if readPolicy and "deserialize" in readPolicy:
-            readPolicy.pop("deserialize")
-        
-        _, _, bins = self.client.operate(key, [op], readPolicy)
-        results = bins[binName]
+        results, advancedJsonPath = self.getSmallestJSONDocument(key, binName, jsonPath, readPolicy)
 
         # Use JSONPath library to perform advanced ops on fetched document
         if advancedJsonPath:
