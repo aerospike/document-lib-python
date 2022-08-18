@@ -54,14 +54,14 @@ class DocumentClient:
 
         # Fetch document
         _, _, bins = self.client.operate(key, [op], readPolicy)
-        results = bins[binName]
+        fetchedDocument = bins[binName]
 
         # Use JSONPath library to perform advanced ops on fetched document
         if advancedJsonPath:
             jsonPathExpr = parse(advancedJsonPath)
-            results = [match.value for match in jsonPathExpr.find(results)]
+            fetchedDocument = [match.value for match in jsonPathExpr.find(fetchedDocument)]
 
-        return results
+        return fetchedDocument
 
     def put(self, key: tuple, binName: str, jsonPath: str, obj: Any, writePolicy: dict = None):
         """
