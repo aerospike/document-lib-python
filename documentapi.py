@@ -47,19 +47,12 @@ class DocumentClient:
         lastToken = tokens.pop()
         ctxs = self.buildContextArray(tokens)
 
-        # Create get operation using last token
-        if type(lastToken) == int:
-            op = list_operations.list_get_by_index(binName, lastToken, aerospike.LIST_RETURN_VALUE, ctxs)
-        elif lastToken == "$":
-            # Get whole document
-            op = operations.read(binName)
-        else:
-            op = map_operations.map_get_by_key(binName, lastToken, aerospike.MAP_RETURN_VALUE, ctxs)
+        op = self.createGetOperation(binName, ctxs, lastToken)
 
         # Remove keys from read policy that aren't in operate policy
-        if readPolicy and "deserialize" in readPolicy:
-            readPolicy.pop("deserialize")
-        
+        readPolicy = self.convertToOperatePolicy(readPolicy)
+
+        # Fetch document
         _, _, bins = self.client.operate(key, [op], readPolicy)
         results = bins[binName]
 
@@ -92,26 +85,13 @@ class DocumentClient:
         lastToken = tokens.pop()
         ctxs = self.buildContextArray(tokens)
 
-        # Create get operation using last token
-        if type(lastToken) == int:
-            op = list_operations.list_get_by_index(binName, lastToken, aerospike.LIST_RETURN_VALUE, ctxs)
-        elif lastToken == "$":
-            # Get whole document
-            op = operations.read(binName)
-        else:
-            op = map_operations.map_get_by_key(binName, lastToken, aerospike.MAP_RETURN_VALUE, ctxs)
+        op = self.createGetOperation(binName, ctxs, lastToken)
 
         # Remove keys from write policy that aren't in operate policy
-        operatePolicy = None
-        if writePolicy:
-            operatePolicy = writePolicy.copy()
-            uniqueKeys = ["key", "exists", "gen", "commit_level", "durable_delete"]
-            for key in uniqueKeys:
-                if key in operatePolicy:
-                    operatePolicy.pop(key)
-        
+        writePolicy = self.convertToOperatePolicy(writePolicy)
+
         # Fetch smallest document
-        _, _, bins = self.client.operate(key, [op], operatePolicy)
+        _, _, bins = self.client.operate(key, [op], writePolicy)
         results = bins[binName]
 
         # Use JSONPath library to replace matches in fetched document
@@ -125,16 +105,16 @@ class DocumentClient:
         # Send updated document to server
 
         # Create put operation
+        # TODO: list and map operations must be configured properly
         if type(lastToken) == int:
             op = list_operations.list_set(binName, lastToken, results, ctx=ctxs)
         elif lastToken == "$":
             # Get whole document
-            # TODO: add write policy
             op = operations.write(binName, results)
         else:
             op = map_operations.map_put(binName, lastToken, results, ctx=ctxs)
 
-        self.client.operate(key, [op], operatePolicy)
+        self.client.operate(key, [op], writePolicy)
 
     def append(self, key: tuple, binName: str, jsonPath: str, obj, writePolicy: dict = None):
         """
@@ -248,3 +228,32 @@ class DocumentClient:
                 ctx = cdt_ctx.cdt_ctx_map_key(token)
             ctxs.append(ctx)
         return ctxs
+
+    @staticmethod
+    def createGetOperation(binName, ctxs, lastToken):
+        # Create get operation using last token
+        if type(lastToken) == int:
+            op = list_operations.list_get_by_index(binName, lastToken, aerospike.LIST_RETURN_VALUE, ctxs)
+        elif lastToken == "$":
+            # Get whole document
+            op = operations.read(binName)
+        else:
+            op = map_operations.map_get_by_key(binName, lastToken, aerospike.MAP_RETURN_VALUE, ctxs)
+        
+        return op
+
+    @staticmethod
+    def convertToOperatePolicy(policy):
+        operatePolicy = None
+        if policy == None:
+            return None
+        
+        # Filter out non-operate policies
+        operatePolicy = policy.copy()
+        operateKeys = [
+            "max_retries", "sleep_between_retries", "socket_timeout", "total_timeout", "compress", "key", "gen", "replica",
+            "commit_level", "read_mode_ap", "read_mode_sc", "exists", "durable_delete", "expressions"
+        ]
+        for key in operatePolicy:
+            if key not in operateKeys:
+                operatePolicy.pop(key)
