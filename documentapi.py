@@ -92,18 +92,18 @@ class DocumentClient:
 
         # Fetch smallest document
         _, _, bins = self.client.operate(key, [op], writePolicy)
-        results = bins[binName]
+        fetchedDocument = bins[binName]
 
         # Use JSONPath library to replace matches in fetched document
         if advancedJsonPath:
             jsonPathExpr = parse(advancedJsonPath)
-            jsonPathExpr.update(results, obj)
+            jsonPathExpr.update(fetchedDocument, obj)
         else:
             # Just replace the whole fetched document
-            results = obj
+            fetchedDocument = obj
         
         # Send updated document to server
-        op = self.createPutOperation(binName, ctxs, lastToken, obj)
+        op = self.createPutOperation(binName, ctxs, lastToken, fetchedDocument)
         self.client.operate(key, [op], writePolicy)
 
     def append(self, key: tuple, binName: str, jsonPath: str, obj, writePolicy: dict = None):
