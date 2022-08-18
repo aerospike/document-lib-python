@@ -179,11 +179,21 @@ class TestCorrectGets(unittest.TestCase):
 # Reference a map item that isn't there
 
 class TestCorrectPuts(unittest.TestCase):
-    def testPutIntoMap(self):
-        pass
+    def setUp(self):
+        client.put(keyTuple, {mapBinName: mapJsonObj, listBinName: listJsonObj})
 
-    def testPutIntoList(self):
-        pass
+    def tearDown(self):
+        client.remove(keyTuple)
+
+    def testPutIntoMap(self):
+        documentClient.put(keyTuple, mapBinName, "$.map.item", "hi")
+        results = documentClient.get(keyTuple, mapBinName, "$.map.item")
+        self.assertEqual(results, "hi")
+
+    def testPutExistingListItem(self):
+        documentClient.put(keyTuple, mapBinName, "$.list[0]", 2)
+        results = documentClient.get(keyTuple, mapBinName, "$.list[0]")
+        self.assertEqual(results, 2)
 
 class TestIncorrectPuts(unittest.TestCase):
     def testPutIntoMissingMap(self):
