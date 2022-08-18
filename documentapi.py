@@ -147,9 +147,9 @@ class DocumentClient:
                 match.value.append(obj)
                 match.full_path.update(match.value)
 
-            # Send new document to server
-            op = self.createPutOperation(binName, ctxs, lastToken, obj)
-            self.client.operate(key, [op], writePolicy)
+        # Send new document to server
+        op = self.createPutOperation(binName, ctxs, lastToken, obj)
+        self.client.operate(key, [op], writePolicy)
 
     def delete(self, key: tuple, binName: str, jsonPath: str):
         """
