@@ -19,90 +19,6 @@ class DocumentClient:
     def __init__(self, client: Client):
         self.client = client
 
-    # Split up a valid JSON path into map and list access tokens
-    def tokenize(self, jsonPath):
-        # First divide JSON path into "big" tokens
-        # using map separator "."
-        # Example:
-        # "$[1].b.c[2]" -> ["$[1]", "b", "c[2]]"
-        bigTokens = jsonPath.split(".")
-
-        # Then divide each big token into "small" tokens
-        # using list separator "[<index>]"
-        # Example:
-        # [$[1], b, c[2]] -> ["$", 1, "b", "c", 2]
-        results = []
-        for bigToken in bigTokens:
-            smallTokens = re.split("\[|\]", bigToken)
-            # Remove empty small tokens
-            while "" in smallTokens:
-                smallTokens.remove("")
-    
-            # First small token is always a map access or $
-            # Every small token after it is a list access
-            foundMapAccessOrRoot = False
-            for smallToken in smallTokens:
-                if foundMapAccessOrRoot:
-                    # Encode list access token as an integer
-                    smallToken = int(smallToken)
-                else:
-                    # Encode map access token as a string
-                    foundMapAccessOrRoot = True
-
-                results.append(smallToken)
-        return results
-
-    def buildContextArray(self, tokens):
-        ctxs = []
-        for token in tokens:
-            if type(token) == int:
-                # List access
-                ctx = cdt_ctx.cdt_ctx_list_index(token)
-            elif token == '$':
-                # Don't need context for root
-                continue
-            else:
-                # Map access
-                ctx = cdt_ctx.cdt_ctx_map_key(token)
-            ctxs.append(ctx)
-        return ctxs
-
-    def validateJsonPath(self, jsonPath):
-        # JSON path must start at document root
-        if jsonPath and jsonPath.startswith("$") == False:
-            raise ValueError("Invalid JSON path")
-
-        # Check for syntax errors
-        try:
-            parse(jsonPath)
-        except Exception:
-            raise ValueError("Invalid JSON path")
-
-    # Divide JSON path into two parts
-    # The first part does not have advanced operations
-    # The second part starts with the first advanced operation in the path
-    def divideJsonPath(self, jsonPath):
-        # Get substring in path beginning with the first advanced operation
-        advancedOps = ["[*]", "..", "[?"]
-        # Look for operations in path
-        startIndices = [jsonPath.find(op) for op in advancedOps]
-        # Filter out ones that aren't found
-        startIndices = list(filter(lambda index: index >= 1, startIndices))
-        if startIndices:
-            startIndex = min(startIndices)
-        else:
-            # No advanced operations found
-            startIndex = -1
-
-        advancedJsonPath = None
-        if startIndex > 0:
-            # Treat fetched JSON document as root document
-            advancedJsonPath = "$" + jsonPath[startIndex:]
-            jsonPath = jsonPath[:startIndex]
-        
-        return jsonPath, advancedJsonPath
-
-
     def get(self, key: tuple, binName: str, jsonPath: str, readPolicy: dict = None) -> Any:
         """
         Get object(s) from a JSON document using JSON path.
@@ -213,6 +129,7 @@ class DocumentClient:
             op = list_operations.list_set(binName, lastToken, results, ctx=ctxs)
         elif lastToken == "$":
             # Get whole document
+            # TODO: add write policy
             op = operations.write(binName, results)
         else:
             op = map_operations.map_put(binName, lastToken, results, ctx=ctxs)
@@ -242,3 +159,92 @@ class DocumentClient:
 
         """
         pass
+
+    # Helper functions
+
+    # Split up a valid JSON path into map and list access tokens
+    @staticmethod
+    def tokenize(jsonPath):
+        # First divide JSON path into "big" tokens
+        # using map separator "."
+        # Example:
+        # "$[1].b.c[2]" -> ["$[1]", "b", "c[2]]"
+        bigTokens = jsonPath.split(".")
+
+        # Then divide each big token into "small" tokens
+        # using list separator "[<index>]"
+        # Example:
+        # [$[1], b, c[2]] -> ["$", 1, "b", "c", 2]
+        results = []
+        for bigToken in bigTokens:
+            smallTokens = re.split("\[|\]", bigToken)
+            # Remove empty small tokens
+            while "" in smallTokens:
+                smallTokens.remove("")
+    
+            # First small token is always a map access or $
+            # Every small token after it is a list access
+            foundMapAccessOrRoot = False
+            for smallToken in smallTokens:
+                if foundMapAccessOrRoot:
+                    # Encode list access token as an integer
+                    smallToken = int(smallToken)
+                else:
+                    # Encode map access token as a string
+                    foundMapAccessOrRoot = True
+
+                results.append(smallToken)
+        return results
+
+    @staticmethod
+    def buildContextArray(tokens):
+        ctxs = []
+        for token in tokens:
+            if type(token) == int:
+                # List access
+                ctx = cdt_ctx.cdt_ctx_list_index(token)
+            elif token == '$':
+                # Don't need context for root
+                continue
+            else:
+                # Map access
+                ctx = cdt_ctx.cdt_ctx_map_key(token)
+            ctxs.append(ctx)
+        return ctxs
+
+    @staticmethod
+    def validateJsonPath(jsonPath):
+        # JSON path must start at document root
+        if jsonPath and jsonPath.startswith("$") == False:
+            raise ValueError("Invalid JSON path")
+
+        # Check for syntax errors
+        try:
+            parse(jsonPath)
+        except Exception:
+            raise ValueError("Invalid JSON path")
+
+    # Divide JSON path into two parts
+    # The first part does not have advanced operations
+    # The second part starts with the first advanced operation in the path
+    @staticmethod
+    def divideJsonPath(jsonPath):
+        # Get substring in path beginning with the first advanced operation
+        advancedOps = ["[*]", "..", "[?"]
+        # Look for operations in path
+        startIndices = [jsonPath.find(op) for op in advancedOps]
+        # Filter out ones that aren't found
+        startIndices = list(filter(lambda index: index >= 1, startIndices))
+        if startIndices:
+            startIndex = min(startIndices)
+        else:
+            # No advanced operations found
+            startIndex = -1
+
+        advancedJsonPath = None
+        if startIndex > 0:
+            # Treat fetched JSON document as root document
+            advancedJsonPath = "$" + jsonPath[startIndex:]
+            jsonPath = jsonPath[:startIndex]
+        
+        return jsonPath, advancedJsonPath
