@@ -162,6 +162,43 @@ class DocumentClient:
 
     # Helper functions
 
+    @staticmethod
+    def validateJsonPath(jsonPath):
+        # JSON path must start at document root
+        if jsonPath and jsonPath.startswith("$") == False:
+            raise ValueError("Invalid JSON path")
+
+        # Check for syntax errors
+        try:
+            parse(jsonPath)
+        except Exception:
+            raise ValueError("Invalid JSON path")
+
+    # Divide JSON path into two parts
+    # The first part does not have advanced operations
+    # The second part starts with the first advanced operation in the path
+    @staticmethod
+    def divideJsonPath(jsonPath):
+        # Get substring in path beginning with the first advanced operation
+        advancedOps = ["[*]", "..", "[?"]
+        # Look for operations in path
+        startIndices = [jsonPath.find(op) for op in advancedOps]
+        # Filter out ones that aren't found
+        startIndices = list(filter(lambda index: index >= 1, startIndices))
+        if startIndices:
+            startIndex = min(startIndices)
+        else:
+            # No advanced operations found
+            startIndex = -1
+
+        advancedJsonPath = None
+        if startIndex > 0:
+            # Treat fetched JSON document as root document
+            advancedJsonPath = "$" + jsonPath[startIndex:]
+            jsonPath = jsonPath[:startIndex]
+        
+        return jsonPath, advancedJsonPath
+
     # Split up a valid JSON path into map and list access tokens
     @staticmethod
     def tokenize(jsonPath):
@@ -211,40 +248,3 @@ class DocumentClient:
                 ctx = cdt_ctx.cdt_ctx_map_key(token)
             ctxs.append(ctx)
         return ctxs
-
-    @staticmethod
-    def validateJsonPath(jsonPath):
-        # JSON path must start at document root
-        if jsonPath and jsonPath.startswith("$") == False:
-            raise ValueError("Invalid JSON path")
-
-        # Check for syntax errors
-        try:
-            parse(jsonPath)
-        except Exception:
-            raise ValueError("Invalid JSON path")
-
-    # Divide JSON path into two parts
-    # The first part does not have advanced operations
-    # The second part starts with the first advanced operation in the path
-    @staticmethod
-    def divideJsonPath(jsonPath):
-        # Get substring in path beginning with the first advanced operation
-        advancedOps = ["[*]", "..", "[?"]
-        # Look for operations in path
-        startIndices = [jsonPath.find(op) for op in advancedOps]
-        # Filter out ones that aren't found
-        startIndices = list(filter(lambda index: index >= 1, startIndices))
-        if startIndices:
-            startIndex = min(startIndices)
-        else:
-            # No advanced operations found
-            startIndex = -1
-
-        advancedJsonPath = None
-        if startIndex > 0:
-            # Treat fetched JSON document as root document
-            advancedJsonPath = "$" + jsonPath[startIndex:]
-            jsonPath = jsonPath[:startIndex]
-        
-        return jsonPath, advancedJsonPath
