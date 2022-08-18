@@ -77,6 +77,9 @@ class DocumentClient:
         except Exception:
             raise ValueError("Invalid JSON path")
 
+    # Divide JSON path into two parts
+    # The first part does not have advanced operations
+    # The second part starts with the first advanced operation in the path
     def divideJsonPath(self, jsonPath):
         # Get substring in path beginning with the first advanced operation
         advancedOps = ["[*]", "..", "[?"]
@@ -98,23 +101,6 @@ class DocumentClient:
         
         return jsonPath, advancedJsonPath
 
-    def commonHelper(self, jsonPath):
-        self.validateJsonPath(jsonPath)
-
-        # Divide JSON path into two parts
-        # The first part does not have advanced operations
-        # The second part starts with the first advanced operation in the path
-        jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
-
-        # Split up JSON path into tokens
-        tokens = self.tokenize(jsonPath)
-
-        # Then use tokens to build context arrays
-        # except the last token
-        lastToken = tokens.pop()
-        ctxs = self.buildContextArray(tokens)
-
-        return ctxs, lastToken, advancedJsonPath
 
     def get(self, key: tuple, binName: str, jsonPath: str, readPolicy: dict = None) -> Any:
         """
@@ -131,7 +117,18 @@ class DocumentClient:
         :return: :py:obj:`Any`
         :raises: :exc:`KeyNotFound`
         """
-        ctxs, lastToken, advancedJsonPath = self.commonHelper(jsonPath)
+        
+        self.validateJsonPath(jsonPath)
+ 
+        jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
+
+        # Split up JSON path into tokens
+        tokens = self.tokenize(jsonPath)
+
+        # Then use tokens to build context arrays
+        # except the last token
+        lastToken = tokens.pop()
+        ctxs = self.buildContextArray(tokens)
 
         # Create get operation using last token
         if type(lastToken) == int:
