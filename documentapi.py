@@ -282,6 +282,11 @@ class DocumentClient:
                 # Map access
                 ctx = cdt_ctx.cdt_ctx_map_key(token)
             ctxs.append(ctx)
+
+        if not ctxs:
+            # Contexts must be populated or None
+            return None
+
         return ctxs
 
     @staticmethod
