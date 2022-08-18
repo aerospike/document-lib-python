@@ -146,9 +146,12 @@ class DocumentClient:
             for match in matches:
                 match.value.append(obj)
                 match.full_path.update(match.value)
+        else:
+            # List is the whole document
+            fetchedDocument.append(obj)
 
         # Send new document to server
-        op = self.createPutOperation(binName, ctxs, lastToken, obj)
+        op = self.createPutOperation(binName, ctxs, lastToken, fetchedDocument)
         self.client.operate(key, [op], writePolicy)
 
     def delete(self, key: tuple, binName: str, jsonPath: str):
