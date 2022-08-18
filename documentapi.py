@@ -1,3 +1,4 @@
+from enum import unique
 import aerospike
 from aerospike import Client
 
@@ -163,7 +164,60 @@ class DocumentClient:
         :param dict writePolicy: the write policy for put() operation
         
         """
-        pass
+        self.validateJsonPath(jsonPath)
+ 
+        jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
+
+        # Split up JSON path into tokens
+        tokens = self.tokenize(jsonPath)
+
+        # Then use tokens to build context arrays
+        # except the last token
+        lastToken = tokens.pop()
+        ctxs = self.buildContextArray(tokens)
+
+        # Create get operation using last token
+        if type(lastToken) == int:
+            op = list_operations.list_get_by_index(binName, lastToken, aerospike.LIST_RETURN_VALUE, ctxs)
+        elif lastToken == "$":
+            # Get whole document
+            op = operations.read(binName)
+        else:
+            op = map_operations.map_get_by_key(binName, lastToken, aerospike.MAP_RETURN_VALUE, ctxs)
+
+        # Remove keys from write policy that aren't in operate policy
+        operatePolicy = None
+        if writePolicy:
+            operatePolicy = writePolicy.copy()
+            uniqueKeys = ["key", "exists", "gen", "commit_level", "durable_delete"]
+            for key in uniqueKeys:
+                if key in operatePolicy:
+                    operatePolicy.pop(key)
+        
+        # Fetch smallest document
+        _, _, bins = self.client.operate(key, [op], operatePolicy)
+        results = bins[binName]
+
+        # Use JSONPath library to replace matches in fetched document
+        if advancedJsonPath:
+            jsonPathExpr = parse(advancedJsonPath)
+            jsonPathExpr.update(results, obj)
+        else:
+            # Just replace the whole fetched document
+            results = obj
+        
+        # Send updated document to server
+
+        # Create put operation
+        if type(lastToken) == int:
+            op = list_operations.list_set(binName, lastToken, results, ctx=ctxs)
+        elif lastToken == "$":
+            # Get whole document
+            op = operations.write(binName, results)
+        else:
+            op = map_operations.map_put(binName, lastToken, results, ctx=ctxs)
+
+        self.client.operate(key, [op], operatePolicy)
 
     def append(self, key: tuple, binName: str, jsonPath: str, obj, writePolicy: dict = None):
         """
