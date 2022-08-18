@@ -176,33 +176,7 @@ class TestCorrectGets(unittest.TestCase):
 # Reference a list item that is not there (out of bounds)
 # Reference a map that isn't there
 # Reference a list that isn't there
-
-class TestIncorrectGets(unittest.TestCase):
-
-    def testGetListAsMap(self):
-        pass
-
-    def testGetMapAsList(self):
-        pass
-
-    def testGetPrimitiveAsMap(self):
-        pass
-
-    def testGetPrimitiveAsList(self):
-        pass
-
-    def testGetMissingMap(self):
-        pass
-
-    def testGetMissingList(self):
-        pass
-
-    def testGetMissingListItem(self):
-        pass
-    
-    # TODO: add?
-    def testGetMissingMapItem(self):
-        pass
+# Reference a map item that isn't there
 
 class TestCorrectPuts(unittest.TestCase):
     def testPutIntoMap(self):
