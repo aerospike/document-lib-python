@@ -66,24 +66,7 @@ class DocumentClient:
             ctxs.append(ctx)
         return ctxs
 
-    def get(self, key: tuple, binName: str, jsonPath: str, readPolicy: dict = None) -> Any:
-        """
-        Get object(s) from a JSON document using JSON path.
-
-        If multiple objects are matched, they will be returned as a :class:`list`.
-        Otherwise, the object itself is returned.
-
-        :param tuple key: the key of the record
-        :param str binName: the name of the bin containing the JSON document
-        :param str jsonPath: JSON path to retrieve the object
-        :param dict readPolicy: the read policy for get() operation
-
-        :return: :py:obj:`Any`
-        :raises: :exc:`KeyNotFound`
-        """
-
-        # Validate JSON path
-
+    def validateJsonPath(self, jsonPath):
         # JSON path must start at document root
         if jsonPath and jsonPath.startswith("$") == False:
             raise ValueError("Invalid JSON path")
@@ -94,10 +77,10 @@ class DocumentClient:
         except Exception:
             raise ValueError("Invalid JSON path")
 
-        # Divide JSON path into two parts
-        # The first part does not have advanced operations
-        # The second part starts with the first advanced operation in the path
-
+    # Divide JSON path into two parts
+    # The first part does not have advanced operations
+    # The second part starts with the first advanced operation in the path
+    def divideJsonPath(self, jsonPath):
         # Get substring in path beginning with the first advanced operation
         advancedOps = ["[*]", "..", "[?"]
         # Look for operations in path
@@ -115,6 +98,29 @@ class DocumentClient:
             # Treat fetched JSON document as root document
             advancedJsonPath = "$" + jsonPath[startIndex:]
             jsonPath = jsonPath[:startIndex]
+        
+        return jsonPath, advancedJsonPath
+
+
+    def get(self, key: tuple, binName: str, jsonPath: str, readPolicy: dict = None) -> Any:
+        """
+        Get object(s) from a JSON document using JSON path.
+
+        If multiple objects are matched, they will be returned as a :class:`list`.
+        Otherwise, the object itself is returned.
+
+        :param tuple key: the key of the record
+        :param str binName: the name of the bin containing the JSON document
+        :param str jsonPath: JSON path to retrieve the object
+        :param dict readPolicy: the read policy for get() operation
+
+        :return: :py:obj:`Any`
+        :raises: :exc:`KeyNotFound`
+        """
+        
+        self.validateJsonPath(jsonPath)
+ 
+        jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
 
         # Split up JSON path into tokens
         tokens = self.tokenize(jsonPath)
