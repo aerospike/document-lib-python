@@ -13,151 +13,159 @@ sys.path.insert(0, parentDirAbsPath)
 
 from documentapi import DocumentClient
 
+def setUpModule():
+    # Need to access these variables across all test cases
+    global mapJsonFile, listJsonFile
+    global mapJsonObj, listJsonObj
+    global listBinName, mapBinName
+    global client, documentClient, keyTuple
+
+    # Open JSON test files
+    mapJsonFile = open("testMap.json")
+    listJsonFile = open("testList.json")
+    # Parse them into Python objects
+    mapJsonObj = json.load(mapJsonFile)
+    listJsonObj = json.load(listJsonFile)
+    # Bins to insert JSON documents
+    listBinName = "listBinName"
+    mapBinName = "mapBinName"
+
+    # Setup client
+    config = {
+        "hosts": [("127.0.0.1", 3000)]
+    }
+    client = aerospike.client(config).connect()
+    documentClient = DocumentClient(client)
+
+    # Record key for all tests
+    keyTuple = ('test', 'demo', 'key')
+
+def tearDownModule():
+    # Close file descriptors
+    mapJsonFile.close()
+    listJsonFile.close()
+    # Close client connection
+    client.close()
+
 class TestCorrectGets(unittest.TestCase):
-    def setUp(self):
-        self.mapJsonFile = open("testMap.json")
-        self.listJsonFile = open("testList.json")
-        self.mapJsonObj = json.load(self.mapJsonFile)
-        self.listJsonObj = json.load(self.listJsonFile)
+    @classmethod
+    def setUpClass(cls):
+        # Insert record with two bins
+        # Each bin contains a JSON document
+        client.put(keyTuple, {listBinName: listJsonObj})
+        client.put(keyTuple, {mapBinName: mapJsonObj})
 
-        self.listBinName = "listBinName"
-        self.mapBinName = "mapBinName"
-
-        config = {
-            "hosts": [("127.0.0.1", 3000)]
-        }
-        self.client = aerospike.client(config).connect()
-
-        self.keyTuple = ('test', 'demo', 'key')
-        self.client.put(self.keyTuple, {self.listBinName: self.listJsonObj})
-        self.client.put(self.keyTuple, {self.mapBinName: self.mapJsonObj})
-
-        # Mimic client behavior
-        # Assume this client is connected to an Aerospike server
-        # and the server has the JSON document encoded as nested maps and lists
-        # client = MagicMock()
-        # client.select.return_value = (
-        #     ('test', 'demo', None, bytearray(b';\xd4u\xbd\x0cs\xf2\x10\xb6~\xa87\x930\x0e\xea\xe5v(]')),
-        #     {'ttl': 2591990, 'gen': 1},
-        #     {
-        #         self.listBinName: self.listJsonObj,
-        #         self.mapBinName: self.mapJsonObj
-        #     }
-        # )
-
-        self.documentClient = DocumentClient(self.client)
-
-    def tearDown(self):
-        self.mapJsonFile.close()
-        self.listJsonFile.close()
-        self.client.close()
+    @classmethod
+    def tearDownClass(cls):
+        # Remove record with two documents
+        client.remove(keyTuple)
 
     def testGetRoot(self):
-        results = self.documentClient.get(self.keyTuple, self.mapBinName, "$")
-        self.assertEqual(results, self.mapJsonObj)
+        results = documentClient.get(keyTuple, mapBinName, "$")
+        self.assertEqual(results, mapJsonObj)
 
     # First order elements
     
     def testGetKey(self):
-        results = self.documentClient.get(self.keyTuple, self.mapBinName, "$.map")
-        self.assertEqual(results, self.mapJsonObj["map"])
+        results = documentClient.get(keyTuple, mapBinName, "$.map")
+        self.assertEqual(results, mapJsonObj["map"])
 
     def testGetIndex(self):
-        results = self.documentClient.get(self.keyTuple, self.listBinName, "$[0]")
-        self.assertEqual(results, self.listJsonObj[0])
+        results = documentClient.get(keyTuple, listBinName, "$[0]")
+        self.assertEqual(results, listJsonObj[0])
 
     # Second order elements
 
     def testGetTwoKeys(self):
-        results = self.documentClient.get(self.keyTuple, self.mapBinName, "$.map.map")
-        self.assertEqual(results, self.mapJsonObj["map"]["map"])
+        results = documentClient.get(keyTuple, mapBinName, "$.map.map")
+        self.assertEqual(results, mapJsonObj["map"]["map"])
 
     def testGetKeyThenIndex(self):
-        results = self.documentClient.get(self.keyTuple, self.mapBinName, '$.list[0]')
-        self.assertEqual(results, self.mapJsonObj["list"][0])
+        results = documentClient.get(keyTuple, mapBinName, '$.list[0]')
+        self.assertEqual(results, mapJsonObj["list"][0])
 
     def testGetIndexThenKey(self):
-        results = self.documentClient.get(self.keyTuple, self.listBinName, '$[0].map')
-        self.assertEqual(results, self.listJsonObj[0]["map"])
+        results = documentClient.get(keyTuple, listBinName, '$[0].map')
+        self.assertEqual(results, listJsonObj[0]["map"])
 
     def testGetTwoIndices(self):
-        results = self.documentClient.get(self.keyTuple, self.listBinName, '$[1][0]')
-        self.assertEqual(results, self.listJsonObj[1][0])
+        results = documentClient.get(keyTuple, listBinName, '$[1][0]')
+        self.assertEqual(results, listJsonObj[1][0])
 
     # Third order elements
 
     def testGetThreeKeys(self):
-        results = self.documentClient.get(self.keyTuple, self.mapBinName, "$.map.map.int")
-        self.assertEqual(results, self.mapJsonObj["map"]["map"]["int"])
+        results = documentClient.get(keyTuple, mapBinName, "$.map.map.int")
+        self.assertEqual(results, mapJsonObj["map"]["map"]["int"])
 
     def testGetTwoKeysThenIndex(self):
-        results = self.documentClient.get(self.keyTuple, self.mapBinName, "$.map.list[0]")
-        self.assertEqual(results, self.mapJsonObj["map"]["list"][0])
+        results = documentClient.get(keyTuple, mapBinName, "$.map.list[0]")
+        self.assertEqual(results, mapJsonObj["map"]["list"][0])
 
     def testGetKeyIndexKey(self):
-        results = self.documentClient.get(self.keyTuple, self.mapBinName, "$.list[0].int")
-        self.assertEqual(results, self.mapJsonObj["list"][0]["int"])
+        results = documentClient.get(keyTuple, mapBinName, "$.list[0].int")
+        self.assertEqual(results, mapJsonObj["list"][0]["int"])
 
     def testGetKeyThenTwoIndices(self):
-        results = self.documentClient.get(self.keyTuple, self.mapBinName, "$.list[1][0]")
-        self.assertEqual(results, self.mapJsonObj["list"][1][0])
+        results = documentClient.get(keyTuple, mapBinName, "$.list[1][0]")
+        self.assertEqual(results, mapJsonObj["list"][1][0])
 
     def testGetIndexThenTwoKeys(self):
-        results = self.documentClient.get(self.keyTuple, self.listBinName, "$[0].map.int")
-        self.assertEqual(results, self.listJsonObj[0]["map"]["int"])
+        results = documentClient.get(keyTuple, listBinName, "$[0].map.int")
+        self.assertEqual(results, listJsonObj[0]["map"]["int"])
 
     def testGetIndexKeyIndex(self):
-        results = self.documentClient.get(self.keyTuple, self.listBinName, "$[0].list[0]")
-        self.assertEqual(results, self.listJsonObj[0]["list"][0])
+        results = documentClient.get(keyTuple, listBinName, "$[0].list[0]")
+        self.assertEqual(results, listJsonObj[0]["list"][0])
 
     def testGetTwoIndicesThenKey(self):
-        results = self.documentClient.get(self.keyTuple, self.listBinName, "$[1][0].int")
-        self.assertEqual(results, self.listJsonObj[1][0]["int"])
+        results = documentClient.get(keyTuple, listBinName, "$[1][0].int")
+        self.assertEqual(results, listJsonObj[1][0]["int"])
 
     def testGetThreeIndices(self):
-        results = self.documentClient.get(self.keyTuple, self.listBinName, "$[1][1][0]")
-        self.assertEqual(results, self.listJsonObj[1][1][0])
+        results = documentClient.get(keyTuple, listBinName, "$[1][1][0]")
+        self.assertEqual(results, listJsonObj[1][1][0])
 
     # Wildstar tests
 
     def testGetWildstarIndex(self):
-        results = self.documentClient.get(self.keyTuple, self.listBinName, "$[*]")
-        self.assertEqual(results, self.listJsonObj)
+        results = documentClient.get(keyTuple, listBinName, "$[*]")
+        self.assertEqual(results, listJsonObj)
 
     def testGetWildstarKey(self):
-        results = self.documentClient.get(self.keyTuple, self.mapBinName, "$.*")
-        expected = [self.mapJsonObj["map"], self.mapJsonObj["list"]]
+        results = documentClient.get(keyTuple, mapBinName, "$.*")
+        expected = [mapJsonObj["map"], mapJsonObj["list"]]
         self.assertEqual(results, expected)
 
     def testGetNestedWildstarIndex(self):
-        results = self.documentClient.get(self.keyTuple, self.listBinName, "$[1][*]")
-        expected = self.listJsonObj[1]
+        results = documentClient.get(keyTuple, listBinName, "$[1][*]")
+        expected = listJsonObj[1]
         self.assertEqual(results, expected)
 
     def testGetNestedWildstarKey(self):
-        results = self.documentClient.get(self.keyTuple, self.mapBinName, "$.map.*")
-        expected = list(self.mapJsonObj["map"].values())
+        results = documentClient.get(keyTuple, mapBinName, "$.map.*")
+        expected = list(mapJsonObj["map"].values())
         self.assertEqual(results, expected)
 
     # Syntax errors
 
     def testGetEmpty(self):
-        self.assertRaises(ValueError, self.documentClient.get, self.keyTuple, self.mapBinName, "")
+        self.assertRaises(ValueError, documentClient.get, keyTuple, mapBinName, "")
 
     def testGetMissingRoot(self):
-        self.assertRaises(ValueError, self.documentClient.get, self.keyTuple, self.mapBinName, "list")
+        self.assertRaises(ValueError, documentClient.get, keyTuple, mapBinName, "list")
 
     def testGetTrailingPeriod(self):
-        self.assertRaises(ValueError, self.documentClient.get, self.keyTuple, self.mapBinName, "$.")
+        self.assertRaises(ValueError, documentClient.get, keyTuple, mapBinName, "$.")
 
     def testGetTrailingOpeningBracket(self):
-        self.assertRaises(ValueError, self.documentClient.get, self.keyTuple, self.mapBinName, "$.list[")
+        self.assertRaises(ValueError, documentClient.get, keyTuple, mapBinName, "$.list[")
 
     def testGetEmptyBrackets(self):
-        self.assertRaises(ValueError, self.documentClient.get, self.keyTuple, self.mapBinName, "$.list[]")
+        self.assertRaises(ValueError, documentClient.get, keyTuple, mapBinName, "$.list[]")
 
     def testGetUnmatchedClosingBracket(self):
-        self.assertRaises(ValueError, self.documentClient.get, self.keyTuple, self.mapBinName, "$.list]")
+        self.assertRaises(ValueError, documentClient.get, keyTuple, mapBinName, "$.list]")
 
 # Test incorrect paths
 
