@@ -18,8 +18,7 @@ class DocumentClient:
     def __init__(self, client: Client):
         self.client = client
 
-    # Assume JSON path is valid
-    # Split up JSON path into map and list access tokens
+    # Split up a valid JSON path into map and list access tokens
     def tokenize(self, jsonPath):
         # First divide JSON path into "big" tokens
         # using map separator "."
@@ -30,7 +29,7 @@ class DocumentClient:
         # Then divide each big token into "small" tokens
         # using list separator "[<index>]"
         # Example:
-        # "[$[1], b, c[2]]" -> ["$", 1, "b", "c", 2]
+        # [$[1], b, c[2]] -> ["$", 1, "b", "c", 2]
         results = []
         for bigToken in bigTokens:
             smallTokens = re.split("\[|\]", bigToken)
@@ -85,7 +84,7 @@ class DocumentClient:
 
         # Validate JSON path
 
-        # All JSON queries must start at document root
+        # JSON path must start at document root
         if jsonPath and jsonPath.startswith("$") == False:
             raise ValueError("Invalid JSON path")
 
@@ -95,23 +94,25 @@ class DocumentClient:
         except Exception:
             raise ValueError("Invalid JSON path")
 
-        # Find the index to start processing advanced queries
-        # Advanced queries are processed by the client, not server
-        advancedOps = ["[*]", "..", "[?"]
-        locations = [jsonPath.find(op) for op in advancedOps]
+        # Divide JSON path into two parts
+        # The first part does not have advanced operations
+        # The second part starts with the first advanced operation in the path
 
-        # Operation must exist in the JSON path
-        locations = list(filter(lambda index: index >= 1, locations))
-        if locations:
-            startIndex = min(locations)
+        # Get substring in path beginning with the first advanced operation
+        advancedOps = ["[*]", "..", "[?"]
+        # Look for operations in path
+        startIndices = [jsonPath.find(op) for op in advancedOps]
+        # Filter out ones that aren't found
+        startIndices = list(filter(lambda index: index >= 1, startIndices))
+        if startIndices:
+            startIndex = min(startIndices)
         else:
-            startIndex = 0
+            # No advanced operations found
+            startIndex = -1
 
         advancedJsonPath = None
         if startIndex > 0:
-            # Advanced queries found
-            # Only get JSON document before that point
-            # Save advanced query for processing later
+            # Treat fetched JSON document as root document
             advancedJsonPath = "$" + jsonPath[startIndex:]
             jsonPath = jsonPath[:startIndex]
 
@@ -119,25 +120,23 @@ class DocumentClient:
         tokens = self.tokenize(jsonPath)
 
         # Then use tokens to build context arrays
-        # But only before last access token
+        # except the last token
         lastToken = tokens.pop()
         ctxs = self.buildContextArray(tokens)
 
-        # Get operation for last access token
+        # Create get operation using last token
         if type(lastToken) == int:
-            # List access
             op = list_operations.list_get_by_index(binName, lastToken, aerospike.LIST_RETURN_VALUE, ctxs)
         elif lastToken == "$":
             # Get whole document
             op = operations.read(binName)
         else:
-            # Map access
             op = map_operations.map_get_by_key(binName, lastToken, aerospike.MAP_RETURN_VALUE, ctxs)
 
         _, _, bins = self.client.operate(key, [op])
         results = bins[binName]
 
-        # Use JSONPath library to perform advanced queries on JSON document
+        # Use JSONPath library to perform advanced ops on fetched document
         if advancedJsonPath:
             jsonPathExpr = parse(advancedJsonPath)
             results = [match.value for match in jsonPathExpr.find(results)]
