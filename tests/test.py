@@ -167,16 +167,31 @@ class TestCorrectGets(unittest.TestCase):
     def testGetUnmatchedClosingBracket(self):
         self.assertRaises(ValueError, documentClient.get, keyTuple, mapBinName, "$.list]")
 
-# Test incorrect paths
+    # Access errors
 
-# Reference a list as if it were a map
-# Reference a map as if it were a list
-# Reference a primitive as if it was a map
-# Reference a primitive as if it was a list
-# Reference a list item that is not there (out of bounds)
-# Reference a map that isn't there
-# Reference a list that isn't there
-# Reference a map item that isn't there
+    def testGetIndexFromMap(self):
+        self.assertRaises(ValueError, documentClient.get, keyTuple, mapBinName, "$.map[0]")
+
+    def testGetKeyFromList(self):
+        self.assertRaises(ValueError, documentClient.get, keyTuple, mapBinName, "$.list.nonExistentKey")
+
+    def testGetIndexFromPrimitive(self):
+        self.assertRaises(ValueError, documentClient.get, keyTuple, mapBinName, "$.list[0].int[0]")
+
+    def testGetKeyFromPrimitive(self):
+        self.assertRaises(ValueError, documentClient.get, keyTuple, mapBinName, "$.list[0].int.nonExistentKey")
+
+    def testGetFromMissingMap(self):
+        self.assertRaises(ValueError, documentClient.get, keyTuple, mapBinName, "$.map.nonExistentMap.item")
+
+    def testGetFromMissingList(self):
+        self.assertRaises(ValueError, documentClient.get, keyTuple, mapBinName, "$.map.nonExistentList[0]")
+
+    def testGetOutOfBoundsIndex(self):
+        self.assertRaises(ValueError, documentClient.get, keyTuple, mapBinName, "$.list[1000]")
+    
+    def testGetMissingKey(self):
+        self.assertRaises(ValueError, documentClient.get, keyTuple, mapBinName, "$.map.nonExistentKey")
 
 class TestCorrectPuts(unittest.TestCase):
     def setUp(self):
