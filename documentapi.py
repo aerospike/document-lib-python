@@ -133,7 +133,11 @@ class DocumentClient:
         else:
             op = map_operations.map_get_by_key(binName, lastToken, aerospike.MAP_RETURN_VALUE, ctxs)
 
-        _, _, bins = self.client.operate(key, [op])
+        # Remove keys from read policy that aren't in operate policy
+        if readPolicy and "deserialize" in readPolicy:
+            readPolicy.pop("deserialize")
+        
+        _, _, bins = self.client.operate(key, [op], readPolicy)
         results = bins[binName]
 
         # Use JSONPath library to perform advanced ops on fetched document
