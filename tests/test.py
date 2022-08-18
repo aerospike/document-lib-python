@@ -141,6 +141,12 @@ class TestCorrectGets(unittest.TestCase):
 
     # Syntax errors
 
+    def testGetEmpty(self):
+        self.assertRaises(ValueError, self.documentClient.get, self.keyTuple, self.mapBinName, "")
+
+    def testGetMissingRoot(self):
+        self.assertRaises(ValueError, self.documentClient.get, self.keyTuple, self.mapBinName, "list")
+
     def testGetTrailingPeriod(self):
         self.assertRaises(ValueError, self.documentClient.get, self.keyTuple, self.mapBinName, "$.")
 
@@ -164,6 +170,7 @@ class TestCorrectGets(unittest.TestCase):
 # Reference a list that isn't there
 
 class TestIncorrectGets(unittest.TestCase):
+
     def testGetListAsMap(self):
         pass
 
