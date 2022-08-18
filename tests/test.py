@@ -224,11 +224,22 @@ class TestIncorrectPuts(unittest.TestCase):
         pass
 
 class TestCorrectAppend(unittest.TestCase):
-    def testAppendKeyedList(self):
-        pass
+    def setUp(self):
+        client.put(keyTuple, {mapBinName: mapJsonObj, listBinName: listJsonObj})
 
-    def testAppendIndexedList(self):
-        pass
+    def tearDown(self):
+        client.remove(keyTuple)
+
+    def testAppendIndexAccess(self):
+        documentClient.append(keyTuple, mapBinName, "$.list[1]", 50)
+        results = documentClient.get(keyTuple, mapBinName, "$.list[1]")
+        self.assertEqual(results, [1, 50])
+
+    def testAppendKeyAccess(self):
+        documentClient.append(keyTuple, mapBinName, "$.list", 42)
+        results = documentClient.get(keyTuple, mapBinName, "$.list")
+        expected = [{"int": 1}, [1], 42]
+        self.assertEqual(results, expected)
 
 class TestIncorrectAppend(unittest.TestCase):
     def testAppendMissingList(self):
