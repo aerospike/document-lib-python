@@ -245,16 +245,16 @@ class TestCorrectPuts(TestWrites):
 
 class TestIncorrectPuts(TestWrites):
     def testPutIntoMissingMap(self):
-        pass
+        self.assertRaises(ObjectNotFoundError, documentClient.put, keyTuple, MAP_BIN_NAME, "$.map.nonExistentMap.item", 4)
 
     def testPutIntoMissingList(self):
-        pass
+        self.assertRaises(ObjectNotFoundError, documentClient.put, keyTuple, MAP_BIN_NAME, "$.map.nonExistentList[0]", 4)
 
     def testPutIntoMapAsList(self):
-        pass
+        self.assertRaises(ObjectNotFoundError, documentClient.put, keyTuple, MAP_BIN_NAME, "$.map.nonExistentMap[0]", 4)
 
     def testPutIntoListAsMap(self):
-        pass
+        self.assertRaises(ObjectNotFoundError, documentClient.put, keyTuple, MAP_BIN_NAME, "$.map.nonExistentList.item", 4)
 
 class TestCorrectAppend(TestWrites):
     def testAppendIndexAccess(self):
