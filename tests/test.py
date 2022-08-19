@@ -257,7 +257,10 @@ class TestIncorrectAppend(unittest.TestCase):
 
 class TestCorrectDelete(unittest.TestCase):
     def testDeleteRoot(self):
-        pass
+        documentClient.delete(keyTuple, MAP_BIN_NAME, "$")
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$")
+        expected = [{"int": 1}, [1], 42]
+        self.assertEqual(results, expected)
 
     def testDeletePrimitiveFromMap(self):
         pass

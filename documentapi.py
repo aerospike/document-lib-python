@@ -208,7 +208,7 @@ class DocumentClient:
     # Helper functions
 
     @staticmethod
-    def validateJsonPath(jsonPath):
+    def validateJsonPath(jsonPath: str):
         # JSON path must start at document root
         if jsonPath and jsonPath.startswith("$") == False:
             raise JsonPathMissingRootError(jsonPath)
@@ -223,7 +223,7 @@ class DocumentClient:
     # The first part does not have advanced operations
     # The second part starts with the first advanced operation in the path
     @staticmethod
-    def divideJsonPath(jsonPath):
+    def divideJsonPath(jsonPath: str):
         # Get substring in path beginning with the first advanced operation
         advancedOps = ["[*]", "..", "[?"]
         # Look for operations in path
@@ -246,7 +246,7 @@ class DocumentClient:
 
     # Split up a valid JSON path into map and list access tokens
     @staticmethod
-    def tokenize(jsonPath):
+    def tokenize(jsonPath: str):
         # First divide JSON path into "big" tokens
         # using map separator "."
         # Example:
@@ -279,7 +279,7 @@ class DocumentClient:
         return results
 
     @staticmethod
-    def buildContextArray(tokens):
+    def buildContextArray(tokens: list):
         ctxs = []
         for token in tokens:
             if type(token) == int:
@@ -300,7 +300,7 @@ class DocumentClient:
         return ctxs
 
     @staticmethod
-    def createGetOperation(binName, ctxs, lastToken):
+    def createGetOperation(binName: str, ctxs: list, lastToken: str):
         # Create get operation using last token
         if type(lastToken) == int:
             op = list_operations.list_get_by_index(binName, lastToken, aerospike.LIST_RETURN_VALUE, ctxs)
@@ -313,7 +313,7 @@ class DocumentClient:
         return op
 
     @staticmethod
-    def createPutOperation(binName, ctxs, lastToken, obj):
+    def createPutOperation(binName: str, ctxs: list, lastToken: str, obj: object):
         # Create put operation
         # TODO: list and map operations must be configured properly
         if type(lastToken) == int:
@@ -327,7 +327,7 @@ class DocumentClient:
         return op
 
     @staticmethod
-    def convertToOperatePolicy(policy):
+    def convertToOperatePolicy(policy: dict):
         operatePolicy = None
         if policy == None:
             return None
