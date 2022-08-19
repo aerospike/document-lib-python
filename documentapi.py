@@ -13,6 +13,8 @@ import re
 
 from typing import Any
 
+from documentapiexception import JsonPathMissingRootError, JsonPathParseError
+
 class DocumentClient:
     """Client to run JSON queries"""
 
@@ -201,13 +203,13 @@ class DocumentClient:
     def validateJsonPath(jsonPath):
         # JSON path must start at document root
         if jsonPath and jsonPath.startswith("$") == False:
-            raise ValueError("Invalid JSON path")
+            raise JsonPathMissingRootError(jsonPath)
 
         # Check for syntax errors
         try:
             parse(jsonPath)
         except Exception:
-            raise ValueError("Invalid JSON path")
+            raise JsonPathParseError(jsonPath)
 
     # Divide JSON path into two parts
     # The first part does not have advanced operations

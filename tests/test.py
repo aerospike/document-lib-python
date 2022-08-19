@@ -8,10 +8,12 @@ import aerospike
 # So we can import documentapi
 import sys
 import os
+
 parentDirAbsPath = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
 sys.path.insert(0, parentDirAbsPath)
 
 from documentapi import DocumentClient
+from documentapiexception import *
 
 # Bins to insert JSON documents
 LIST_BIN_NAME = "testList"
@@ -152,22 +154,22 @@ class TestIncorrectGets(TestGets):
     # Syntax errors
 
     def testGetEmpty(self):
-        self.assertRaises(ValueError, documentClient.get, keyTuple, MAP_BIN_NAME, "")
+        self.assertRaises(JsonPathParseError, documentClient.get, keyTuple, MAP_BIN_NAME, "")
 
     def testGetMissingRoot(self):
-        self.assertRaises(ValueError, documentClient.get, keyTuple, MAP_BIN_NAME, "list")
+        self.assertRaises(JsonPathMissingRootError, documentClient.get, keyTuple, MAP_BIN_NAME, "list")
 
     def testGetTrailingPeriod(self):
-        self.assertRaises(ValueError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.")
+        self.assertRaises(JsonPathParseError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.")
 
     def testGetTrailingOpeningBracket(self):
-        self.assertRaises(ValueError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list[")
+        self.assertRaises(JsonPathParseError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list[")
 
     def testGetEmptyBrackets(self):
-        self.assertRaises(ValueError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list[]")
+        self.assertRaises(JsonPathParseError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list[]")
 
     def testGetUnmatchedClosingBracket(self):
-        self.assertRaises(ValueError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list]")
+        self.assertRaises(JsonPathParseError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list]")
 
     # Access errors
 
