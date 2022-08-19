@@ -53,21 +53,9 @@ class DocumentClient:
         op = self.createGetOperation(binName, ctxs, lastToken)
 
         # Remove keys from read policy that aren't in operate policy
-        readPolicy = self.convertToOperatePolicy(readPolicy)
+        operatePolicy = self.convertToOperatePolicy(readPolicy)
 
-        # Fetch document
-        try:
-            _, _, bins = self.client.operate(key, [op], readPolicy)
-            fetchedDocument = bins[binName]
-            if fetchedDocument == None:
-                # This occurs when accessing a map with a key
-                # that doesn't exist
-                raise ObjectNotFoundError(jsonPath)
-        except (ex.BinIncompatibleType, ex.InvalidRequest, ex.OpNotApplicable):
-            # InvalidRequest: index access on a map or primitive
-            # BinIncompatibleType: key access on a list or primitive
-            # OpNotApplicable: accessing element of missing item or out of bounds index
-            raise ObjectNotFoundError(jsonPath)
+        fetchedDocument = self.fetchSmallestDocument(key, binName, op, operatePolicy, jsonPath)
 
         # Use JSONPath library to perform advanced ops on fetched document
         if advancedJsonPath:
@@ -101,11 +89,9 @@ class DocumentClient:
         op = self.createGetOperation(binName, ctxs, lastToken)
 
         # Remove keys from write policy that aren't in operate policy
-        writePolicy = self.convertToOperatePolicy(writePolicy)
+        operatePolicy = self.convertToOperatePolicy(writePolicy)
 
-        # Fetch smallest document
-        _, _, bins = self.client.operate(key, [op], writePolicy)
-        fetchedDocument = bins[binName]
+        fetchedDocument = self.fetchSmallestDocument(key, binName, op, operatePolicy, jsonPath)
 
         # Use JSONPath library to replace matches in fetched document
         if advancedJsonPath:
@@ -144,11 +130,9 @@ class DocumentClient:
         op = self.createGetOperation(binName, ctxs, lastToken)
 
         # Remove keys from read policy that aren't in operate policy
-        writePolicy = self.convertToOperatePolicy(writePolicy)
+        operatePolicy = self.convertToOperatePolicy(writePolicy)
 
-        # Fetch document
-        _, _, bins = self.client.operate(key, [op], writePolicy)
-        fetchedDocument = bins[binName]
+        fetchedDocument = self.fetchSmallestDocument(key, binName, op, operatePolicy, jsonPath)
 
         # Use JSONPath library to perform advanced ops on fetched document
         if advancedJsonPath:
@@ -167,7 +151,7 @@ class DocumentClient:
         op = self.createPutOperation(binName, ctxs, lastToken, fetchedDocument)
         self.client.operate(key, [op], writePolicy)
 
-    def delete(self, key: tuple, binName: str, jsonPath: str):
+    def delete(self, key: tuple, binName: str, jsonPath: str, writePolicy: dict = None):
         """
         Delete an object in a JSON document using JSON path
 
@@ -192,11 +176,9 @@ class DocumentClient:
         op = self.createGetOperation(binName, ctxs, lastToken)
 
         # Remove keys from read policy that aren't in operate policy
-        writePolicy = self.convertToOperatePolicy(writePolicy)
+        operatePolicy = self.convertToOperatePolicy(writePolicy)
 
-        # Fetch document
-        _, _, bins = self.client.operate(key, [op], writePolicy)
-        fetchedDocument = bins[binName]
+        fetchedDocument = self.fetchSmallestDocument(key, binName, op, operatePolicy, jsonPath)
 
         # Use JSONPath library to perform advanced ops on fetched document
         if advancedJsonPath:
@@ -205,7 +187,7 @@ class DocumentClient:
             jsonPathExpr.filter(fetchedDocument)
 
         # Send new document to server
-        op = self.createPutOperation(binName, ctxs, lastToken)
+        op = self.createPutOperation(binName, ctxs, lastToken, fetchedDocument)
         self.client.operate(key, [op], writePolicy)
 
     # Helper functions
@@ -314,6 +296,22 @@ class DocumentClient:
             op = map_operations.map_get_by_key(binName, lastToken, aerospike.MAP_RETURN_VALUE, ctxs)
         
         return op
+
+    # Pass in JSON path in case we need to throw an error
+    def fetchSmallestDocument(self, key, binName, op, operatePolicy, jsonPath):
+        try:
+            _, _, bins = self.client.operate(key, [op], operatePolicy)
+            fetchedDocument = bins[binName]
+            if fetchedDocument == None:
+                # This occurs when accessing a map with a key
+                # that doesn't exist
+                raise ObjectNotFoundError(jsonPath)
+        except (ex.BinIncompatibleType, ex.InvalidRequest, ex.OpNotApplicable):
+            # InvalidRequest: index access on a map or primitive
+            # BinIncompatibleType: key access on a list or primitive
+            # OpNotApplicable: accessing element of missing item or out of bounds index
+            raise ObjectNotFoundError(jsonPath)
+        return fetchedDocument
 
     @staticmethod
     def createPutOperation(binName: str, ctxs: list, lastToken: str, obj: object) -> dict:
