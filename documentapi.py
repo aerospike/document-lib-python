@@ -85,24 +85,23 @@ class DocumentClient:
         # except the last token
         lastToken = tokens.pop()
         ctxs = self.buildContextArray(tokens)
-
-        op = self.createGetOperation(binName, ctxs, lastToken)
-
-        # Remove keys from write policy that aren't in operate policy
-        operatePolicy = self.convertToOperatePolicy(writePolicy)
-
-        fetchedDocument = self.fetchSmallestDocument(key, binName, op, operatePolicy, jsonPath)
-
-        # Use JSONPath library to replace matches in fetched document
+        
         if advancedJsonPath:
+            # Get document
+            op = self.createGetOperation(binName, ctxs, lastToken)
+            
+            # Remove keys from write policy that aren't in operate policy
+            operatePolicy = self.convertToOperatePolicy(writePolicy)
+            documentToUpdate = self.fetchSmallestDocument(key, binName, op, operatePolicy, jsonPath)
+
+            # Update fetch document
             jsonPathExpr = parse(advancedJsonPath)
-            jsonPathExpr.update(fetchedDocument, obj)
+            jsonPathExpr.update(documentToUpdate, obj)
         else:
-            # Just replace the whole fetched document
-            fetchedDocument = obj
+            documentToUpdate = obj
         
         # Send updated document to server
-        op = self.createPutOperation(binName, ctxs, lastToken, fetchedDocument)
+        op = self.createPutOperation(binName, ctxs, lastToken, documentToUpdate)
         self.client.operate(key, [op], writePolicy)
 
     def append(self, key: tuple, binName: str, jsonPath: str, obj, writePolicy: dict = None):
