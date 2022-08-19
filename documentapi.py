@@ -50,12 +50,15 @@ class DocumentClient:
         lastToken = tokens.pop()
         ctxs = self.buildContextArray(tokens)
 
-        op = self.createGetOperation(binName, ctxs, lastToken)
+        getOp = self.createGetOperation(binName, ctxs, lastToken)
 
         # Remove keys from read policy that aren't in operate policy
         operatePolicy = self.convertToOperatePolicy(readPolicy)
 
-        fetchedDocument = self.fetchSmallestDocument(key, binName, op, operatePolicy, jsonPath)
+        fetchedDocument = self.performOperation(key, binName, getOp, operatePolicy, jsonPath)
+        if fetchedDocument == None:
+            # Caused by using a key that doesn't exist in a map
+            raise ObjectNotFoundError(jsonPath)
 
         # Use JSONPath library to perform advanced ops on fetched document
         if advancedJsonPath:
@@ -86,13 +89,14 @@ class DocumentClient:
         lastToken = tokens.pop()
         ctxs = self.buildContextArray(tokens)
         
+        # Remove keys from write policy that aren't in operate policy
+        operatePolicy = self.convertToOperatePolicy(writePolicy)
+
         if advancedJsonPath:
             # Get document
-            op = self.createGetOperation(binName, ctxs, lastToken)
+            getOp = self.createGetOperation(binName, ctxs, lastToken)
             
-            # Remove keys from write policy that aren't in operate policy
-            operatePolicy = self.convertToOperatePolicy(writePolicy)
-            documentToUpdate = self.fetchSmallestDocument(key, binName, op, operatePolicy, jsonPath)
+            documentToUpdate = self.performOperation(key, binName, getOp, operatePolicy, jsonPath)
 
             # Update fetch document
             jsonPathExpr = parse(advancedJsonPath)
@@ -101,8 +105,8 @@ class DocumentClient:
             documentToUpdate = obj
         
         # Send updated document to server
-        op = self.createPutOperation(binName, ctxs, lastToken, documentToUpdate)
-        self.client.operate(key, [op], writePolicy)
+        putOp = self.createPutOperation(binName, ctxs, lastToken, documentToUpdate)
+        self.performOperation(key, binName, putOp, operatePolicy, jsonPath)
 
     def append(self, key: tuple, binName: str, jsonPath: str, obj, writePolicy: dict = None):
         """
@@ -131,7 +135,7 @@ class DocumentClient:
         # Remove keys from read policy that aren't in operate policy
         operatePolicy = self.convertToOperatePolicy(writePolicy)
 
-        fetchedDocument = self.fetchSmallestDocument(key, binName, op, operatePolicy, jsonPath)
+        fetchedDocument = self.performOperation(key, binName, op, operatePolicy, jsonPath)
 
         # Use JSONPath library to perform advanced ops on fetched document
         if advancedJsonPath:
@@ -177,7 +181,7 @@ class DocumentClient:
         # Remove keys from read policy that aren't in operate policy
         operatePolicy = self.convertToOperatePolicy(writePolicy)
 
-        fetchedDocument = self.fetchSmallestDocument(key, binName, op, operatePolicy, jsonPath)
+        fetchedDocument = self.performOperation(key, binName, op, operatePolicy, jsonPath)
 
         # Use JSONPath library to perform advanced ops on fetched document
         if advancedJsonPath:
@@ -296,21 +300,22 @@ class DocumentClient:
         
         return op
 
-    # Pass in JSON path in case we need to throw an error
-    def fetchSmallestDocument(self, key, binName, op, operatePolicy, jsonPath):
+    # Handles possible errors from calling operate()
+    # Pass in JSON path in case we throw an error
+    def performOperation(self, key, binName, op, operatePolicy, jsonPath):
         try:
             _, _, bins = self.client.operate(key, [op], operatePolicy)
-            fetchedDocument = bins[binName]
-            if fetchedDocument == None:
-                # This occurs when accessing a map with a key
-                # that doesn't exist
-                raise ObjectNotFoundError(jsonPath)
         except (ex.BinIncompatibleType, ex.InvalidRequest, ex.OpNotApplicable):
-            # InvalidRequest: index access on a map or primitive
-            # BinIncompatibleType: key access on a list or primitive
-            # OpNotApplicable: accessing element of missing item or out of bounds index
+            # InvalidRequest: index get() on a map or primitive
+            # BinIncompatibleType: key get() on a list or primitive
+            # OpNotApplicable:
+            # - get() from missing list/map or out of bounds index
+            # - put() into map as list
+            # - put() into list as map
+            # - put() into missing list/map
             raise ObjectNotFoundError(jsonPath)
-        return fetchedDocument
+        # Only returns document with a get operation
+        return bins.get(binName)
 
     @staticmethod
     def createPutOperation(binName: str, ctxs: list, lastToken: str, obj: object) -> dict:
