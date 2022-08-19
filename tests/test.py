@@ -205,6 +205,34 @@ class TestWrites(unittest.TestCase):
         client.remove(keyTuple)
 
 class TestCorrectPuts(TestWrites):
+    # Inserting root document
+
+    def testPutNewRootAsMap(self):
+        # Override setup
+        client.remove(keyTuple)
+
+        documentClient.put(keyTuple, MAP_BIN_NAME, "$", {})
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$")
+        self.assertEqual(results, {})
+
+    def testPutNewRootAsList(self):
+        # Override setup
+        client.remove(keyTuple)
+
+        documentClient.put(keyTuple, MAP_BIN_NAME, "$", [])
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$")
+        self.assertEqual(results, [])
+
+    def testReplaceRootWithMap(self):
+        documentClient.put(keyTuple, MAP_BIN_NAME, "$", {})
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$")
+        self.assertEqual(results, {})
+
+    def testReplaceRootWithList(self):
+        documentClient.put(keyTuple, MAP_BIN_NAME, "$", [])
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$")
+        self.assertEqual(results, [])
+
     def testPutIntoMap(self):
         documentClient.put(keyTuple, MAP_BIN_NAME, "$.map.item", "hi")
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.map.item")
