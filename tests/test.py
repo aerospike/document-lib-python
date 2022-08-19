@@ -280,28 +280,57 @@ class TestIncorrectAppend(TestWrites):
 
 class TestCorrectDelete(TestWrites):
     def testDeleteRoot(self):
+        # TODO
         documentClient.delete(keyTuple, MAP_BIN_NAME, "$")
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$")
         expected = [{"int": 1}, [1], 42]
         self.assertEqual(results, expected)
 
     def testDeletePrimitiveFromMap(self):
-        pass
+        documentClient.delete(keyTuple, MAP_BIN_NAME, "$.map.map.int")
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.map.map")
+        self.assertEqual(results, {})
 
     def testDeletePrimitiveFromList(self):
-        pass
+        documentClient.delete(keyTuple, MAP_BIN_NAME, "$.list[1][0][0]")
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.list[1][0]")
+        self.assertEqual(results, [])
 
     def testDeleteMapFromMap(self):
-        pass
+        documentClient.delete(keyTuple, MAP_BIN_NAME, "$.map.map")
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.map")
+        
+        expectedJsonObj = mapJsonObj.copy()
+        del expectedJsonObj["map"]["map"]
+
+        self.assertEqual(results, expectedJsonObj["map"])
 
     def testDeleteListFromMap(self):
-        pass
+        documentClient.delete(keyTuple, MAP_BIN_NAME, "$.map.list")
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.map")
+        
+        expectedJsonObj = mapJsonObj.copy()
+        del expectedJsonObj["map"]["list"]
+
+        self.assertEqual(results, expectedJsonObj["map"])
 
     def testDeleteMapFromList(self):
-        pass
+        documentClient.delete(keyTuple, MAP_BIN_NAME, "$.list[0]")
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.list")
+        
+        expectedJsonObj = mapJsonObj.copy()
+        del expectedJsonObj["list"][0]
+
+        self.assertEqual(results, expectedJsonObj["list"])
 
     def testDeleteListFromList(self):
-        pass
+        documentClient.delete(keyTuple, MAP_BIN_NAME, "$.list[1]")
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.list")
+        
+        expectedJsonObj = mapJsonObj.copy()
+        del expectedJsonObj["list"][1]
+
+        self.assertEqual(results, expectedJsonObj["list"])
 
 class TestIncorrectDelete(TestWrites):
     def testDeleteMissingKey(self):
