@@ -11,7 +11,7 @@ from jsonpath_ng import jsonpath, parse
 
 import re
 
-from typing import Any
+from typing import Any, List, Tuple, Union
 
 from documentapiexception import JsonPathMissingRootError, JsonPathParseError, ObjectNotFoundError
 from aerospike import exception as ex
@@ -226,7 +226,7 @@ class DocumentClient:
     # The first part does not have advanced operations
     # The second part starts with the first advanced operation in the path
     @staticmethod
-    def divideJsonPath(jsonPath: str):
+    def divideJsonPath(jsonPath: str) -> Tuple[str, Union[str, None]]:
         # Get substring in path beginning with the first advanced operation
         advancedOps = ["[*]", "..", "[?", ".*"]
         # Look for operations in path
@@ -249,7 +249,7 @@ class DocumentClient:
 
     # Split up a valid JSON path into map and list access tokens
     @staticmethod
-    def tokenize(jsonPath: str):
+    def tokenize(jsonPath: str) -> List[str]:
         # First divide JSON path into "big" tokens
         # using map separator "."
         # Example:
@@ -282,7 +282,7 @@ class DocumentClient:
         return results
 
     @staticmethod
-    def buildContextArray(tokens: list):
+    def buildContextArray(tokens: list) -> Union[List[str], None]:
         ctxs = []
         for token in tokens:
             if type(token) == int:
@@ -303,7 +303,7 @@ class DocumentClient:
         return ctxs
 
     @staticmethod
-    def createGetOperation(binName: str, ctxs: list, lastToken: str):
+    def createGetOperation(binName: str, ctxs: list, lastToken: str) -> dict:
         # Create get operation using last token
         if type(lastToken) == int:
             op = list_operations.list_get_by_index(binName, lastToken, aerospike.LIST_RETURN_VALUE, ctxs)
@@ -316,7 +316,7 @@ class DocumentClient:
         return op
 
     @staticmethod
-    def createPutOperation(binName: str, ctxs: list, lastToken: str, obj: object):
+    def createPutOperation(binName: str, ctxs: list, lastToken: str, obj: object) -> dict:
         # Create put operation
         # TODO: list and map operations must be configured properly
         if type(lastToken) == int:
@@ -330,7 +330,7 @@ class DocumentClient:
         return op
 
     @staticmethod
-    def convertToOperatePolicy(policy: dict):
+    def convertToOperatePolicy(policy: dict) -> Union[dict, None]:
         operatePolicy = None
         if policy == None:
             return None
