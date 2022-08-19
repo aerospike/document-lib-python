@@ -228,7 +228,7 @@ class DocumentClient:
     @staticmethod
     def divideJsonPath(jsonPath: str):
         # Get substring in path beginning with the first advanced operation
-        advancedOps = ["[*]", "..", "[?"]
+        advancedOps = ["[*]", "..", "[?", ".*"]
         # Look for operations in path
         startIndices = [jsonPath.find(op) for op in advancedOps]
         # Filter out ones that aren't found
