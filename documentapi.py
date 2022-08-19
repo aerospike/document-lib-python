@@ -58,13 +58,16 @@ class DocumentClient:
         # Fetch document
         try:
             _, _, bins = self.client.operate(key, [op], readPolicy)
+            fetchedDocument = bins[binName]
+            if fetchedDocument == None:
+                # This occurs when accessing a map with a key
+                # that doesn't exist
+                raise ObjectNotFoundError(jsonPath)
         except (ex.BinIncompatibleType, ex.InvalidRequest, ex.OpNotApplicable):
             # InvalidRequest: index access on a map or primitive
             # BinIncompatibleType: key access on a list or primitive
             # OpNotApplicable: accessing element of missing item or out of bounds index
             raise ObjectNotFoundError(jsonPath)
-
-        fetchedDocument = bins[binName]
 
         # Use JSONPath library to perform advanced ops on fetched document
         if advancedJsonPath:
