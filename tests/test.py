@@ -47,7 +47,7 @@ def tearDownModule():
     # Close client connection
     client.close()
 
-class TestCorrectGets(unittest.TestCase):
+class TestGets(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Insert record with two bins
@@ -60,6 +60,7 @@ class TestCorrectGets(unittest.TestCase):
         # Remove record with two documents
         client.remove(keyTuple)
 
+class TestCorrectGets(TestGets):
     def testGetRoot(self):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$")
         self.assertEqual(results, mapJsonObj)
@@ -147,6 +148,7 @@ class TestCorrectGets(unittest.TestCase):
         expected = list(mapJsonObj["map"].values())
         self.assertEqual(results, expected)
 
+class TestIncorrectGets(TestGets):
     # Syntax errors
 
     def testGetEmpty(self):
