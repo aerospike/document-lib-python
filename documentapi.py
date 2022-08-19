@@ -173,22 +173,34 @@ class DocumentClient:
         lastToken = tokens.pop()
         ctxs = self.buildContextArray(tokens)
 
-        op = self.createGetOperation(binName, ctxs, lastToken)
-
         # Remove keys from read policy that aren't in operate policy
         operatePolicy = self.convertToOperatePolicy(writePolicy)
 
-        fetchedDocument = self.performGetOperation(key, binName, op, operatePolicy, jsonPath)
-
         # Use JSONPath library to perform advanced ops on fetched document
         if advancedJsonPath:
+            op = self.createGetOperation(binName, ctxs, lastToken)
+            fetchedDocument = self.performGetOperation(key, binName, op, operatePolicy, jsonPath)
+
             # Delete object from all matches
             jsonPathExpr = parse(advancedJsonPath)
             jsonPathExpr.filter(fetchedDocument)
 
-        # Send new document to server
-        op = self.createPutOperation(binName, ctxs, lastToken, fetchedDocument)
-        self.performPutOperation(key, op, operatePolicy, jsonPath)
+            # Send new document to server
+            op = self.createPutOperation(binName, ctxs, lastToken, fetchedDocument)
+            self.performPutOperation(key, op, operatePolicy, jsonPath)
+        else:
+            # Delete entire matched item
+            # Create delete operation
+            if type(lastToken) == int:
+                op = list_operations.list_pop(binName, lastToken, ctx=ctxs)
+            elif lastToken == "$":
+                # Delete whole bin
+                op = operations.delete(binName)
+            else:
+                op = map_operations.map_remove_by_key(binName, lastToken, aerospike.MAP_RETURN_NONE, ctx=ctxs)
+
+            # Tada
+            self.client.operate(key, [op], operatePolicy)
 
     # Helper functions
 
