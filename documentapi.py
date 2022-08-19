@@ -13,7 +13,8 @@ import re
 
 from typing import Any
 
-from documentapiexception import JsonPathMissingRootError, JsonPathParseError
+from documentapiexception import JsonPathMissingRootError, JsonPathParseError, ObjectNotFoundError
+from aerospike import exception as ex
 
 class DocumentClient:
     """Client to run JSON queries"""
@@ -55,7 +56,14 @@ class DocumentClient:
         readPolicy = self.convertToOperatePolicy(readPolicy)
 
         # Fetch document
-        _, _, bins = self.client.operate(key, [op], readPolicy)
+        try:
+            _, _, bins = self.client.operate(key, [op], readPolicy)
+        except (ex.BinIncompatibleType, ex.InvalidRequest, ex.OpNotApplicable):
+            # InvalidRequest: index access on a map or primitive
+            # BinIncompatibleType: key access on a list or primitive
+            # OpNotApplicable: accessing element of missing item or out of bounds index
+            raise ObjectNotFoundError(jsonPath)
+
         fetchedDocument = bins[binName]
 
         # Use JSONPath library to perform advanced ops on fetched document

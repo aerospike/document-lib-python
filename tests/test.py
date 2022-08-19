@@ -174,28 +174,28 @@ class TestIncorrectGets(TestGets):
     # Access errors
 
     def testGetIndexFromMap(self):
-        self.assertRaises(ValueError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.map[0]")
+        self.assertRaises(ObjectNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.map[0]")
 
     def testGetKeyFromList(self):
-        self.assertRaises(ValueError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list.nonExistentKey")
+        self.assertRaises(ObjectNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list.nonExistentKey")
 
     def testGetIndexFromPrimitive(self):
-        self.assertRaises(ValueError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list[0].int[0]")
+        self.assertRaises(ObjectNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list[0].int[0]")
 
     def testGetKeyFromPrimitive(self):
-        self.assertRaises(ValueError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list[0].int.nonExistentKey")
+        self.assertRaises(ObjectNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list[0].int.nonExistentKey")
 
     def testGetFromMissingMap(self):
-        self.assertRaises(ValueError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.map.nonExistentMap.item")
+        self.assertRaises(ObjectNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.map.nonExistentMap.item")
 
     def testGetFromMissingList(self):
-        self.assertRaises(ValueError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.map.nonExistentList[0]")
+        self.assertRaises(ObjectNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.map.nonExistentList[0]")
 
     def testGetOutOfBoundsIndex(self):
-        self.assertRaises(ValueError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list[1000]")
+        self.assertRaises(ObjectNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list[1000]")
     
     def testGetMissingKey(self):
-        self.assertRaises(ValueError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.map.nonExistentKey")
+        self.assertRaises(ObjectNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.map.nonExistentKey")
 
 class TestCorrectPuts(unittest.TestCase):
     def setUp(self):
