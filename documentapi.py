@@ -210,7 +210,7 @@ class DocumentClient:
     @staticmethod
     def validateJsonPath(jsonPath: str):
         # JSON path must start at document root
-        if jsonPath and jsonPath.startswith("$") == False:
+        if not jsonPath or jsonPath.startswith("$") == False:
             raise JsonPathMissingRootError(jsonPath)
 
         # Check for syntax errors

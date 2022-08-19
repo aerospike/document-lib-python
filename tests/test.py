@@ -154,7 +154,7 @@ class TestIncorrectGets(TestGets):
     # Syntax errors
 
     def testGetEmpty(self):
-        self.assertRaises(JsonPathParseError, documentClient.get, keyTuple, MAP_BIN_NAME, "")
+        self.assertRaises(JsonPathMissingRootError, documentClient.get, keyTuple, MAP_BIN_NAME, "")
 
     def testGetMissingRoot(self):
         self.assertRaises(JsonPathMissingRootError, documentClient.get, keyTuple, MAP_BIN_NAME, "list")
