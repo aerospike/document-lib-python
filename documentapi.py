@@ -50,12 +50,10 @@ class DocumentClient:
         lastToken = tokens.pop()
         ctxs = self.buildContextArray(tokens)
 
-        getOp = self.createGetOperation(binName, ctxs, lastToken)
-
-        # Remove keys from read policy that aren't in operate policy
         operatePolicy = self.convertToOperatePolicy(readPolicy)
 
-        fetchedDocument = self.performGetOperation(key, binName, getOp, operatePolicy, jsonPath)
+        getOp = self.createGetOperation(binName, ctxs, lastToken)
+        fetchedDocument = self.getSmallestDocument(key, binName, getOp, operatePolicy, jsonPath)
 
         # Use JSONPath library to perform advanced ops on fetched document
         if advancedJsonPath:
@@ -86,24 +84,24 @@ class DocumentClient:
         lastToken = tokens.pop()
         ctxs = self.buildContextArray(tokens)
         
-        # Remove keys from write policy that aren't in operate policy
         operatePolicy = self.convertToOperatePolicy(writePolicy)
 
         if advancedJsonPath:
-            # Get document
+            # If an advanced operation exists in JSON path
+            # We need to fetch the whole document before it
+            # and modify the document
             getOp = self.createGetOperation(binName, ctxs, lastToken)
-            
-            documentToUpdate = self.performGetOperation(key, binName, getOp, operatePolicy, jsonPath)
+            smallestDocument = self.getSmallestDocument(key, binName, getOp, operatePolicy, jsonPath)
 
-            # Update fetch document
+            # Update smallest document
             jsonPathExpr = parse(advancedJsonPath)
-            jsonPathExpr.update(documentToUpdate, obj)
+            jsonPathExpr.update(smallestDocument, obj)
         else:
-            documentToUpdate = obj
+            smallestDocument = obj
         
         # Send updated document to server
-        putOp = self.createPutOperation(binName, ctxs, lastToken, documentToUpdate)
-        self.performPutOperation(key, putOp, operatePolicy, jsonPath)
+        putOp = self.createPutOperation(binName, ctxs, lastToken, smallestDocument)
+        self.sendSmallestDocument(key, putOp, operatePolicy, jsonPath)
 
     def append(self, key: tuple, binName: str, jsonPath: str, obj, writePolicy: dict = None):
         """
@@ -129,27 +127,24 @@ class DocumentClient:
 
         op = self.createGetOperation(binName, ctxs, lastToken)
 
-        # Remove keys from read policy that aren't in operate policy
+        # Get document from server
         operatePolicy = self.convertToOperatePolicy(writePolicy)
+        smallestDocument = self.getSmallestDocument(key, binName, op, operatePolicy, jsonPath)
 
-        fetchedDocument = self.performGetOperation(key, binName, op, operatePolicy, jsonPath)
-
-        # Use JSONPath library to perform advanced ops on fetched document
         if advancedJsonPath:
             # Append object to all matching lists
-            # TODO: add error handling
             jsonPathExpr = parse(advancedJsonPath)
-            matches = jsonPathExpr.find(fetchedDocument)
+            matches = jsonPathExpr.find(smallestDocument)
             for match in matches:
                 match.value.append(obj)
                 match.full_path.update(match.value)
         else:
             # List is the whole document
-            fetchedDocument.append(obj)
+            smallestDocument.append(obj)
 
         # Send new document to server
-        op = self.createPutOperation(binName, ctxs, lastToken, fetchedDocument)
-        self.performPutOperation(key, op, operatePolicy, jsonPath)
+        op = self.createPutOperation(binName, ctxs, lastToken, smallestDocument)
+        self.sendSmallestDocument(key, op, operatePolicy, jsonPath)
 
     def delete(self, key: tuple, binName: str, jsonPath: str, writePolicy: dict = None):
         """
@@ -173,21 +168,20 @@ class DocumentClient:
         lastToken = tokens.pop()
         ctxs = self.buildContextArray(tokens)
 
-        # Remove keys from read policy that aren't in operate policy
         operatePolicy = self.convertToOperatePolicy(writePolicy)
 
-        # Use JSONPath library to perform advanced ops on fetched document
         if advancedJsonPath:
+            # Fetch document from server
             op = self.createGetOperation(binName, ctxs, lastToken)
-            fetchedDocument = self.performGetOperation(key, binName, op, operatePolicy, jsonPath)
+            smallestDocument = self.getSmallestDocument(key, binName, op, operatePolicy, jsonPath)
 
-            # Delete object from all matches
+            # Delete all matches
             jsonPathExpr = parse(advancedJsonPath)
-            jsonPathExpr.filter(fetchedDocument)
+            jsonPathExpr.filter(smallestDocument)
 
             # Send new document to server
-            op = self.createPutOperation(binName, ctxs, lastToken, fetchedDocument)
-            self.performPutOperation(key, op, operatePolicy, jsonPath)
+            op = self.createPutOperation(binName, ctxs, lastToken, smallestDocument)
+            self.sendSmallestDocument(key, op, operatePolicy, jsonPath)
         else:
             # Delete entire matched item
             # Create delete operation
@@ -195,7 +189,7 @@ class DocumentClient:
                 op = list_operations.list_pop(binName, lastToken, ctx=ctxs)
             elif lastToken == "$":
                 # Delete whole bin
-                op = operations.delete(binName)
+                op = operations.write(binName, aerospike.null())
             else:
                 op = map_operations.map_remove_by_key(binName, lastToken, aerospike.MAP_RETURN_NONE, ctx=ctxs)
 
@@ -326,7 +320,7 @@ class DocumentClient:
     # These functions handle possible errors from calling operate()
     # Pass in JSON path in case we throw an error
 
-    def performGetOperation(self, key, binName, op, operatePolicy, jsonPath):
+    def getSmallestDocument(self, key, binName, op, operatePolicy, jsonPath):
         try:
             _, _, bins = self.client.operate(key, [op], operatePolicy)
             fetchedDocument = bins[binName]
@@ -340,7 +334,7 @@ class DocumentClient:
             raise ObjectNotFoundError(jsonPath)
         return fetchedDocument
 
-    def performPutOperation(self, key, op, operatePolicy, jsonPath):
+    def sendSmallestDocument(self, key, op, operatePolicy, jsonPath):
         try:
             _, _, _ = self.client.operate(key, [op], operatePolicy)
         except ex.OpNotApplicable:
