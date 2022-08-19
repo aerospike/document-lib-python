@@ -278,6 +278,8 @@ class TestIncorrectAppend(TestWrites):
     def testAppendPrimitive(self):
         pass
 
+import copy
+
 class TestCorrectDelete(TestWrites):
     def testDeleteRoot(self):
         # TODO
@@ -299,8 +301,8 @@ class TestCorrectDelete(TestWrites):
     def testDeleteMapFromMap(self):
         documentClient.delete(keyTuple, MAP_BIN_NAME, "$.map.map")
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.map")
-        
-        expectedJsonObj = mapJsonObj.copy()
+
+        expectedJsonObj = copy.deepcopy(mapJsonObj)
         del expectedJsonObj["map"]["map"]
 
         self.assertEqual(results, expectedJsonObj["map"])
@@ -309,7 +311,7 @@ class TestCorrectDelete(TestWrites):
         documentClient.delete(keyTuple, MAP_BIN_NAME, "$.map.list")
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.map")
         
-        expectedJsonObj = mapJsonObj.copy()
+        expectedJsonObj = copy.deepcopy(mapJsonObj)
         del expectedJsonObj["map"]["list"]
 
         self.assertEqual(results, expectedJsonObj["map"])
@@ -318,7 +320,7 @@ class TestCorrectDelete(TestWrites):
         documentClient.delete(keyTuple, MAP_BIN_NAME, "$.list[0]")
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.list")
         
-        expectedJsonObj = mapJsonObj.copy()
+        expectedJsonObj = copy.deepcopy(mapJsonObj)
         del expectedJsonObj["list"][0]
 
         self.assertEqual(results, expectedJsonObj["list"])
@@ -327,7 +329,7 @@ class TestCorrectDelete(TestWrites):
         documentClient.delete(keyTuple, MAP_BIN_NAME, "$.list[1]")
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.list")
         
-        expectedJsonObj = mapJsonObj.copy()
+        expectedJsonObj = copy.deepcopy(mapJsonObj)
         del expectedJsonObj["list"][1]
 
         self.assertEqual(results, expectedJsonObj["list"])
