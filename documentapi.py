@@ -149,7 +149,7 @@ class DocumentClient:
 
         # Send new document to server
         op = self.createPutOperation(binName, ctxs, lastToken, fetchedDocument)
-        self.client.operate(key, [op], writePolicy)
+        self.performPutOperation(key, op, operatePolicy, jsonPath)
 
     def delete(self, key: tuple, binName: str, jsonPath: str, writePolicy: dict = None):
         """
@@ -188,7 +188,7 @@ class DocumentClient:
 
         # Send new document to server
         op = self.createPutOperation(binName, ctxs, lastToken, fetchedDocument)
-        self.client.operate(key, [op], writePolicy)
+        self.performPutOperation(key, op, operatePolicy, jsonPath)
 
     # Helper functions
 
