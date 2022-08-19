@@ -344,3 +344,5 @@ class DocumentClient:
         for key in operatePolicy:
             if key not in operateKeys:
                 operatePolicy.pop(key)
+        
+        return operatePolicy
