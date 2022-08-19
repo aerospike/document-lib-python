@@ -294,8 +294,8 @@ class TestCorrectDelete(TestWrites):
         self.assertEqual(results, {})
 
     def testDeletePrimitiveFromList(self):
-        documentClient.delete(keyTuple, MAP_BIN_NAME, "$.list[1][0][0]")
-        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.list[1][0]")
+        documentClient.delete(keyTuple, MAP_BIN_NAME, "$.list[1][0]")
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.list[1]")
         self.assertEqual(results, [])
 
     def testDeleteMapFromMap(self):
