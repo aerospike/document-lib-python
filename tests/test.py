@@ -197,13 +197,14 @@ class TestIncorrectGets(TestGets):
     def testGetMissingKey(self):
         self.assertRaises(ObjectNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.map.nonExistentKey")
 
-class TestCorrectPuts(unittest.TestCase):
+class TestWrites(unittest.TestCase):
     def setUp(self):
         client.put(keyTuple, {MAP_BIN_NAME: mapJsonObj, LIST_BIN_NAME: listJsonObj})
 
     def tearDown(self):
         client.remove(keyTuple)
 
+class TestCorrectPuts(TestWrites):
     def testPutIntoMap(self):
         documentClient.put(keyTuple, MAP_BIN_NAME, "$.map.item", "hi")
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.map.item")
@@ -214,7 +215,7 @@ class TestCorrectPuts(unittest.TestCase):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.list[0]")
         self.assertEqual(results, 2)
 
-class TestIncorrectPuts(unittest.TestCase):
+class TestIncorrectPuts(TestWrites):
     def testPutIntoMissingMap(self):
         pass
 
@@ -227,13 +228,7 @@ class TestIncorrectPuts(unittest.TestCase):
     def testPutIntoListAsMap(self):
         pass
 
-class TestCorrectAppend(unittest.TestCase):
-    def setUp(self):
-        client.put(keyTuple, {MAP_BIN_NAME: mapJsonObj, LIST_BIN_NAME: listJsonObj})
-
-    def tearDown(self):
-        client.remove(keyTuple)
-
+class TestCorrectAppend(TestWrites):
     def testAppendIndexAccess(self):
         documentClient.append(keyTuple, MAP_BIN_NAME, "$.list[1]", 50)
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.list[1]")
@@ -245,7 +240,7 @@ class TestCorrectAppend(unittest.TestCase):
         expected = [{"int": 1}, [1], 42]
         self.assertEqual(results, expected)
 
-class TestIncorrectAppend(unittest.TestCase):
+class TestIncorrectAppend(TestWrites):
     def testAppendMissingList(self):
         pass
 
@@ -255,7 +250,7 @@ class TestIncorrectAppend(unittest.TestCase):
     def testAppendPrimitive(self):
         pass
 
-class TestCorrectDelete(unittest.TestCase):
+class TestCorrectDelete(TestWrites):
     def testDeleteRoot(self):
         documentClient.delete(keyTuple, MAP_BIN_NAME, "$")
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$")
@@ -280,7 +275,7 @@ class TestCorrectDelete(unittest.TestCase):
     def testDeleteListFromList(self):
         pass
 
-class TestIncorrectDelete(unittest.TestCase):
+class TestIncorrectDelete(TestWrites):
     def testDeleteMissingKey(self):
         pass
 
