@@ -264,17 +264,18 @@ class DocumentClient:
         
         return jsonPath, advancedJsonPath
 
-    # Split up a valid JSON path into map and list access tokens
+    # Split up JSON path without advanced operations
+    # into map and list access tokens
     @staticmethod
-    def tokenize(jsonPath: str) -> List[str]:
+    def tokenize(firstJsonPath: str) -> List[str]:
         # First divide JSON path into "big" tokens
         # using "." separator
         # Example:
         # "$[1].b.c['test']" -> ["$[1]", "b", "c['test']]"
-        bigTokens = jsonPath.split(".")
+        bigTokens = firstJsonPath.split(".")
 
         # Edge case:
-        # Treat .* as fetching the whole data
+        # Treat * as fetching the whole data, not just its members
         if bigTokens[-1] == "*":
             bigTokens.pop()
 
