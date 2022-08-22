@@ -17,13 +17,13 @@
     ],
     "dictsWithSameField": [
         {
-            "field": 1
+            "int": 1
         },
         {
-            "field": 42
+            "int": 42
         },
         {
-            "field": 20
+            "int": 20
         }
     ]
 }

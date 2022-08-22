@@ -15,6 +15,8 @@ sys.path.insert(0, parentDirAbsPath)
 from documentapi import DocumentClient
 from documentapiexception import *
 
+from typing import Counter
+
 # Bins to insert JSON documents
 LIST_BIN_NAME = "testList"
 MAP_BIN_NAME = "testMap"
@@ -141,6 +143,16 @@ class TestCorrectGets(TestGets):
         self.assertEqual(results, mapJsonObj["map"]["map"])
 
 class TestGetAdvancedOps(TestGets):
+    # Helper function
+    # Gets all keys if one is not provided
+    def getValuesFromListOfDicts(self, key=None):
+        values = []
+        for dict in mapJsonObj["dictsWithSameField"]:
+            dictKey = list(dict.keys())[0]
+            if key == None or dictKey == key:
+                values.append(dict[dictKey])
+        return values
+    
     # Wildstar index tests
 
     def testGetWildstarIndex(self):
@@ -153,10 +165,10 @@ class TestGetAdvancedOps(TestGets):
         self.assertEqual(results, expected)
 
     def testGetWildstarIndexBeforeKey(self):
-        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField[*].field")
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField[*].int")
         
-        # Get "field" value in every dictionary
-        expected = [item["field"] for item in mapJsonObj["dictsWithSameField"]]
+        # Get value in every dictionary
+        expected = self.getValuesFromListOfDicts("int")
         self.assertEqual(results, expected)
 
     # Wildstar key tests
@@ -169,10 +181,24 @@ class TestGetAdvancedOps(TestGets):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.map.*")
         self.assertEqual(results, mapJsonObj["map"])
 
+    # Recursion
+
+    def testGetRecursiveKey(self):
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$..int")
+        
+        # Get all field values
+        expected = []
+        expected.append(mapJsonObj["map"]["map"]["int"])
+        expected.append(mapJsonObj["list"][0]["int"])
+        expected.extend(self.getValuesFromListOfDicts("int"))
+        
+        # Order doesn't matter for recursive operations
+        self.assertEqual(Counter(results), Counter(expected))
+
     def testGetRecursiveWildstarKey(self):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField..*")
         # Get all field values
-        expected = [item["field"] for item in mapJsonObj["dictsWithSameField"]]
+        expected = self.getValuesFromListOfDicts()
         self.assertEqual(results, expected)
 
 class TestIncorrectGets(TestGets):
