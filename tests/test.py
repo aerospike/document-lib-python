@@ -291,11 +291,9 @@ import copy
 
 class TestCorrectDelete(TestWrites):
     def testDeleteRoot(self):
-        # TODO
         documentClient.delete(keyTuple, MAP_BIN_NAME, "$")
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$")
-        expected = [{"int": 1}, [1], 42]
-        self.assertEqual(results, expected)
+        self.assertEqual(results, {})
 
     def testDeletePrimitiveFromMap(self):
         documentClient.delete(keyTuple, MAP_BIN_NAME, "$.map.map.int")

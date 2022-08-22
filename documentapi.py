@@ -148,7 +148,9 @@ class DocumentClient:
 
     def delete(self, key: tuple, binName: str, jsonPath: str, writePolicy: dict = None):
         """
-        Delete an object in a JSON document using JSON path
+        Delete an object in a JSON document using JSON path.
+
+        Deleting the root element causes the bin to contain an empty dictionary.
 
         :param tuple key: the key of the record
         :param str binName: the name of the bin containing the JSON document
@@ -188,8 +190,8 @@ class DocumentClient:
             if type(lastToken) == int:
                 op = list_operations.list_pop(binName, lastToken, ctx=ctxs)
             elif lastToken == "$":
-                # Delete whole bin
-                op = operations.write(binName, aerospike.null())
+                # Replace bin with empty dict
+                op = operations.write(binName, {})
             else:
                 op = map_operations.map_remove_by_key(binName, lastToken, aerospike.MAP_RETURN_NONE, ctx=ctxs)
 
