@@ -266,33 +266,39 @@ class DocumentClient:
     @staticmethod
     def tokenize(jsonPath: str) -> List[str]:
         # First divide JSON path into "big" tokens
-        # using map separator "."
+        # using "." separator
         # Example:
-        # "$[1].b.c[2]" -> ["$[1]", "b", "c[2]]"
+        # "$[1].b.c['test']" -> ["$[1]", "b", "c['test']]"
         bigTokens = jsonPath.split(".")
 
         # Then divide each big token into "small" tokens
-        # using list separator "[<index>]"
+        # using  "[]" separator
         # Example:
-        # [$[1], b, c[2]] -> ["$", 1, "b", "c", 2]
+        # [$[1], b, c['test']] -> ["$", "1", "b", "c", "'test'"]
         results = []
         for bigToken in bigTokens:
             smallTokens = re.split("\[|\]", bigToken)
             # Remove empty small tokens
             while "" in smallTokens:
                 smallTokens.remove("")
-    
-            # First small token is always a map access or $
-            # Every small token after it is a list access
-            foundMapAccessOrRoot = False
-            for smallToken in smallTokens:
-                if foundMapAccessOrRoot:
-                    # Encode list access token as an integer
-                    smallToken = int(smallToken)
-                else:
-                    # Encode map access token as a string
-                    foundMapAccessOrRoot = True
 
+            # Parse small tokens
+            # Keys are encoded as strings
+            # Indices are encoded as integers
+            parsedFirstToken = False
+            for smallToken in smallTokens:
+                if not parsedFirstToken:
+                    # By default, encode first token as string
+                    # Since it is always either $ or a key
+                    parsedFirstToken = True
+                elif smallToken.startswith("'") and smallToken.endswith("'"):
+                    # Keys can also be enclosed in brackets
+                    # if they are surrounded by single quotes
+                    # Remove quotes from key
+                    smallToken = smallToken[1:-1]
+                else:
+                    # Otherwise assume list access inside square brackets
+                    smallToken = int(smallToken)
                 results.append(smallToken)
         return results
 
