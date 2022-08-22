@@ -140,6 +140,7 @@ class TestCorrectGets(TestGets):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$['map']['map']")
         self.assertEqual(results, mapJsonObj["map"]["map"])
 
+class TestGetAdvancedOps(TestGets):
     # Wildstar tests
 
     def testGetWildstarIndex(self):
