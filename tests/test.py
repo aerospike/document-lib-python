@@ -141,24 +141,39 @@ class TestCorrectGets(TestGets):
         self.assertEqual(results, mapJsonObj["map"]["map"])
 
 class TestGetAdvancedOps(TestGets):
-    # Wildstar tests
+    # Wildstar index tests
 
     def testGetWildstarIndex(self):
         results = documentClient.get(keyTuple, LIST_BIN_NAME, "$[*]")
         self.assertEqual(results, listJsonObj)
-
-    def testGetWildstarKey(self):
-        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.*")
-        self.assertEqual(results, mapJsonObj)
 
     def testGetNestedWildstarIndex(self):
         results = documentClient.get(keyTuple, LIST_BIN_NAME, "$[1][*]")
         expected = listJsonObj[1]
         self.assertEqual(results, expected)
 
+    def testGetWildstarIndexBeforeKey(self):
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField[*].field")
+        
+        # Get "field" value in every dictionary
+        expected = [item["field"] for item in mapJsonObj["dictsWithSameField"]]
+        self.assertEqual(results, expected)
+
+    # Wildstar key tests
+
+    def testGetWildstarKey(self):
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.*")
+        self.assertEqual(results, mapJsonObj)
+
     def testGetNestedWildstarKey(self):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.map.*")
         self.assertEqual(results, mapJsonObj["map"])
+
+    def testGetRecursiveWildstarKey(self):
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField..*")
+        # Get all field values
+        expected = [item["field"] for item in mapJsonObj["dictsWithSameField"]]
+        self.assertEqual(results, expected)
 
 class TestIncorrectGets(TestGets):
     # Syntax errors

@@ -14,5 +14,16 @@
         [
             1
         ]
+    ],
+    "dictsWithSameField": [
+        {
+            "field": 1
+        },
+        {
+            "field": 42
+        },
+        {
+            "field": 20
+        }
     ]
 }
