@@ -129,6 +129,17 @@ class TestCorrectGets(TestGets):
         results = documentClient.get(keyTuple, LIST_BIN_NAME, "$[1][1][0]")
         self.assertEqual(results, listJsonObj[1][1][0])
 
+    # Key square bracket tests
+
+    def testGetOneKeyInBracket(self):
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$['map']")
+        self.assertEqual(results, mapJsonObj["map"])
+
+
+    def testGetTwoKeysInBracket(self):
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$['map']['map']")
+        self.assertEqual(results, mapJsonObj["map"]["map"])
+
     # Wildstar tests
 
     def testGetWildstarIndex(self):
