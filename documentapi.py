@@ -243,7 +243,7 @@ class DocumentClient:
     @staticmethod
     def divideJsonPath(jsonPath: str) -> Tuple[str, Union[str, None]]:
         # Get substring in path beginning with the first advanced operation
-        advancedOps = ["[*]", "..", "[?", ".*"]
+        advancedOps = ["[*]", "..", "[?"]
         # Look for operations in path
         startIndices = [jsonPath.find(op) for op in advancedOps]
         # Filter out ones that aren't found
@@ -270,6 +270,11 @@ class DocumentClient:
         # Example:
         # "$[1].b.c['test']" -> ["$[1]", "b", "c['test']]"
         bigTokens = jsonPath.split(".")
+
+        # Edge case:
+        # Treat .* as fetching the whole data
+        if bigTokens[-1] == "*":
+            bigTokens.pop()
 
         # Then divide each big token into "small" tokens
         # using  "[]" separator

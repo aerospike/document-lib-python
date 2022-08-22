@@ -148,8 +148,7 @@ class TestCorrectGets(TestGets):
 
     def testGetWildstarKey(self):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.*")
-        expected = [mapJsonObj["map"], mapJsonObj["list"]]
-        self.assertEqual(results, expected)
+        self.assertEqual(results, mapJsonObj)
 
     def testGetNestedWildstarIndex(self):
         results = documentClient.get(keyTuple, LIST_BIN_NAME, "$[1][*]")
@@ -158,8 +157,7 @@ class TestCorrectGets(TestGets):
 
     def testGetNestedWildstarKey(self):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.map.*")
-        expected = list(mapJsonObj["map"].values())
-        self.assertEqual(results, expected)
+        self.assertEqual(results, mapJsonObj["map"])
 
 class TestIncorrectGets(TestGets):
     # Syntax errors
