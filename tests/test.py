@@ -291,12 +291,20 @@ class TestCorrectDelete(TestWrites):
     def testDeletePrimitiveFromMap(self):
         documentClient.delete(keyTuple, MAP_BIN_NAME, "$.map.map.int")
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.map.map")
-        self.assertEqual(results, {})
+
+        expectedJsonObj = copy.deepcopy(mapJsonObj)
+        del expectedJsonObj["map"]["map"]["int"]
+
+        self.assertEqual(results, expectedJsonObj["map"]["map"])
 
     def testDeletePrimitiveFromList(self):
         documentClient.delete(keyTuple, MAP_BIN_NAME, "$.list[1][0]")
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.list[1]")
-        self.assertEqual(results, [])
+
+        expectedJsonObj = copy.deepcopy(mapJsonObj)
+        del expectedJsonObj["list"][1][0]
+
+        self.assertEqual(results, expectedJsonObj["list"][1])
 
     def testDeleteMapFromMap(self):
         documentClient.delete(keyTuple, MAP_BIN_NAME, "$.map.map")
