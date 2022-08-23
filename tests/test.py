@@ -144,7 +144,7 @@ class TestCorrectGets(TestGets):
 
 class TestGetAdvancedOps(TestGets):
     # Helper function
-    # Gets all keys if one is not provided
+    # Gets all values in list if a key is not provided
     def getValuesFromListOfDicts(self, key=None):
         values = []
         for dict in mapJsonObj["dictsWithSameField"]:
@@ -186,7 +186,7 @@ class TestGetAdvancedOps(TestGets):
     def testGetRecursiveKey(self):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$..int")
         
-        # Get all field values
+        # Get all field "int" values
         expected = []
         expected.append(mapJsonObj["map"]["map"]["int"])
         expected.append(mapJsonObj["list"][0]["int"])
@@ -196,10 +196,31 @@ class TestGetAdvancedOps(TestGets):
         self.assertEqual(Counter(results), Counter(expected))
 
     def testGetRecursiveWildstarKey(self):
-        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField..*")
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$..*")
+
         # Get all field values
-        expected = self.getValuesFromListOfDicts()
-        self.assertEqual(results, expected)
+        expected = []
+        expected.append(mapJsonObj["map"])
+        expected.append(mapJsonObj["map"]["map"])
+        expected.append(mapJsonObj["map"]["list"])
+        expected.append(mapJsonObj["map"]["map"]["int"])
+        expected.append(mapJsonObj["list"])
+        expected.append(mapJsonObj["list"][0]["int"])
+        expected.append(mapJsonObj["dictsWithSameField"])
+        expected.extend(self.getValuesFromListOfDicts())
+
+        def isEqualUnsorted(list1, list2):
+            if len(list1) != len(list2):
+                # Unequal lengths
+                return False
+            while list2:
+                element = list2.pop()
+                if element not in list1:
+                    return False
+                list1.remove(element)
+            return len(list1) == 0
+
+        self.assertTrue(isEqualUnsorted(results, expected))
 
 class TestIncorrectGets(TestGets):
     # Syntax errors
