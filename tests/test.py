@@ -201,18 +201,25 @@ class TestGetAdvancedOps(TestGets):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.map.*")
         self.assertEqual(results, mapJsonObj["map"])
 
-    # Recursion
+    # Recursion Tests
 
     def testGetRecursiveKey(self):
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField..int")
+
+        # Get all field "int" values in a specific map
+        expected = self.getValuesFromListOfDicts("int")
+        # Order doesn't matter for recursive operations
+        self.assertTrue(self.isListEqualUnsorted(results, expected))
+
+    def testGetRecursiveFromRoot(self):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$..int")
         
-        # Get all field "int" values
+        # Get all field "int" values in the entire bin document
         expected = []
         expected.append(mapJsonObj["map"]["map"]["int"])
         expected.append(mapJsonObj["list"][0]["int"])
         expected.extend(self.getValuesFromListOfDicts("int"))
         
-        # Order doesn't matter for recursive operations
         self.assertTrue(self.isListEqualUnsorted(results, expected))
 
     def testGetRecursiveWildstarKey(self):
