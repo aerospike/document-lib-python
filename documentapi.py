@@ -7,7 +7,7 @@ from aerospike_helpers.operations import map_operations
 from aerospike_helpers.operations import list_operations
 from aerospike_helpers.operations import operations
 
-from jsonpath_ng import jsonpath, parse
+from jsonpath_ng.ext import parse
 
 import re
 
