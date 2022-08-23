@@ -186,19 +186,27 @@ class DocumentClient:
             # Send new document to server
             op = self.createPutOperation(binName, ctxs, lastToken, smallestDocument)
             self.sendSmallestDocument(key, op, operatePolicy, jsonPath)
-        else:
-            # Delete entire matched item
-            # Create delete operation
-            if type(lastToken) == int:
-                op = list_operations.list_pop(binName, lastToken, ctx=ctxs)
-            elif lastToken == "$":
-                # Replace bin with empty dict
-                op = operations.write(binName, {})
-            else:
-                op = map_operations.map_remove_by_key(binName, lastToken, aerospike.MAP_RETURN_NONE, ctx=ctxs)
+            return
 
-            # Tada
+        # Delete entire matched item
+        # Create delete operation
+        if type(lastToken) == int:
+            op = list_operations.list_pop(binName, lastToken, ctx=ctxs)
+        elif lastToken == "$":
+            # Replace bin with empty dict
+            op = operations.write(binName, {})
+        else:
+            op = map_operations.map_remove_by_key(binName, lastToken, aerospike.MAP_RETURN_NONE, ctx=ctxs)
+
+        # Tada
+        try:
+            # Deleting a missing key does not throw an error
+            # User must check that it exists beforehand
             self.client.operate(key, [op], operatePolicy)
+        except (ex.OpNotApplicable, ex.InvalidRequest):
+            # OpNotApplicable: deleting from missing list/map, out of bounds index
+            # InvalidRequest: deleting index from map or key from list
+            raise ObjectNotFoundError(jsonPath)
 
     # Helper functions
 
