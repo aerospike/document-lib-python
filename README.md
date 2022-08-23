@@ -2,10 +2,22 @@
 
 Verified to work on Python 3.9.13.
 
-## Installation
+## Developing
 
-`pip install -r requirements.txt`
+To install dependencies:
+```
+pip install -r requirements.txt
+```
 
-To run tests:
+To build documentation:
+```
+cd docs/
+sphinx-build -b html . htmldir
+```
 
-`python3 test.py`
+## Tests
+
+```
+cd tests/
+python3 test.py
+```
