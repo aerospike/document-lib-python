@@ -208,7 +208,6 @@ class TestGetAdvancedOps(TestGets):
 
         # Get all field "int" values in a specific map
         expected = self.getValuesFromListOfDicts("int")
-        # Order doesn't matter for recursive operations
         self.assertTrue(self.isListEqualUnsorted(results, expected))
 
     def testGetRecursiveFromRoot(self):
@@ -237,6 +236,20 @@ class TestGetAdvancedOps(TestGets):
         expected.extend(self.getValuesFromListOfDicts())
 
         self.assertTrue(self.isListEqualUnsorted(results, expected))
+
+    # Filter tests
+
+    def testFilterDictsWithInt(self):
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField[?(@.int)]")
+        expected = mapJsonObj["dictsWithSameField"][:2]
+        self.assertTrue(self.isListEqualUnsorted(results, expected))
+
+    # Function tests
+    # TODO: currently unsupported
+
+    def testLength(self):
+        length = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField.length()")
+        self.assertEqual(len(mapJsonObj["dictsWithSameField"]), length)
 
 class TestIncorrectGets(TestGets):
     # Syntax errors
