@@ -255,9 +255,9 @@ class DocumentClient:
     @staticmethod
     def divideJsonPath(jsonPath: str) -> Tuple[str, Union[str, None]]:
         # Get substring in path beginning with the first advanced operation
-        advancedOps = ["[*]", "..", "[?"]
         # Look for operations in path
-        startIndices = [jsonPath.find(op) for op in advancedOps]
+        ADVANCED_OP_TOKENS = ["[*]", "..", "[?"]
+        startIndices = [jsonPath.find(op) for op in ADVANCED_OP_TOKENS]
         # Filter out ones that aren't found
         startIndices = list(filter(lambda index: index >= 1, startIndices))
         if startIndices:
@@ -376,12 +376,12 @@ class DocumentClient:
         
         # Filter out non-operate policies
         operatePolicy = policy.copy()
-        operateKeys = [
+        OPERATE_CONFIG_KEYS = [
             "max_retries", "sleep_between_retries", "socket_timeout", "total_timeout", "compress", "key", "gen", "replica",
             "commit_level", "read_mode_ap", "read_mode_sc", "exists", "durable_delete", "expressions"
         ]
         for key in operatePolicy:
-            if key not in operateKeys:
+            if key not in OPERATE_CONFIG_KEYS:
                 operatePolicy.pop(key)
         
         return operatePolicy

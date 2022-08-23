@@ -1,6 +1,5 @@
 import unittest
 
-from unittest.mock import MagicMock
 import json
 import aerospike
 
@@ -14,8 +13,6 @@ sys.path.insert(0, parentDirAbsPath)
 
 from documentapi import DocumentClient
 from documentapiexception import *
-
-from typing import Counter
 
 # Bins to insert JSON documents
 LIST_BIN_NAME = "testList"
