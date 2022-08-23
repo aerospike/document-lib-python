@@ -145,31 +145,51 @@ class TestCorrectGets(TestGets):
 class TestGetAdvancedOps(TestGets):
     # Helper function
     # Gets all values in list if a key is not provided
-    def getValuesFromListOfDicts(self, key=None):
+    @staticmethod
+    def getValuesFromListOfDicts(key=None):
         values = []
         for dict in mapJsonObj["dictsWithSameField"]:
             dictKey = list(dict.keys())[0]
             if key == None or dictKey == key:
                 values.append(dict[dictKey])
         return values
+
+    # Cannot use counter to compare unhashable objects
+    # Lists in JSON document are unhashable
+    @staticmethod
+    def isListEqualUnsorted(list1, list2):
+        if len(list1) != len(list2):
+            # Unequal lengths
+            return False
+
+        # Don't modify original lists to compare them
+        list1 = copy.deepcopy(list1)
+        list2 = copy.deepcopy(list2)
+
+        while list2:
+            element = list2.pop()
+            if element not in list1:
+                return False
+            list1.remove(element)
+        return len(list1) == 0
     
     # Wildstar index tests
 
     def testGetWildstarIndex(self):
         results = documentClient.get(keyTuple, LIST_BIN_NAME, "$[*]")
-        self.assertEqual(results, listJsonObj)
+        self.assertTrue(self.isListEqualUnsorted(results, listJsonObj))
 
     def testGetNestedWildstarIndex(self):
         results = documentClient.get(keyTuple, LIST_BIN_NAME, "$[1][*]")
         expected = listJsonObj[1]
-        self.assertEqual(results, expected)
+        self.assertTrue(self.isListEqualUnsorted(results, expected))
 
     def testGetWildstarIndexBeforeKey(self):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField[*].int")
         
         # Get value in every dictionary
         expected = self.getValuesFromListOfDicts("int")
-        self.assertEqual(results, expected)
+        self.assertTrue(self.isListEqualUnsorted(results, expected))
 
     # Wildstar key tests
 
@@ -193,7 +213,7 @@ class TestGetAdvancedOps(TestGets):
         expected.extend(self.getValuesFromListOfDicts("int"))
         
         # Order doesn't matter for recursive operations
-        self.assertEqual(Counter(results), Counter(expected))
+        self.assertTrue(self.isListEqualUnsorted(results, expected))
 
     def testGetRecursiveWildstarKey(self):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$..*")
@@ -209,20 +229,7 @@ class TestGetAdvancedOps(TestGets):
         expected.append(mapJsonObj["dictsWithSameField"])
         expected.extend(self.getValuesFromListOfDicts())
 
-        # Cannot use counter to compare unhashable objects
-        # Lists in JSON document are unhashable
-        def isEqualUnsorted(list1, list2):
-            if len(list1) != len(list2):
-                # Unequal lengths
-                return False
-            while list2:
-                element = list2.pop()
-                if element not in list1:
-                    return False
-                list1.remove(element)
-            return len(list1) == 0
-
-        self.assertTrue(isEqualUnsorted(results, expected))
+        self.assertTrue(self.isListEqualUnsorted(results, expected))
 
 class TestIncorrectGets(TestGets):
     # Syntax errors
