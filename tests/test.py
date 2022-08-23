@@ -209,6 +209,8 @@ class TestGetAdvancedOps(TestGets):
         expected.append(mapJsonObj["dictsWithSameField"])
         expected.extend(self.getValuesFromListOfDicts())
 
+        # Cannot use counter to compare unhashable objects
+        # Lists in JSON document are unhashable
         def isEqualUnsorted(list1, list2):
             if len(list1) != len(list2):
                 # Unequal lengths
