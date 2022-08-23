@@ -255,6 +255,13 @@ class TestGetAdvancedOps(TestGets):
         expected = mapJsonObj["dictsWithSameField"][0]
         self.assertTrue(results, expected)
 
+    def testFilterRegex(self):
+        self.skipTest("Not supported")
+        # Matches anything ending with mesa and ignores case
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField[?(@.str =~ /.*mesa/i)]")
+        expected = mapJsonObj["dictsWithSameField"][0]
+        self.assertTrue(results, expected)
+
     # Function tests
     # TODO: currently unsupported
 

@@ -17,13 +17,16 @@
     ],
     "dictsWithSameField": [
         {
-            "int": 1
+            "int": 1,
+            "str": "Antlions"
         },
         {
-            "int": 42
+            "int": 42,
+            "str": "Black Mesa"
         },
         {
-            "anotherint": 20
+            "anotherint": 20,
+            "str": "Combine"
         }
     ]
 }
