@@ -244,10 +244,22 @@ class TestGetAdvancedOps(TestGets):
         expected = mapJsonObj["dictsWithSameField"][:2]
         self.assertTrue(self.isListEqualUnsorted(results, expected))
 
+    def testFilterLT(self):
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField[?(@.int > 10)]")
+        expected = mapJsonObj["dictsWithSameField"][1]
+        self.assertTrue(results, expected)
+
+    def testFilterLTVar(self):
+        self.skipTest("Not supported")
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField[?(@.int < $['compareVar'])]")
+        expected = mapJsonObj["dictsWithSameField"][0]
+        self.assertTrue(results, expected)
+
     # Function tests
     # TODO: currently unsupported
 
     def testLength(self):
+        self.skipTest("Not supported")
         length = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField.length()")
         self.assertEqual(len(mapJsonObj["dictsWithSameField"]), length)
 
