@@ -181,7 +181,7 @@ class DocumentClient:
 
             # Delete all matches
             jsonPathExpr = parse(advancedJsonPath)
-            jsonPathExpr.filter(smallestDocument)
+            jsonPathExpr.filter(lambda _ : True, smallestDocument)
 
             # Send new document to server
             op = self.createPutOperation(binName, ctxs, lastToken, smallestDocument)
