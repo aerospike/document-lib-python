@@ -27,6 +27,8 @@ class DocumentClient:
         Get object(s) from a JSON document using JSON path.
 
         If multiple objects are matched, they will be returned as a :class:`list`.
+        A list of results does not have a guaranteed order.
+
         Otherwise, the object itself is returned.
 
         :param tuple key: the key of the record
