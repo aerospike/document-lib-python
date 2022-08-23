@@ -507,24 +507,31 @@ class TestDeleteAdvancedOps(TestWrites):
 
         self.assertEqual(results, expectedJsonObj)
 
+    def testDeleteDeepScanWildstar(self):
+        documentClient.delete(keyTuple, MAP_BIN_NAME, "$..*")
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$")
+
+        self.assertEqual(results, {})
+
 class TestIncorrectDelete(TestWrites):
     def testDeleteMissingKey(self):
-        pass
+        # No exception will be raised
+        documentClient.delete(keyTuple, MAP_BIN_NAME, "$.map.nonExistentKey")
 
-    def testDeleteMissingIndex(self):
-        pass
+    def testDeleteOutOfBoundsIndex(self):
+        self.assertRaises(ObjectNotFoundError, documentClient.delete, keyTuple, MAP_BIN_NAME, "$.list[1000]")
 
     def testDeleteKeyInList(self):
-        pass
+        self.assertRaises(ObjectNotFoundError, documentClient.delete, keyTuple, MAP_BIN_NAME, "$.list.nonExistentKey")
 
     def testDeleteIndexInMap(self):
-        pass
+        self.assertRaises(ObjectNotFoundError, documentClient.delete, keyTuple, MAP_BIN_NAME, "$.map[0]")
 
     def testDeleteFromMissingMap(self):
-        pass
+        self.assertRaises(ObjectNotFoundError, documentClient.delete, keyTuple, MAP_BIN_NAME, "$.map.nonExistentMap.item")
 
     def testDeleteFromMissingList(self):
-        pass
+        self.assertRaises(ObjectNotFoundError, documentClient.delete, keyTuple, MAP_BIN_NAME, "$.map.nonExistentList[0]")
 
 if __name__=="__main__":
     unittest.main()
