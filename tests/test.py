@@ -51,6 +51,56 @@ def tearDownModule():
     # Close client connection
     client.close()
 
+# Helper function for all tests
+
+def deleteJsonMapValuesRecursively(jsonObj, key=None):
+    if type(jsonObj) == list:
+        # Recurse through every element in list
+        for element in jsonObj:
+            deleteJsonMapValuesRecursively(element, key)
+
+    if type(jsonObj) != dict:
+        # Object cannot have any key-value pairs
+        return
+
+    # Delete all matching keys and recurse into remaining values
+    keysToDelete = []
+    for iteratedKey in jsonObj.keys():
+        value = jsonObj[iteratedKey]
+        if key == None or iteratedKey == key:
+            # Matches
+            keysToDelete.append(key)
+        else:
+            deleteJsonMapValuesRecursively(value, key)
+
+    for key in keysToDelete:
+        del jsonObj[key]
+
+# Gets all values if a key is not provided
+def getJsonMapValuesRecursively(jsonObj, key=None):
+    if type(jsonObj) == list:
+        # Recurse through every element in list
+        values = []
+        for element in jsonObj:
+            elementValues = getJsonMapValuesRecursively(element, key)
+            values.extend(elementValues)
+        return values
+
+    if type(jsonObj) != dict:
+        # Object cannot have any key-value pairs
+        return []
+
+    # Add all matching keys and recurse into each value
+    values = []
+    for iteratedKey in jsonObj.keys():
+        value = jsonObj[iteratedKey]
+        if key == None or iteratedKey == key:
+            # Matches
+            values.append(value)
+        nestedValues = getJsonMapValuesRecursively(value, key)
+        values.extend(nestedValues)
+    return values
+
 class TestGets(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -143,33 +193,6 @@ class TestCorrectGets(TestGets):
         self.assertEqual(results, mapJsonObj["map"]["map"])
 
 class TestGetAdvancedOps(TestGets):
-    # Helper function
-    # Gets all values if a key is not provided
-    @staticmethod
-    def getJsonMapValuesRecursively(jsonObj, key=None):
-        if type(jsonObj) == list:
-            # Recurse through every element in list
-            values = []
-            for element in jsonObj:
-                elementValues = TestGetAdvancedOps.getJsonMapValuesRecursively(element, key)
-                values.extend(elementValues)
-            return values
-
-        if type(jsonObj) != dict:
-            # Object cannot have any key-value pairs
-            return []
-
-        # Add all matching keys and recurse into each value
-        values = []
-        for iteratedKey in jsonObj.keys():
-            value = jsonObj[iteratedKey]
-            if key == None or iteratedKey == key:
-                # Matches
-                values.append(value)
-            nestedValues = TestGetAdvancedOps.getJsonMapValuesRecursively(value, key)
-            values.extend(nestedValues)
-        return values
-
     # Cannot use counter to compare unhashable objects
     # Lists in JSON document are unhashable
     @staticmethod
@@ -203,7 +226,7 @@ class TestGetAdvancedOps(TestGets):
     def testGetWildstarIndexBeforeKey(self):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField[*].int")
         # Get value in every dictionary
-        expected = self.getJsonMapValuesRecursively(mapJsonObj["dictsWithSameField"], "int")
+        expected = getJsonMapValuesRecursively(mapJsonObj["dictsWithSameField"], "int")
 
         self.assertTrue(self.isListEqualUnsorted(results, expected))
 
@@ -223,21 +246,21 @@ class TestGetAdvancedOps(TestGets):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField..int")
 
         # Get all field "int" values in a specific map
-        expected = self.getJsonMapValuesRecursively(mapJsonObj["dictsWithSameField"], "int")
+        expected = getJsonMapValuesRecursively(mapJsonObj["dictsWithSameField"], "int")
         self.assertTrue(self.isListEqualUnsorted(results, expected))
 
     def testGetRecursiveFromRoot(self):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$..int")
         
         # Get all field "int" values in the entire bin document
-        expected = self.getJsonMapValuesRecursively(mapJsonObj, "int")
+        expected = getJsonMapValuesRecursively(mapJsonObj, "int")
         self.assertTrue(self.isListEqualUnsorted(results, expected))
 
     def testGetRecursiveWildstarKey(self):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$..*")
 
         # Get all field values
-        expected = self.getJsonMapValuesRecursively(mapJsonObj)
+        expected = getJsonMapValuesRecursively(mapJsonObj)
         self.assertTrue(self.isListEqualUnsorted(results, expected))
 
     # Filter tests
@@ -366,6 +389,17 @@ class TestCorrectPuts(TestWrites):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.list[0]")
         self.assertEqual(results, 2)
 
+class TestPutsAdvancedOps(TestWrites):
+    def testPutDeepScan(self):
+        documentClient.put(keyTuple, MAP_BIN_NAME, "$..int", 99)
+
+        # All ints should be 99
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$")
+        intValues = getJsonMapValuesRecursively(results, "int")
+        areIntsAll99 = all([value == intValues[0] for value in intValues])
+
+        self.assertTrue(areIntsAll99)
+
 class TestIncorrectPuts(TestWrites):
     def testPutIntoMissingMap(self):
         self.assertRaises(ObjectNotFoundError, documentClient.put, keyTuple, MAP_BIN_NAME, "$.map.nonExistentMap.item", 4)
@@ -462,6 +496,16 @@ class TestCorrectDelete(TestWrites):
         del expectedJsonObj["list"][1]
 
         self.assertEqual(results, expectedJsonObj["list"])
+
+class TestDeleteAdvancedOps(TestWrites):
+    def testDeepScanDelete(self):
+        documentClient.delete(keyTuple, MAP_BIN_NAME, "$..int")
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$")
+
+        expectedJsonObj = copy.deepcopy(mapJsonObj)
+        deleteJsonMapValuesRecursively(expectedJsonObj, "int")
+
+        self.assertEqual(results, expectedJsonObj)
 
 class TestIncorrectDelete(TestWrites):
     def testDeleteMissingKey(self):
