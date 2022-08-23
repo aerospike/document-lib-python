@@ -427,13 +427,15 @@ class TestCorrectAppend(TestWrites):
 
 class TestIncorrectAppend(TestWrites):
     def testAppendMissingList(self):
-        pass
+        self.assertRaises(ObjectNotFoundError, documentClient.append, keyTuple, MAP_BIN_NAME, "$.map.nonExistentList", 4)
+
+    # TODO: replace with custom errors?
 
     def testAppendMap(self):
-        pass
+        self.assertRaises(AttributeError, documentClient.append, keyTuple, MAP_BIN_NAME, "$.map", 4)
 
     def testAppendPrimitive(self):
-        pass
+        self.assertRaises(AttributeError, documentClient.append, keyTuple, MAP_BIN_NAME, "$.map.map.int", 4)
 
 import copy
 
