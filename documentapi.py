@@ -37,7 +37,9 @@ class DocumentClient:
         :param dict readPolicy: the read policy for get() operation
 
         :return: :py:obj:`Any`
-        :raises: :exc:`KeyNotFound`
+        :raises: :exc:`JsonPathMissingRootError` if the JSON path doesn't start with a $
+        :raises: :exc:`JsonPathParseError` if the JSON path has a syntax error
+        :raises: :exc:`ObjectNotFoundError` no objects could be found with the JSON path
         """
         
         self.validateJsonPath(jsonPath)
@@ -72,7 +74,10 @@ class DocumentClient:
         :param str binName: the name of the bin containing the JSON document
         :param str jsonPath: JSON path location to store the object
         :param dict writePolicy: the write policy for put() operation
-        
+
+        :raises: :exc:`JsonPathMissingRootError` when the JSON path doesn't start with a $
+        :raises: :exc:`JsonPathParseError` when the JSON path has a syntax error
+        :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
         """
         self.validateJsonPath(jsonPath)
  
@@ -114,6 +119,9 @@ class DocumentClient:
         :param str jsonPath: JSON path ending with a list
         :param dict writePolicy: the write policy for operate() operation
         
+        :raises: :exc:`JsonPathMissingRootError` when the JSON path doesn't start with a $
+        :raises: :exc:`JsonPathParseError` when the JSON path has a syntax error
+        :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
         """
         self.validateJsonPath(jsonPath)
  
@@ -159,6 +167,9 @@ class DocumentClient:
         :param str jsonPath: JSON path of object to delete
         :param dict writePolicy: the write policy for operate() operation
 
+        :raises: :exc:`JsonPathMissingRootError` when the JSON path doesn't start with a $
+        :raises: :exc:`JsonPathParseError` when the JSON path has a syntax error
+        :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
         """
         self.validateJsonPath(jsonPath)
  
