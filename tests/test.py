@@ -190,8 +190,8 @@ class TestCorrectGets(TestGets):
         self.assertEqual(results, mapJsonObj["map"]["map"])
 
 class TestGetAdvancedOps(TestGets):
-    # Cannot use counter to compare unhashable objects
-    # Lists in JSON document are unhashable
+    # get() may return multiple results in any order
+    # This function checks if it returns the same results
     @staticmethod
     def isListEqualUnsorted(list1, list2):
         if len(list1) != len(list2):
