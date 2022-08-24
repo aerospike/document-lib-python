@@ -1,4 +1,3 @@
-from enum import unique
 import aerospike
 from aerospike import Client
 
@@ -37,9 +36,9 @@ class DocumentClient:
         :param dict readPolicy: the read policy for get() operation
 
         :return: :py:obj:`Any`
-        :raises: :exc:`JsonPathMissingRootError` if the JSON path doesn't start with a $
-        :raises: :exc:`JsonPathParseError` if the JSON path has a syntax error
-        :raises: :exc:`ObjectNotFoundError` no objects could be found with the JSON path
+        :raises: :exc:`JsonPathMissingRootError` when the JSON path doesn't start with a ``$``
+        :raises: :exc:`JsonPathParseError` when the JSON path has a syntax error
+        :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
         """
         
         self.validateJsonPath(jsonPath)
@@ -68,14 +67,14 @@ class DocumentClient:
 
     def put(self, key: tuple, binName: str, jsonPath: str, obj: Any, writePolicy: dict = None):
         """
-        Put an object into a JSON document using JSON path
+        Put an object into a JSON document using JSON path.
 
         :param tuple key: the key of the record
         :param str binName: the name of the bin containing the JSON document
         :param str jsonPath: JSON path location to store the object
         :param dict writePolicy: the write policy for put() operation
 
-        :raises: :exc:`JsonPathMissingRootError` when the JSON path doesn't start with a $
+        :raises: :exc:`JsonPathMissingRootError` when the JSON path doesn't start with a ``$``
         :raises: :exc:`JsonPathParseError` when the JSON path has a syntax error
         :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
         """
@@ -112,14 +111,14 @@ class DocumentClient:
 
     def append(self, key: tuple, binName: str, jsonPath: str, obj, writePolicy: dict = None):
         """
-        Append an object to a list in a JSON document using JSON path
+        Append an object to a list in a JSON document using JSON path.
 
         :param tuple key: the key of the record
         :param str binName: the name of the bin containing the JSON document
         :param str jsonPath: JSON path ending with a list
         :param dict writePolicy: the write policy for operate() operation
         
-        :raises: :exc:`JsonPathMissingRootError` when the JSON path doesn't start with a $
+        :raises: :exc:`JsonPathMissingRootError` when the JSON path doesn't start with a ``$``
         :raises: :exc:`JsonPathParseError` when the JSON path has a syntax error
         :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
         """
@@ -167,7 +166,7 @@ class DocumentClient:
         :param str jsonPath: JSON path of object to delete
         :param dict writePolicy: the write policy for operate() operation
 
-        :raises: :exc:`JsonPathMissingRootError` when the JSON path doesn't start with a $
+        :raises: :exc:`JsonPathMissingRootError` when the JSON path doesn't start with a ``$``
         :raises: :exc:`JsonPathParseError` when the JSON path has a syntax error
         :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
         """

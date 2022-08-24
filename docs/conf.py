@@ -14,8 +14,6 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
 
-import sphinx_rtd_theme
-
 # -- Project information -----------------------------------------------------
 
 project = 'Document Library Python'
@@ -24,7 +22,6 @@ author = 'Julian Nguyen'
 
 # The full version, including alpha/beta/rc tags
 release = '1.0.0'
-
 
 # -- General configuration ---------------------------------------------------
 
