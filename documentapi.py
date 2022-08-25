@@ -367,7 +367,6 @@ class DocumentClient:
     @staticmethod
     def createPutOperation(binName: str, ctxs: list, lastToken: str, obj: object) -> dict:
         # Create put operation
-        # TODO: list and map operations must be configured properly
         if type(lastToken) == int:
             op = list_operations.list_set(binName, lastToken, obj, ctx=ctxs)
         elif lastToken == "$":
@@ -380,7 +379,6 @@ class DocumentClient:
 
     @staticmethod
     def convertToOperatePolicy(policy: dict) -> Union[dict, None]:
-        operatePolicy = None
         if policy == None:
             return None
         
