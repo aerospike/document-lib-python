@@ -304,14 +304,21 @@ class TestIncorrectGets(TestGets):
 
     def testGetTrailingPeriod(self):
         self.assertRaises(JsonPathParseError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.")
+        self.assertRaises(JsonPathParseError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.asdf.")
+
+    def testGetTrailingRecursive(self):
+        self.assertRaises(JsonPathParseError, documentClient.get, keyTuple, MAP_BIN_NAME, "$..")
 
     def testGetTrailingOpeningBracket(self):
+        self.assertRaises(JsonPathParseError, documentClient.get, keyTuple, LIST_BIN_NAME, "$[")
         self.assertRaises(JsonPathParseError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list[")
 
     def testGetEmptyBrackets(self):
+        self.assertRaises(JsonPathParseError, documentClient.get, keyTuple, LIST_BIN_NAME, "$[]")
         self.assertRaises(JsonPathParseError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list[]")
 
     def testGetUnmatchedClosingBracket(self):
+        self.assertRaises(JsonPathParseError, documentClient.get, keyTuple, LIST_BIN_NAME, "$]")
         self.assertRaises(JsonPathParseError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list]")
 
     # Access errors
