@@ -272,14 +272,14 @@ class TestGetAdvancedOps(TestGets):
         expected = mapJsonObj["dictsWithSameField"][1]
         self.assertTrue(results, expected)
 
+    @unittest.skip("Unsupported")
     def testFilterLTVar(self):
-        self.skipTest("Not supported")
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField[?(@.int < $['compareVar'])]")
         expected = mapJsonObj["dictsWithSameField"][0]
         self.assertTrue(results, expected)
 
+    @unittest.skip("Unsupported")
     def testFilterRegex(self):
-        self.skipTest("Not supported")
         # Matches anything ending with mesa and ignores case
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField[?(@.str =~ /.*mesa/i)]")
         expected = mapJsonObj["dictsWithSameField"][0]
@@ -288,8 +288,8 @@ class TestGetAdvancedOps(TestGets):
     # Function tests
     # TODO: currently unsupported
 
+    @unittest.skip("Unsupported")
     def testLength(self):
-        self.skipTest("Not supported")
         length = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField.length()")
         self.assertEqual(len(mapJsonObj["dictsWithSameField"]), length)
 
