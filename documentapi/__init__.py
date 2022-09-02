@@ -15,6 +15,7 @@ from typing import Any, List, Tuple, Union
 
 from .exception import JsonPathMissingRootError, JsonPathParseError, ObjectNotFoundError
 
+
 class DocumentClient:
     """Client to run JSON queries"""
 
