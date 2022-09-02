@@ -267,11 +267,19 @@ class DocumentClient:
     def divideJsonPath(jsonPath: str) -> Tuple[str, Union[str, None]]:
         # Get substring in path beginning with the first advanced operation
         # Look for operations in path
-        ADVANCED_OP_TOKENS = ["[*]", "..", "[?", ".length()"]
-        startIndices = [jsonPath.find(op) for op in ADVANCED_OP_TOKENS]
-        # Filter out ones that aren't found
-        startIndices = list(filter(lambda index: index >= 1, startIndices))
-        if startIndices:
+        ADVANCED_OP_TOKENS = [
+            r"\[\*\]",          # [*]
+            r"\.\.",            # ..
+            r"\[\?",            # [?
+            r"\[\d+\:\d+\]"     # [start:end]
+            ]
+        matches = [re.search(op, jsonPath) for op in ADVANCED_OP_TOKENS]
+        # Filter out operations not in path
+        matches = filter(lambda match: match is not None, matches)
+        matches = list(matches)
+        # If any operations exist, get the starting point of the first one
+        if matches:
+            startIndices = map(lambda match: match.span()[0], matches)
             startIndex = min(startIndices)
         else:
             # No advanced operations found

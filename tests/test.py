@@ -293,6 +293,13 @@ class TestGetAdvancedOps(TestGets):
         length = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField.length()")
         self.assertEqual(len(mapJsonObj["dictsWithSameField"]), length)
 
+    # Lists
+
+    def testSlices(self):
+        # [2, 4)
+        results = documentClient.get(keyTuple, LIST_BIN_NAME, "$[1][2:4]")
+        expected = listJsonObj[1][2:4]
+        self.assertEqual(expected, results)
 
 class TestIncorrectGets(TestGets):
 
