@@ -195,8 +195,8 @@ class TestCorrectGets(TestGets):
 
 class TestGetAdvancedOps(TestGets):
 
-    # get() may return multiple results in any order
-    # This function checks if it returns the same results
+    # get() may return multiple matches in any order
+    # This function checks if the functions return the expected matches
     @staticmethod
     def isListEqualUnsorted(list1, list2):
         if len(list1) != len(list2):
@@ -303,7 +303,6 @@ class TestGetAdvancedOps(TestGets):
 
     # Function tests
 
-    @unittest.skip("Unsupported")
     def testLength(self):
         length = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField.length()")
         self.assertEqual(len(mapJsonObj["dictsWithSameField"]), length)

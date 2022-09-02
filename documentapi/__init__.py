@@ -42,7 +42,7 @@ class DocumentClient:
         :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
         """
 
-        self.validateJsonPath(jsonPath)
+        jsonPath, endsWithLength = self.checkJsonPath(jsonPath)
 
         jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
 
@@ -64,6 +64,10 @@ class DocumentClient:
             jsonPathExpr = parse(advancedJsonPath)
             fetchedDocument = [match.value for match in jsonPathExpr.find(fetchedDocument)]
 
+            # JSONPaths ending with length should be a number, not a list
+            if endsWithLength:
+                fetchedDocument = fetchedDocument[0]
+
         return fetchedDocument
 
     def put(self, key: tuple, binName: str, jsonPath: str, obj: Any, writePolicy: dict = None):
@@ -79,7 +83,7 @@ class DocumentClient:
         :raises: :exc:`JsonPathParseError` when the JSON path has a syntax error
         :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
         """
-        self.validateJsonPath(jsonPath)
+        jsonPath, _ = self.checkJsonPath(jsonPath)
 
         jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
 
@@ -123,7 +127,7 @@ class DocumentClient:
         :raises: :exc:`JsonPathParseError` when the JSON path has a syntax error
         :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
         """
-        self.validateJsonPath(jsonPath)
+        jsonPath, _ = self.checkJsonPath(jsonPath)
 
         jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
 
@@ -171,7 +175,7 @@ class DocumentClient:
         :raises: :exc:`JsonPathParseError` when the JSON path has a syntax error
         :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
         """
-        self.validateJsonPath(jsonPath)
+        jsonPath, _ = self.checkJsonPath(jsonPath)
 
         jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
 
@@ -248,17 +252,27 @@ class DocumentClient:
             # - put() into missing list/map
             raise ObjectNotFoundError(jsonPath)
 
+    # Check for syntax errors and gather metadata about JSON path
     @staticmethod
-    def validateJsonPath(jsonPath: str):
+    def checkJsonPath(jsonPath: str) -> Tuple[str, bool]:
         # JSON path must start at document root
         if not jsonPath or jsonPath.startswith("$") is False:
             raise JsonPathMissingRootError(jsonPath)
+
+        # Metadata check
+        endsWithLength = jsonPath.endswith(".length()")
+
+        # Replace any length() tokens with `len`
+        # Our JSONPath library only uses the latter
+        jsonPath = re.sub(r"\.length\(\)", ".`len`", jsonPath)
 
         # Check for syntax errors
         try:
             parse(jsonPath)
         except Exception:
             raise JsonPathParseError(jsonPath)
+
+        return jsonPath, endsWithLength
 
     # Divide JSON path into two parts
     # The first part does not have advanced operations
@@ -275,14 +289,16 @@ class DocumentClient:
             r"\[-?\d+\:-?\d+\]",    # [start:end]
             r"\[-?\d+\:\]",         # [start:]
             r"\[\:-?\d+\]",         # [:end]
-            r"\[-?\d+(\|-?\d+)+\]"  # [idx1|idx2|...]
+            r"\[-?\d+(\|-?\d+)+\]", # [idx1|idx2|...]
+            r"\.`len`"              # .`len`
         ]
         matches = [re.search(op, jsonPath) for op in ADVANCED_OP_TOKENS]
         # Filter out operations not in path
         matches = filter(lambda match: match is not None, matches)
         matches = list(matches)
-        # If any operations exist, get the starting point of the first one
         if matches:
+            # If any operations exist, get the starting point of the first one
+            # for the JSONPath library to process
             startIndices = map(lambda match: match.span()[0], matches)
             startIndex = min(startIndices)
         else:
