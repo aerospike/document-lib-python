@@ -37,5 +37,10 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Run unit tests
       run: |
+        # Create Aerospike server
+        docker pull aerospike
+        docker run --name aerospike -d -p 3000:3000 aerospike/aerospike-server
         cd tests/
         python3 test.py
+        # Cleanup
+        docker container rm aerospike
