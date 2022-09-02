@@ -27,12 +27,16 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        # Install linter
+        pip install -r requirements.txt
+        # Build code and install package locally
+        pip install --editable .
     - name: Lint with flake8
       run: |
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --max-complexity=10 --show-source --max-line-length=127 --statistics
+        # The GitHub editor is 127 chars wide
+        cd documentapi/
+        flake8 . --count --max-complexity=10 --show-source --max-line-length=127
+        cd ..
     - name: Run unit tests
       run: |
         # Create Aerospike server
