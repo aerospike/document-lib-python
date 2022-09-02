@@ -312,6 +312,30 @@ class TestGetAdvancedOps(TestGets):
         expected = listJsonObj[1][2:4]
         self.assertEqual(expected, results)
 
+    def testSliceFromStart(self):
+        # [_, 2) -> [0, 1]
+        results = documentClient.get(keyTuple, LIST_BIN_NAME, "$[1][:2]")
+        expected = listJsonObj[1][:2]
+        self.assertEqual(expected, results)
+
+    def testSliceFromEnd(self):
+        # [2, end) -> [2, 3, ... last index]
+        results = documentClient.get(keyTuple, LIST_BIN_NAME, "$[1][2:]")
+        expected = listJsonObj[1][2:]
+        self.assertEqual(expected, results)
+
+    def testSliceFromLastIndex(self):
+        # [-1, ) -> [last index]
+        results = documentClient.get(keyTuple, LIST_BIN_NAME, "$[1][-1:]")
+        expected = listJsonObj[1][-1:]
+        self.assertEqual(expected, results)
+
+    def testSliceToLastIndex(self):
+        # [3, -1) -> [last index]
+        results = documentClient.get(keyTuple, LIST_BIN_NAME, "$[1][3:-1]")
+        expected = listJsonObj[1][3:-1]
+        self.assertEqual(expected, results)
+
     @unittest.skip("Unsupported")
     def testSetOfIndices(self):
         # [3, 5]
