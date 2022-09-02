@@ -15,9 +15,9 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-  "jsonpath-ng",
-  "aerospike",
-  "sphinx_rtd_theme"
+  "jsonpath-ng==1.5.3",
+  "aerospike==7.0.2",
+  "sphinx_rtd_theme==1.0.0"
 ]
 
 [project.urls]
