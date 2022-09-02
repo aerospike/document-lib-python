@@ -10,18 +10,23 @@ Python port of the Aerospike Document API in [Java](https://github.com/aerospike
 
 Not all JSONPath queries are currently supported. Here is a list of currently supported features:
 
-| Supported? | Feature              | Examples                                     | Explanation                                                           |
-|------------|----------------------|----------------------------------------------|-----------------------------------------------------------------------|
-| [x]        | Map access           | `$.item, $["item"]`                          |                                                                       |
-| [x]        | List access          | `$.list[0]`                                  |                                                                       |
-| [x]        | Wildcard map access  | `$.*`                                        |                                                                       |
-| [x]        | Wildcard list access | `$.list[*]`                                  |                                                                       |
-| [x]        | Recursive access     | `$..item`                                    |                                                                       |
-| [x]        | Exists filter        | `$.listOfMaps[?(@.mapitem)]`                 |                                                                       |
-| [x]        | Comparison filter    | `$.listOfMaps[?(@.mapitem > 10)]`            |                                                                       |
-| [ ]        | Variable filter      | `$.listOfMaps[?(@.mapitem < $['rootitem'])]` | Comparing `mapitem` with `rootitem`. The latter is an element of root |
-| [ ]        | Regex filter         | `$.listOfMaps[?(@.mapitem ~= /.*mesa/i)]`    | Checking if `mapitem` ends with "mesa"                                |
-| [ ]        | Functions            | `$.list.length()`                            |                                                                       |
+| Supported? | Feature              | Examples                                            |
+|------------|----------------------|-----------------------------------------------------|
+| [x]        | Map access           | `$.item, $["item"]`                                 |
+| [x]        | List access          | `$.list[0]`                                         |
+| [x]        | Wildcard map access  | `$.*`                                               |
+| [x]        | Wildcard list access | `$.list[*]`                                         |
+| [x]        | List slices          | `$.list[2:4]`                                       |
+| [ ]        | List step slices     | `$.list[2:4:1]`                                     |
+| [ ]        | List set of indices  | `$.list[2,4]`                                       |
+| [x]        | Recursive access     | `$..item`                                           |
+| [x]        | Exists filter        | `$.listOfMaps[?(@.mapitem)]`                        |
+| [x]        | Comparison filter    | `$.listOfMaps[?(@.mapitem > 10)]`                   |
+| [x]        | And filter           | `$.listOfMaps[?(@.mapitem > 10 & @.mapitem < 50)]`  |
+| [ ]        | Or filter            | `$.listOfMaps[?(@.mapitem < 10 \| @.mapitem > 50)]` |
+| [ ]        | Variable filter      | `$.listOfMaps[?(@.mapitem < $['rootitem'])]`        |
+| [ ]        | Regex filter         | `$.listOfMaps[?(@.mapitem ~= /.*mesa/i)]`           |
+| [ ]        | Functions            | `$.list.length()`                                   |
 
 ## Developing
 
