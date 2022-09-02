@@ -1,6 +1,8 @@
 # Aerospike Document API (Python)
 
-Verified to work on Python 3.9.13.
+Python port of the Aerospike Document API in [Java](https://github.com/aerospike/aerospike-document-lib).
+
+Supports Python 3.7-3.9.
 
 ## Developing
 
