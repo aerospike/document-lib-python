@@ -287,8 +287,8 @@ class TestGetAdvancedOps(TestGets):
         self.assertTrue(results, expected)
 
     # Function tests
-    # TODO: currently unsupported
 
+    @unittest.skip("Unsupported")
     def testLength(self):
         length = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField.length()")
         self.assertEqual(len(mapJsonObj["dictsWithSameField"]), length)
