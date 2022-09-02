@@ -6,6 +6,23 @@ Python port of the Aerospike Document API in [Java](https://github.com/aerospike
 - Python 3.7.x - 3.9.13.
 - Aerospike Python Client 7.0.2
 
+## Features
+
+Not all JSONPath queries are currently supported. Here is a list of currently supported features:
+
+| Supported? | Feature              | Examples                                     | Explanation                                                           |
+|------------|----------------------|----------------------------------------------|-----------------------------------------------------------------------|
+| [x]        | Map access           | `$.item, $["item"]`                          |                                                                       |
+| [x]        | List access          | `$.list[0]`                                  |                                                                       |
+| [x]        | Wildcard map access  | `$.*`                                        |                                                                       |
+| [x]        | Wildcard list access | `$.list[*]`                                  |                                                                       |
+| [x]        | Recursive access     | `$..item`                                    |                                                                       |
+| [x]        | Exists filter        | `$.listOfMaps[?(@.mapitem)]`                 |                                                                       |
+| [x]        | Comparison filter    | `$.listOfMaps[?(@.mapitem > 10)]`            |                                                                       |
+| [ ]        | Variable filter      | `$.listOfMaps[?(@.mapitem < $['rootitem'])]` | Comparing `mapitem` with `rootitem`. The latter is an element of root |
+| [ ]        | Regex filter         | `$.listOfMaps[?(@.mapitem ~= /.*mesa/i)]`    | Checking if `mapitem` ends with "mesa"                                |
+| [ ]        | Functions            | `$.list.length()`                            |                                                                       |
+
 ## Developing
 
 To install dependencies for development:
