@@ -21,3 +21,7 @@ sphinx-build -b html . htmldir
 cd tests/
 python3 test.py
 ```
+
+## Codestyle
+
+This code uses [flake8](https://github.com/pycqa/flake8) for codestyle checking.
