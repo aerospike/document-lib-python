@@ -15,9 +15,15 @@ cd docs/
 sphinx-build -b html . htmldir
 ```
 
-## Tests
+## Unit testing
 
+For now, unit tests rely on an Aerospike server to work.
 ```
+# Run a local Aerospike server on a Docker container
+docker pull aerospike/aerospike-server
+docker run --name aerospike -d -p 3000:3000 aerospike/aerospike-server
+
+# Wait a few seconds for Aerospike server to fully start
 cd tests/
 python3 test.py
 ```
