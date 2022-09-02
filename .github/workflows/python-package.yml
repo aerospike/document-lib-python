@@ -45,4 +45,5 @@ jobs:
         cd tests/
         python3 test.py
         # Cleanup
+        docker container stop aerospike
         docker container rm aerospike
