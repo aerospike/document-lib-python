@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "document_lib_python"
+version = "0.1.0"
+authors = [
+  { name="Julian Nguyen", email="jnguyen@aerospike.com" },
+]
+description = "Document Library API for Python"
+readme = "README.md"
+requires-python = "==3.9.13"
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/aerospike/document-lib-python"
+"Bug Tracker" = "https://github.com/aerospike/document-lib-python/issues"
