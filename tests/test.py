@@ -1,22 +1,22 @@
 import unittest
-
+import copy
 import json
 import aerospike
+
+from documentapiexception import JsonPathMissingRootError, JsonPathParseError, ObjectNotFoundError
 
 # Must add parent directory to system path
 # So we can import documentapi
 import sys
 import os
-
 parentDirAbsPath = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
 sys.path.insert(0, parentDirAbsPath)
-
 from documentapi import DocumentClient
-from documentapiexception import *
 
 # Bins to insert JSON documents
 LIST_BIN_NAME = "testList"
 MAP_BIN_NAME = "testMap"
+
 
 def setUpModule():
     # Need to access these variables across all test cases
@@ -41,12 +41,14 @@ def setUpModule():
     # Record key for all tests
     keyTuple = ('test', 'demo', 'key')
 
+
 def tearDownModule():
     # Close file descriptors
     mapJsonFile.close()
     listJsonFile.close()
     # Close client connection
     client.close()
+
 
 # Helper function for all tests
 
@@ -64,7 +66,7 @@ def deleteJsonMapValuesRecursively(jsonObj, key=None):
     keysToDelete = []
     for iteratedKey in jsonObj.keys():
         value = jsonObj[iteratedKey]
-        if key == None or iteratedKey == key:
+        if key is None or iteratedKey == key:
             # Matches
             keysToDelete.append(key)
         else:
@@ -72,6 +74,7 @@ def deleteJsonMapValuesRecursively(jsonObj, key=None):
 
     for key in keysToDelete:
         del jsonObj[key]
+
 
 # Gets all values if a key is not provided
 def getJsonMapValuesRecursively(jsonObj, key=None):
@@ -91,14 +94,16 @@ def getJsonMapValuesRecursively(jsonObj, key=None):
     values = []
     for iteratedKey in jsonObj.keys():
         value = jsonObj[iteratedKey]
-        if key == None or iteratedKey == key:
+        if key is None or iteratedKey == key:
             # Matches
             values.append(value)
         nestedValues = getJsonMapValuesRecursively(value, key)
         values.extend(nestedValues)
     return values
 
+
 class TestGets(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
         # Insert record with two bins
@@ -111,13 +116,15 @@ class TestGets(unittest.TestCase):
         # Remove record with two documents
         client.remove(keyTuple)
 
+
 class TestCorrectGets(TestGets):
+
     def testGetRoot(self):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$")
         self.assertEqual(results, mapJsonObj)
 
     # First order elements
-    
+
     def testGetKey(self):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.map")
         self.assertEqual(results, mapJsonObj["map"])
@@ -184,12 +191,13 @@ class TestCorrectGets(TestGets):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$['map']")
         self.assertEqual(results, mapJsonObj["map"])
 
-
     def testGetTwoKeysInBracket(self):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$['map']['map']")
         self.assertEqual(results, mapJsonObj["map"]["map"])
 
+
 class TestGetAdvancedOps(TestGets):
+
     # get() may return multiple results in any order
     # This function checks if it returns the same results
     @staticmethod
@@ -208,7 +216,7 @@ class TestGetAdvancedOps(TestGets):
                 return False
             list1.remove(element)
         return len(list1) == 0
-    
+
     # Wildstar index tests
 
     def testGetWildstarIndex(self):
@@ -248,7 +256,7 @@ class TestGetAdvancedOps(TestGets):
 
     def testGetRecursiveFromRoot(self):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$..int")
-        
+
         # Get all field "int" values in the entire bin document
         expected = getJsonMapValuesRecursively(mapJsonObj, "int")
         self.assertTrue(self.isListEqualUnsorted(results, expected))
@@ -288,12 +296,13 @@ class TestGetAdvancedOps(TestGets):
     # Function tests
     # TODO: currently unsupported
 
-    @unittest.skip("Unsupported")
     def testLength(self):
         length = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField.length()")
         self.assertEqual(len(mapJsonObj["dictsWithSameField"]), length)
 
+
 class TestIncorrectGets(TestGets):
+
     # Syntax errors
 
     def testGetEmpty(self):
@@ -343,9 +352,10 @@ class TestIncorrectGets(TestGets):
 
     def testGetOutOfBoundsIndex(self):
         self.assertRaises(ObjectNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list[1000]")
-    
+
     def testGetMissingKey(self):
         self.assertRaises(ObjectNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.map.nonExistentKey")
+
 
 class TestWrites(unittest.TestCase):
     def setUp(self):
@@ -354,7 +364,9 @@ class TestWrites(unittest.TestCase):
     def tearDown(self):
         client.remove(keyTuple)
 
+
 class TestCorrectPuts(TestWrites):
+
     # Inserting root document
 
     def testPutNewRootAsMap(self):
@@ -393,7 +405,9 @@ class TestCorrectPuts(TestWrites):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.list[0]")
         self.assertEqual(results, 2)
 
+
 class TestPutsAdvancedOps(TestWrites):
+
     def testPutDeepScan(self):
         documentClient.put(keyTuple, MAP_BIN_NAME, "$..int", 99)
 
@@ -404,7 +418,9 @@ class TestPutsAdvancedOps(TestWrites):
 
         self.assertTrue(areIntsAll99)
 
+
 class TestIncorrectPuts(TestWrites):
+
     def testPutIntoMissingMap(self):
         self.assertRaises(ObjectNotFoundError, documentClient.put, keyTuple, MAP_BIN_NAME, "$.map.nonExistentMap.item", 4)
 
@@ -417,7 +433,9 @@ class TestIncorrectPuts(TestWrites):
     def testPutIntoListAsMap(self):
         self.assertRaises(ObjectNotFoundError, documentClient.put, keyTuple, MAP_BIN_NAME, "$.map.nonExistentList.item", 4)
 
+
 class TestCorrectAppend(TestWrites):
+
     def testAppendIndexAccess(self):
         documentClient.append(keyTuple, MAP_BIN_NAME, "$.list[1]", 50)
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.list[1]")
@@ -429,7 +447,9 @@ class TestCorrectAppend(TestWrites):
         expected = [{"int": 1}, [1], 42]
         self.assertEqual(results, expected)
 
+
 class TestIncorrectAppend(TestWrites):
+
     def testAppendMissingList(self):
         self.assertRaises(ObjectNotFoundError, documentClient.append, keyTuple, MAP_BIN_NAME, "$.map.nonExistentList", 4)
 
@@ -441,9 +461,9 @@ class TestIncorrectAppend(TestWrites):
     def testAppendPrimitive(self):
         self.assertRaises(AttributeError, documentClient.append, keyTuple, MAP_BIN_NAME, "$.map.map.int", 4)
 
-import copy
 
 class TestCorrectDelete(TestWrites):
+
     def testDeleteRoot(self):
         documentClient.delete(keyTuple, MAP_BIN_NAME, "$")
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$")
@@ -479,7 +499,7 @@ class TestCorrectDelete(TestWrites):
     def testDeleteListFromMap(self):
         documentClient.delete(keyTuple, MAP_BIN_NAME, "$.map.list")
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.map")
-        
+
         expectedJsonObj = copy.deepcopy(mapJsonObj)
         del expectedJsonObj["map"]["list"]
 
@@ -488,7 +508,7 @@ class TestCorrectDelete(TestWrites):
     def testDeleteMapFromList(self):
         documentClient.delete(keyTuple, MAP_BIN_NAME, "$.list[0]")
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.list")
-        
+
         expectedJsonObj = copy.deepcopy(mapJsonObj)
         del expectedJsonObj["list"][0]
 
@@ -497,13 +517,15 @@ class TestCorrectDelete(TestWrites):
     def testDeleteListFromList(self):
         documentClient.delete(keyTuple, MAP_BIN_NAME, "$.list[1]")
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.list")
-        
+
         expectedJsonObj = copy.deepcopy(mapJsonObj)
         del expectedJsonObj["list"][1]
 
         self.assertEqual(results, expectedJsonObj["list"])
 
+
 class TestDeleteAdvancedOps(TestWrites):
+
     def testDeepScanDelete(self):
         documentClient.delete(keyTuple, MAP_BIN_NAME, "$..int")
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$")
@@ -519,7 +541,9 @@ class TestDeleteAdvancedOps(TestWrites):
 
         self.assertEqual(results, {})
 
+
 class TestIncorrectDelete(TestWrites):
+
     def testDeleteMissingKey(self):
         # No exception will be raised
         documentClient.delete(keyTuple, MAP_BIN_NAME, "$.map.nonExistentKey")
@@ -539,5 +563,6 @@ class TestIncorrectDelete(TestWrites):
     def testDeleteFromMissingList(self):
         self.assertRaises(ObjectNotFoundError, documentClient.delete, keyTuple, MAP_BIN_NAME, "$.map.nonExistentList[0]")
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     unittest.main()

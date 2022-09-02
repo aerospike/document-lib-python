@@ -15,6 +15,7 @@ from typing import Any, List, Tuple, Union
 from documentapiexception import JsonPathMissingRootError, JsonPathParseError, ObjectNotFoundError
 from aerospike import exception as ex
 
+
 class DocumentClient:
     """Client to run JSON queries"""
 
@@ -40,9 +41,9 @@ class DocumentClient:
         :raises: :exc:`JsonPathParseError` when the JSON path has a syntax error
         :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
         """
-        
+
         self.validateJsonPath(jsonPath)
- 
+
         jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
 
         # Split up JSON path into tokens
@@ -79,7 +80,7 @@ class DocumentClient:
         :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
         """
         self.validateJsonPath(jsonPath)
- 
+
         jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
 
         # Split up JSON path into tokens
@@ -89,7 +90,7 @@ class DocumentClient:
         # except the last token
         lastToken = tokens.pop()
         ctxs = self.buildContextArray(tokens)
-        
+
         operatePolicy = self.convertToOperatePolicy(writePolicy)
 
         if advancedJsonPath:
@@ -104,7 +105,7 @@ class DocumentClient:
             jsonPathExpr.update(smallestDocument, obj)
         else:
             smallestDocument = obj
-        
+
         # Send updated document to server
         putOp = self.createPutOperation(binName, ctxs, lastToken, smallestDocument)
         self.sendSmallestDocument(key, putOp, operatePolicy, jsonPath)
@@ -117,13 +118,13 @@ class DocumentClient:
         :param str binName: the name of the bin containing the JSON document
         :param str jsonPath: JSON path ending with a list
         :param dict writePolicy: the write policy for operate() operation
-        
+
         :raises: :exc:`JsonPathMissingRootError` when the JSON path doesn't start with a ``$``
         :raises: :exc:`JsonPathParseError` when the JSON path has a syntax error
         :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
         """
         self.validateJsonPath(jsonPath)
- 
+
         jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
 
         # Split up JSON path into tokens
@@ -171,7 +172,7 @@ class DocumentClient:
         :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
         """
         self.validateJsonPath(jsonPath)
- 
+
         jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
 
         # Split up JSON path into tokens
@@ -191,7 +192,7 @@ class DocumentClient:
 
             # Delete all matches
             jsonPathExpr = parse(advancedJsonPath)
-            jsonPathExpr.filter(lambda _ : True, smallestDocument)
+            jsonPathExpr.filter(lambda _: True, smallestDocument)
 
             # Send new document to server
             op = self.createPutOperation(binName, ctxs, lastToken, smallestDocument)
@@ -227,7 +228,7 @@ class DocumentClient:
         try:
             _, _, bins = self.client.operate(key, [op], operatePolicy)
             fetchedDocument = bins[binName]
-            if fetchedDocument == None:
+            if fetchedDocument is None:
                 # Caused by using a key that doesn't exist in a map
                 raise ObjectNotFoundError(jsonPath)
         except (ex.BinIncompatibleType, ex.InvalidRequest, ex.OpNotApplicable):
@@ -250,7 +251,7 @@ class DocumentClient:
     @staticmethod
     def validateJsonPath(jsonPath: str):
         # JSON path must start at document root
-        if not jsonPath or jsonPath.startswith("$") == False:
+        if not jsonPath or jsonPath.startswith("$") is False:
             raise JsonPathMissingRootError(jsonPath)
 
         # Check for syntax errors
@@ -266,7 +267,7 @@ class DocumentClient:
     def divideJsonPath(jsonPath: str) -> Tuple[str, Union[str, None]]:
         # Get substring in path beginning with the first advanced operation
         # Look for operations in path
-        ADVANCED_OP_TOKENS = ["[*]", "..", "[?"]
+        ADVANCED_OP_TOKENS = ["[*]", "..", "[?", ".length()"]
         startIndices = [jsonPath.find(op) for op in ADVANCED_OP_TOKENS]
         # Filter out ones that aren't found
         startIndices = list(filter(lambda index: index >= 1, startIndices))
@@ -281,7 +282,7 @@ class DocumentClient:
             # Treat fetched JSON document as root document
             advancedJsonPath = "$" + jsonPath[startIndex:]
             jsonPath = jsonPath[:startIndex]
-        
+
         return jsonPath, advancedJsonPath
 
     # Split up JSON path without advanced operations
@@ -305,7 +306,7 @@ class DocumentClient:
         # [$[1], b, c['test']] -> ["$", "1", "b", "c", "'test'"]
         results = []
         for bigToken in bigTokens:
-            smallTokens = re.split("\[|\]", bigToken)
+            smallTokens = re.split(r"\[|\]", bigToken)
             # Remove empty small tokens
             while "" in smallTokens:
                 smallTokens.remove("")
@@ -361,7 +362,7 @@ class DocumentClient:
             op = operations.read(binName)
         else:
             op = map_operations.map_get_by_key(binName, lastToken, aerospike.MAP_RETURN_VALUE, ctxs)
-        
+
         return op
 
     @staticmethod
@@ -379,9 +380,9 @@ class DocumentClient:
 
     @staticmethod
     def convertToOperatePolicy(policy: dict) -> Union[dict, None]:
-        if policy == None:
+        if policy is None:
             return None
-        
+
         # Filter out non-operate policies
         operatePolicy = policy.copy()
         OPERATE_CONFIG_KEYS = [
@@ -391,5 +392,5 @@ class DocumentClient:
         for key in operatePolicy:
             if key not in OPERATE_CONFIG_KEYS:
                 operatePolicy.pop(key)
-        
+
         return operatePolicy
