@@ -1,5 +1,6 @@
 import aerospike
 from aerospike import Client
+from aerospike import exception as ex
 
 from aerospike_helpers import cdt_ctx
 from aerospike_helpers.operations import map_operations
@@ -12,9 +13,7 @@ import re
 
 from typing import Any, List, Tuple, Union
 
-from documentapiexception import JsonPathMissingRootError, JsonPathParseError, ObjectNotFoundError
-from aerospike import exception as ex
-
+from .exception import JsonPathMissingRootError, JsonPathParseError, ObjectNotFoundError
 
 class DocumentClient:
     """Client to run JSON queries"""

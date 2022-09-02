@@ -4,7 +4,7 @@ import json
 import aerospike
 
 from documentapi import DocumentClient
-from documentapiexception import JsonPathMissingRootError, JsonPathParseError, ObjectNotFoundError
+from documentapi.exception import JsonPathMissingRootError, JsonPathParseError, ObjectNotFoundError
 
 # Bins to insert JSON documents
 LIST_BIN_NAME = "testList"

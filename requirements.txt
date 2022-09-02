@@ -1,4 +1,2 @@
-jsonpath-ng
-aerospike
-sphinx_rtd_theme
 flake8
+build

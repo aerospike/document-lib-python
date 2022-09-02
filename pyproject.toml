@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "document_lib_python"
@@ -13,6 +13,11 @@ readme = "README.md"
 requires-python = "==3.9.13"
 classifiers = [
     "Programming Language :: Python :: 3",
+]
+dependencies = [
+  "jsonpath-ng",
+  "aerospike",
+  "sphinx_rtd_theme"
 ]
 
 [project.urls]
