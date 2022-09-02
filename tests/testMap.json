@@ -25,6 +25,9 @@
             "str": "Black Mesa"
         },
         {
+            "int": 20
+        },
+        {
             "anotherint": 20,
             "str": "Combine"
         }

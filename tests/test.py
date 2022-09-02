@@ -265,12 +265,23 @@ class TestGetAdvancedOps(TestGets):
 
     def testFilterDictsWithInt(self):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField[?(@.int)]")
-        expected = mapJsonObj["dictsWithSameField"][:2]
+        expected = mapJsonObj["dictsWithSameField"][:3]
         self.assertTrue(self.isListEqualUnsorted(results, expected))
 
     def testFilterLT(self):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField[?(@.int > 10)]")
         expected = mapJsonObj["dictsWithSameField"][1]
+        self.assertTrue(results, expected)
+
+    def testFilterAnd(self):
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField[?(@.int > 10 & @.int < 50)]")
+        expected = mapJsonObj["dictsWithSameField"][1:3]
+        self.assertTrue(results, expected)
+
+    @unittest.skip("Unsupported")
+    def testFilterOr(self):
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField[?(@.int < 10 | @.int > 40)]")
+        expected = [mapJsonObj["dictsWithSameField"][0], mapJsonObj["dictsWithSameField"][2]]
         self.assertTrue(results, expected)
 
     @unittest.skip("Unsupported")
@@ -296,9 +307,23 @@ class TestGetAdvancedOps(TestGets):
     # Lists
 
     def testSlices(self):
-        # [2, 4)
+        # [2, 4) -> [2, 3]
         results = documentClient.get(keyTuple, LIST_BIN_NAME, "$[1][2:4]")
         expected = listJsonObj[1][2:4]
+        self.assertEqual(expected, results)
+
+    @unittest.skip("Unsupported")
+    def testSetOfIndices(self):
+        # [3, 5]
+        results = documentClient.get(keyTuple, LIST_BIN_NAME, "$[1][3|5]")
+        expected = [listJsonObj[1][3], listJsonObj[1][5]]
+        self.assertEqual(expected, results)
+
+    @unittest.skip("Unsupported")
+    def testSlicesWithStep(self):
+        # [2, 5) step 1 -> [2, 4]
+        results = documentClient.get(keyTuple, LIST_BIN_NAME, "$[1][2:5:2]")
+        expected = listJsonObj[1][2:5:2]
         self.assertEqual(expected, results)
 
 class TestIncorrectGets(TestGets):
