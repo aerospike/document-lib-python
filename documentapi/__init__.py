@@ -282,15 +282,15 @@ class DocumentClient:
         # Get substring in path beginning with the first advanced operation
         # Look for operations in path
         ADVANCED_OP_TOKENS = [
-            r"\[\*\]",              # [*]
-            r"\.\.",                # ..
-            r"\[\?",                # [?
+            r"\[\*\]",                  # [*]
+            r"\.\.",                    # ..
+            r"\[\?",                    # [?
             # Also check for negative indices
-            r"\[-?\d+\:-?\d+\]",    # [start:end]
-            r"\[-?\d+\:\]",         # [start:]
-            r"\[\:-?\d+\]",         # [:end]
-            r"\[-?\d+(\|-?\d+)+\]", # [idx1|idx2|...]
-            r"\.`len`"              # .`len`
+            r"\[-?\d+\:-?\d+\]",        # [start:end]
+            r"\[-?\d+\:\]",             # [start:]
+            r"\[\:-?\d+\]",             # [:end]
+            r"\[-?\d+(\|-?\d+)+\]",     # [idx1|idx2|...]
+            r"\.`len`"                  # .`len`
         ]
         matches = [re.search(op, jsonPath) for op in ADVANCED_OP_TOKENS]
         # Filter out operations not in path
