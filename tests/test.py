@@ -3,15 +3,8 @@ import copy
 import json
 import aerospike
 
-from documentapiexception import JsonPathMissingRootError, JsonPathParseError, ObjectNotFoundError
-
-# Must add parent directory to system path
-# So we can import documentapi
-import sys
-import os
-parentDirAbsPath = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
-sys.path.insert(0, parentDirAbsPath)
 from documentapi import DocumentClient
+from documentapiexception import JsonPathMissingRootError, JsonPathParseError, ObjectNotFoundError
 
 # Bins to insert JSON documents
 LIST_BIN_NAME = "testList"
