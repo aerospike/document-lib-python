@@ -26,7 +26,7 @@ Not all JSONPath queries are currently supported. Here is a list of currently su
 | [ ]        | Or filter            | `$.listOfMaps[?(@.mapitem < 10 \| @.mapitem > 50)]` |
 | [ ]        | Variable filter      | `$.listOfMaps[?(@.mapitem < $['rootitem'])]`        |
 | [ ]        | Regex filter         | `$.listOfMaps[?(@.mapitem ~= /.*mesa/i)]`           |
-| [ ]        | Functions            | `$.list.length()`                                   |
+| [-]        | Functions            | `$.list.length()` supported                         |
 
 ## Developing
 
