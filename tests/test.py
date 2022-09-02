@@ -1,3 +1,5 @@
+import sys
+import os
 import unittest
 import copy
 import json
@@ -18,8 +20,10 @@ def setUpModule():
     global client, documentClient, keyTuple
 
     # Open JSON test files
-    mapJsonFile = open("testMap.json")
-    listJsonFile = open("testList.json")
+    TEST_MAP_FILE_PATH = os.path.join(sys.path[0], "testMap.json")
+    TEST_LIST_FILE_PATH = os.path.join(sys.path[0], "testList.json")
+    mapJsonFile = open(TEST_MAP_FILE_PATH)
+    listJsonFile = open(TEST_LIST_FILE_PATH)
     # Parse them into Python objects
     mapJsonObj = json.load(mapJsonFile)
     listJsonObj = json.load(listJsonFile)
