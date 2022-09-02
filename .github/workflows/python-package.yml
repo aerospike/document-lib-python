@@ -40,6 +40,8 @@ jobs:
         # Create Aerospike server
         docker pull aerospike/aerospike-server
         docker run --name aerospike -d -p 3000:3000 aerospike/aerospike-server
+        # Wait for server to fully start up
+        sleep 3
         cd tests/
         python3 test.py
         # Cleanup
