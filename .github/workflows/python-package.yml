@@ -49,3 +49,10 @@ jobs:
         # Cleanup
         docker container stop aerospike
         docker container rm aerospike
+    - name: Deploy to test.pypi.org
+      run: |
+        python3 -m build
+        # Upload to test.pypi.org
+        python3 -m twine upload --repository testpypi dist/*
+        # Test that downloading it works
+        python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps document-lib-python
