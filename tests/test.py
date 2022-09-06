@@ -192,7 +192,6 @@ class TestCorrectGets(TestGets):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$['map']['map']")
         self.assertEqual(results, mapJsonObj["map"]["map"])
 
-
 class TestGetAdvancedOps(TestGets):
 
     # get() may return multiple matches in any order
@@ -263,6 +262,11 @@ class TestGetAdvancedOps(TestGets):
 
         # Get all field values
         expected = getJsonMapValuesRecursively(mapJsonObj)
+        self.assertTrue(self.isListEqualUnsorted(results, expected))
+
+    def testRecursiveBracket(self):
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$..['int']")
+        expected = getJsonMapValuesRecursively(mapJsonObj, "int")
         self.assertTrue(self.isListEqualUnsorted(results, expected))
 
     # Filter tests
