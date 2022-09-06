@@ -286,10 +286,9 @@ class TestGetAdvancedOps(TestGets):
         expected = mapJsonObj["dictsWithSameField"][1:3]
         self.assertTrue(self.isListEqualUnsorted(results, expected))
 
-    @unittest.skip("Unsupported")
     def testFilterOr(self):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField[?(@.int < 10 | @.int > 40)]")
-        expected = [mapJsonObj["dictsWithSameField"][0], mapJsonObj["dictsWithSameField"][2]]
+        expected = [mapJsonObj["dictsWithSameField"][0], mapJsonObj["dictsWithSameField"][1]]
         self.assertTrue(self.isListEqualUnsorted(results, expected))
 
     @unittest.skip("Unsupported")
