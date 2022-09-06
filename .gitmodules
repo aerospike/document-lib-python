@@ -1,0 +1,3 @@
+[submodule "jsonpath-ng"]
+	path = jsonpath-ng
+	url = git@github.com:aerospike-community/jsonpath-ng.git
