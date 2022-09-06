@@ -364,6 +364,18 @@ class TestGetAdvancedOps(TestGets):
         expected = listJsonObj[1][2:5:2]
         self.assertEqual(expected, results)
 
+    def testSlicesWithEndAndStep(self):
+        # [, 2) step 2 -> [0, 2]
+        results = documentClient.get(keyTuple, LIST_BIN_NAME, "$[1][:4:2]")
+        expected = listJsonObj[1][:4:2]
+        self.assertEqual(expected, results)
+
+    def testSlicesWithOnlyStep(self):
+        # step 2 -> [0, 2, 4]
+        results = documentClient.get(keyTuple, LIST_BIN_NAME, "$[1][::2]")
+        expected = listJsonObj[1][::2]
+        self.assertEqual(expected, results)
+
 class TestIncorrectGets(TestGets):
 
     # Syntax errors
