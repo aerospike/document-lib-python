@@ -15,6 +15,18 @@ from typing import Any, List, Tuple, Union
 
 from .exception import JsonPathMissingRootError, JsonPathParseError, ObjectNotFoundError
 
+ADVANCED_OP_TOKENS = [
+    r"\[\*\]",                  # [*]
+    r"\.\.",                    # ..
+    r"\[\?",                    # [?
+    # Also check for negative indices
+    r"\[-?\d+\:-?\d+\]",        # [start:end]
+    r"\[-?\d+\:\]",             # [start:]
+    r"\[\:-?\d+\]",             # [:end]
+    r"\[-?\d+(\|-?\d+)+\]",     # [idx1|idx2|...]
+    r"\.`len`"                  # .`len`
+]
+
 
 class DocumentClient:
     """Client to run JSON queries"""
@@ -65,8 +77,20 @@ class DocumentClient:
             jsonPathExpr = parse(advancedJsonPath)
             fetchedDocument = [match.value for match in jsonPathExpr.find(fetchedDocument)]
 
-            # JSONPaths ending with length should be a number, not a list
-            if advancedJsonPath.endswith(".`len`"):
+            # Check if an advanced operation other than length() exists
+            # Other advanced operations yield a list of results
+            # length() should yield an integer if called at the end
+            # and the path has no other advanced ops
+            matches = [re.search(op, advancedJsonPath) for op in ADVANCED_OP_TOKENS]
+            matches = filter(lambda match: match is not None, matches)
+            matches = list(matches)
+
+            containsOtherAdvancedOps = False
+            for match in matches:
+                if match.re is not re.compile(r"\.`len`"):
+                    containsOtherAdvancedOps = True
+
+            if advancedJsonPath.endswith(".`len`") and containsOtherAdvancedOps is False:
                 fetchedDocument = fetchedDocument[0]
 
         return fetchedDocument
@@ -261,17 +285,6 @@ class DocumentClient:
     def divideJsonPath(jsonPath: str) -> Tuple[str, Union[str, None]]:
         # Get substring in path beginning with the first advanced operation
         # Look for operations in path
-        ADVANCED_OP_TOKENS = [
-            r"\[\*\]",                  # [*]
-            r"\.\.",                    # ..
-            r"\[\?",                    # [?
-            # Also check for negative indices
-            r"\[-?\d+\:-?\d+\]",        # [start:end]
-            r"\[-?\d+\:\]",             # [start:]
-            r"\[\:-?\d+\]",             # [:end]
-            r"\[-?\d+(\|-?\d+)+\]",     # [idx1|idx2|...]
-            r"\.`len`"                  # .`len`
-        ]
         matches = [re.search(op, jsonPath) for op in ADVANCED_OP_TOKENS]
         # Filter out operations not in path
         matches = filter(lambda match: match is not None, matches)

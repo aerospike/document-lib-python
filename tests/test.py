@@ -307,6 +307,11 @@ class TestGetAdvancedOps(TestGets):
         length = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField.length()")
         self.assertEqual(len(mapJsonObj["dictsWithSameField"]), length)
 
+    def testWildstarLength(self):
+        length = documentClient.get(keyTuple, LIST_BIN_NAME, "$[*].length()")
+        expected = [len(element) for element in listJsonObj]
+        self.assertEqual(expected, length)
+
     # Lists
 
     def testSlices(self):
