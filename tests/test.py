@@ -353,10 +353,9 @@ class TestGetAdvancedOps(TestGets):
         expected = listJsonObj[1][3:-1]
         self.assertEqual(expected, results)
 
-    @unittest.skip("Unsupported")
     def testSetOfIndices(self):
         # [3, 5]
-        results = documentClient.get(keyTuple, LIST_BIN_NAME, "$[1][3|5]")
+        results = documentClient.get(keyTuple, LIST_BIN_NAME, "$[1][3,5]")
         expected = [listJsonObj[1][3], listJsonObj[1][5]]
         self.assertEqual(expected, results)
 

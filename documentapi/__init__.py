@@ -23,7 +23,7 @@ ADVANCED_OP_TOKENS = [
     r"\[-?\d+\:-?\d+\]",        # [start:end]
     r"\[-?\d+\:\]",             # [start:]
     r"\[\:-?\d+\]",             # [:end]
-    r"\[-?\d+(\|-?\d+)+\]",     # [idx1|idx2|...]
+    r"\[-?\d+(\,-?\d+)+\]",     # [idx1,idx2,...]
     r"\.`len`"                  # .`len`
 ]
 
