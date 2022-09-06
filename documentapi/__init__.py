@@ -16,15 +16,13 @@ from typing import Any, List, Tuple, Union
 from .exception import JsonPathMissingRootError, JsonPathParseError, ObjectNotFoundError
 
 ADVANCED_OP_TOKENS = [
-    r"\[\*\]",                  # [*]
-    r"\.\.",                    # ..
-    r"\[\?",                    # [?
+    r"\[\*\]",                              # [*]
+    r"\.\.",                                # ..
+    r"\[\?",                                # [?
     # Also check for negative indices
-    r"\[-?\d+\:-?\d+\]",        # [start:end]
-    r"\[-?\d+\:\]",             # [start:]
-    r"\[\:-?\d+\]",             # [:end]
-    r"\[-?\d+(\,-?\d+)+\]",     # [idx1,idx2,...]
-    r"\.`len`"                  # .`len`
+    r"\[(-?\d+)?\:(-?\d+)?(\:-?\d+)?\]",    # start:(end)?(:step)?
+    r"\[-?\d+(\,-?\d+)+\]",                 # [idx1,idx2,...]
+    r"\.`len`"                              # .`len`
 ]
 
 

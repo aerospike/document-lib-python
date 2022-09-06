@@ -359,7 +359,6 @@ class TestGetAdvancedOps(TestGets):
         expected = [listJsonObj[1][3], listJsonObj[1][5]]
         self.assertEqual(expected, results)
 
-    @unittest.skip("Unsupported")
     def testSlicesWithStep(self):
         # [2, 5) step 1 -> [2, 4]
         results = documentClient.get(keyTuple, LIST_BIN_NAME, "$[1][2:5:2]")
