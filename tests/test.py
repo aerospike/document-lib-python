@@ -182,7 +182,7 @@ class TestCorrectGets(TestGets):
         results = documentClient.get(keyTuple, LIST_BIN_NAME, "$[1][1][0]")
         self.assertEqual(results, listJsonObj[1][1][0])
 
-    # Key square bracket tests
+    # Bracket notation tests
 
     def testGetOneKeyInBracket(self):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$['map']")
@@ -306,6 +306,11 @@ class TestGetAdvancedOps(TestGets):
     def testLength(self):
         length = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField.length()")
         self.assertEqual(len(mapJsonObj["dictsWithSameField"]), length)
+
+    @unittest.skip("Unaddressed bug")
+    def testLengthInQuotes(self):
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$['.length()']")
+        self.assertEqual(mapJsonObj[".length()"], results)
 
     def testWildstarLength(self):
         length = documentClient.get(keyTuple, LIST_BIN_NAME, "$[*].length()")

@@ -31,5 +31,6 @@
             "anotherint": 20,
             "str": "Combine"
         }
-    ]
+    ],
+    ".length()": 20
 }
