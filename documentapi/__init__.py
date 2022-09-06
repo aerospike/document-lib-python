@@ -41,8 +41,9 @@ class DocumentClient:
         :raises: :exc:`JsonPathParseError` when the JSON path has a syntax error
         :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
         """
+        jsonPath = self.preprocessJsonPath(jsonPath)
 
-        jsonPath, endsWithLength = self.checkJsonPath(jsonPath)
+        jsonPath = self.validateJsonPath(jsonPath)
 
         jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
 
@@ -65,7 +66,7 @@ class DocumentClient:
             fetchedDocument = [match.value for match in jsonPathExpr.find(fetchedDocument)]
 
             # JSONPaths ending with length should be a number, not a list
-            if endsWithLength:
+            if advancedJsonPath.endswith(".`len`"):
                 fetchedDocument = fetchedDocument[0]
 
         return fetchedDocument
@@ -83,7 +84,9 @@ class DocumentClient:
         :raises: :exc:`JsonPathParseError` when the JSON path has a syntax error
         :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
         """
-        jsonPath, _ = self.checkJsonPath(jsonPath)
+        jsonPath = self.preprocessJsonPath(jsonPath)
+
+        jsonPath = self.validateJsonPath(jsonPath)
 
         jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
 
@@ -127,7 +130,9 @@ class DocumentClient:
         :raises: :exc:`JsonPathParseError` when the JSON path has a syntax error
         :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
         """
-        jsonPath, _ = self.checkJsonPath(jsonPath)
+        jsonPath = self.preprocessJsonPath(jsonPath)
+
+        jsonPath = self.validateJsonPath(jsonPath)
 
         jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
 
@@ -175,7 +180,9 @@ class DocumentClient:
         :raises: :exc:`JsonPathParseError` when the JSON path has a syntax error
         :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
         """
-        jsonPath, _ = self.checkJsonPath(jsonPath)
+        jsonPath = self.preprocessJsonPath(jsonPath)
+
+        jsonPath = self.validateJsonPath(jsonPath)
 
         jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
 
@@ -254,17 +261,10 @@ class DocumentClient:
 
     # Check for syntax errors and gather metadata about JSON path
     @staticmethod
-    def checkJsonPath(jsonPath: str) -> Tuple[str, bool]:
+    def validateJsonPath(jsonPath: str) -> Tuple[str, bool]:
         # JSON path must start at document root
         if not jsonPath or jsonPath.startswith("$") is False:
             raise JsonPathMissingRootError(jsonPath)
-
-        # Metadata check
-        endsWithLength = jsonPath.endswith(".length()")
-
-        # Replace any length() tokens with `len`
-        # Our JSONPath library only uses the latter
-        jsonPath = re.sub(r"\.length\(\)", ".`len`", jsonPath)
 
         # Check for syntax errors
         try:
@@ -272,7 +272,14 @@ class DocumentClient:
         except Exception:
             raise JsonPathParseError(jsonPath)
 
-        return jsonPath, endsWithLength
+        return jsonPath
+
+    @staticmethod
+    def preprocessJsonPath(jsonPath: str) -> str:
+        # Replace any .length() calls with .`len`
+        # Our JSONPath library only processes the latter
+        jsonPath = re.sub(r"\.length\(\)", ".`len`", jsonPath)
+        return jsonPath
 
     # Divide JSON path into two parts
     # The first part does not have advanced operations
