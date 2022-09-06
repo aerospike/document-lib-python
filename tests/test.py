@@ -297,11 +297,10 @@ class TestGetAdvancedOps(TestGets):
         expected = mapJsonObj["dictsWithSameField"][0]
         self.assertTrue(self.isListEqualUnsorted(results, expected))
 
-    @unittest.skip("Unsupported")
     def testFilterRegex(self):
         # Matches anything ending with mesa and ignores case
-        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField[?(@.str =~ /.*mesa/i)]")
-        expected = mapJsonObj["dictsWithSameField"][0]
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.dictsWithSameField[?(@.str ~= \"(?i).*Mesa\")]")
+        expected = [mapJsonObj["dictsWithSameField"][1]]
         self.assertTrue(self.isListEqualUnsorted(results, expected))
 
     # Function tests
