@@ -2,6 +2,8 @@
 
 Python port of the Aerospike Document API in [Java](https://github.com/aerospike/aerospike-document-lib).
 
+This is currently in beta, so there may be bugs or features that aren't supported yet.
+
 ## Compatibility
 - Python 3.7.x - 3.9.13.
 - Aerospike Python Client 7.0.2
