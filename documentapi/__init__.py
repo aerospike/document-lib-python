@@ -43,7 +43,7 @@ class DocumentClient:
         """
         jsonPath = self.preprocessJsonPath(jsonPath)
 
-        jsonPath = self.validateJsonPath(jsonPath)
+        jsonPath = self.checkSyntax(jsonPath)
 
         jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
 
@@ -86,7 +86,7 @@ class DocumentClient:
         """
         jsonPath = self.preprocessJsonPath(jsonPath)
 
-        jsonPath = self.validateJsonPath(jsonPath)
+        jsonPath = self.checkSyntax(jsonPath)
 
         jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
 
@@ -132,7 +132,7 @@ class DocumentClient:
         """
         jsonPath = self.preprocessJsonPath(jsonPath)
 
-        jsonPath = self.validateJsonPath(jsonPath)
+        jsonPath = self.checkSyntax(jsonPath)
 
         jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
 
@@ -182,7 +182,7 @@ class DocumentClient:
         """
         jsonPath = self.preprocessJsonPath(jsonPath)
 
-        jsonPath = self.validateJsonPath(jsonPath)
+        jsonPath = self.checkSyntax(jsonPath)
 
         jsonPath, advancedJsonPath = self.divideJsonPath(jsonPath)
 
@@ -241,7 +241,7 @@ class DocumentClient:
 
     # Check for syntax errors and gather metadata about JSON path
     @staticmethod
-    def validateJsonPath(jsonPath: str) -> Tuple[str, bool]:
+    def checkSyntax(jsonPath: str) -> Tuple[str, bool]:
         # JSON path must start at document root
         if not jsonPath or jsonPath.startswith("$") is False:
             raise JsonPathMissingRootError(jsonPath)
