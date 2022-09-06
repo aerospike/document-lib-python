@@ -19,15 +19,15 @@ Not all JSONPath queries are currently supported. Here is a list of currently su
 | [x]        | Wildcard map access  | `$.*`                                               |
 | [x]        | Wildcard list access | `$.list[*]`                                         |
 | [x]        | List slices          | `$.list[2:4]`                                       |
-| [ ]        | List step slices     | `$.list[2:4:1]`                                     |
-| [ ]        | List set of indices  | `$.list[2,4]`                                       |
+| [x]        | List step slices     | `$.list[2:4:1]`                                     |
+| [x]        | List set of indices  | `$.list[2,4]`                                       |
 | [x]        | Recursive access     | `$..item`                                           |
 | [x]        | Exists filter        | `$.listOfMaps[?(@.mapitem)]`                        |
 | [x]        | Comparison filter    | `$.listOfMaps[?(@.mapitem > 10)]`                   |
 | [x]        | And filter           | `$.listOfMaps[?(@.mapitem > 10 & @.mapitem < 50)]`  |
-| [ ]        | Or filter            | `$.listOfMaps[?(@.mapitem < 10 \| @.mapitem > 50)]` |
+| [x]        | Or filter            | `$.listOfMaps[?(@.mapitem < 10 \| @.mapitem > 50)]` |
 | [ ]        | Variable filter      | `$.listOfMaps[?(@.mapitem < $['rootitem'])]`        |
-| [ ]        | Regex filter         | `$.listOfMaps[?(@.mapitem ~= /.*mesa/i)]`           |
+| [x]        | Regex filter         | `$.listOfMaps[?(@.mapitem =~ "(?i).*mesa")]`        |
 | [-]        | Functions            | `$.list.length()` supported                         |
 
 ## Contributing
