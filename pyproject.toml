@@ -15,7 +15,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-  "jsonpath-ng==1.5.3",
+  "jsonpath-ng @ git+ssh://git@github.com/aerospike-community/jsonpath-ng@pr-cherrypick",
   "aerospike==7.0.2",
   "sphinx_rtd_theme==1.0.0"
 ]
