@@ -232,32 +232,12 @@ class DocumentClient:
 
     # Helper functions
 
-    # These functions handle possible errors from calling operate()
-    # Pass in JSON path in case we throw an error
-
-    def getSmallestDocument(self, key, binName, op, operatePolicy, jsonPath):
-        try:
-            _, _, bins = self.client.operate(key, [op], operatePolicy)
-            fetchedDocument = bins[binName]
-            if fetchedDocument is None:
-                # Caused by using a key that doesn't exist in a map
-                raise ObjectNotFoundError(jsonPath)
-        except (ex.BinIncompatibleType, ex.InvalidRequest, ex.OpNotApplicable):
-            # InvalidRequest: index get() on a map or primitive
-            # BinIncompatibleType: key get() on a list or primitive
-            # OpNotApplicable: get() from missing list/map or out of bounds index
-            raise ObjectNotFoundError(jsonPath)
-        return fetchedDocument
-
-    def sendSmallestDocument(self, key, op, operatePolicy, jsonPath):
-        try:
-            _, _, _ = self.client.operate(key, [op], operatePolicy)
-        except ex.OpNotApplicable:
-            # OpNotApplicable:
-            # - put() into map as list
-            # - put() into list as map
-            # - put() into missing list/map
-            raise ObjectNotFoundError(jsonPath)
+    @staticmethod
+    def preprocessJsonPath(jsonPath: str) -> str:
+        # Replace any .length() calls with .`len`
+        # Our JSONPath library only processes the latter
+        jsonPath = re.sub(r"\.length\(\)", ".`len`", jsonPath)
+        return jsonPath
 
     # Check for syntax errors and gather metadata about JSON path
     @staticmethod
@@ -272,13 +252,6 @@ class DocumentClient:
         except Exception:
             raise JsonPathParseError(jsonPath)
 
-        return jsonPath
-
-    @staticmethod
-    def preprocessJsonPath(jsonPath: str) -> str:
-        # Replace any .length() calls with .`len`
-        # Our JSONPath library only processes the latter
-        jsonPath = re.sub(r"\.length\(\)", ".`len`", jsonPath)
         return jsonPath
 
     # Divide JSON path into two parts
@@ -429,3 +402,30 @@ class DocumentClient:
                 operatePolicy.pop(key)
 
         return operatePolicy
+
+    # These functions handle possible errors from calling operate()
+    # Pass in JSON path in case we throw an error
+
+    def getSmallestDocument(self, key, binName, op, operatePolicy, jsonPath):
+        try:
+            _, _, bins = self.client.operate(key, [op], operatePolicy)
+            fetchedDocument = bins[binName]
+            if fetchedDocument is None:
+                # Caused by using a key that doesn't exist in a map
+                raise ObjectNotFoundError(jsonPath)
+        except (ex.BinIncompatibleType, ex.InvalidRequest, ex.OpNotApplicable):
+            # InvalidRequest: index get() on a map or primitive
+            # BinIncompatibleType: key get() on a list or primitive
+            # OpNotApplicable: get() from missing list/map or out of bounds index
+            raise ObjectNotFoundError(jsonPath)
+        return fetchedDocument
+
+    def sendSmallestDocument(self, key, op, operatePolicy, jsonPath):
+        try:
+            _, _, _ = self.client.operate(key, [op], operatePolicy)
+        except ex.OpNotApplicable:
+            # OpNotApplicable:
+            # - put() into map as list
+            # - put() into list as map
+            # - put() into missing list/map
+            raise ObjectNotFoundError(jsonPath)
