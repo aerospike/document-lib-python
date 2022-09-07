@@ -166,7 +166,6 @@ class DocumentClient:
             matches = jsonPathExpr.find(smallestDocument)
             for match in matches:
                 match.value.append(obj)
-                match.full_path.update(match.value)
         else:
             # List is the whole document
             smallestDocument.append(obj)

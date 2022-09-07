@@ -521,6 +521,15 @@ class TestCorrectAppend(TestWrites):
         expected = [{"int": 1}, [1], 42]
         self.assertEqual(results, expected)
 
+    def testAppendWildstar(self):
+        documentClient.append(keyTuple, MAP_BIN_NAME, "$.lists[*]", 44)
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$.lists")
+
+        expectedLists = mapJsonObj["lists"]
+        for list in expectedLists:
+            list.append(44)
+
+        self.assertEqual(results, expectedLists)
 
 class TestIncorrectAppend(TestWrites):
 
