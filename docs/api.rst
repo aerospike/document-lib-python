@@ -1,5 +1,5 @@
 API
 ===
 
-.. automodule:: documentapi
+.. autoclass:: documentapi.api.DocumentClient
     :members:
