@@ -37,6 +37,11 @@ jobs:
         cd documentapi/
         flake8 . --count --max-complexity=10 --show-source --max-line-length=127
         cd ..
+    - name: Build documentation
+      run: |
+        cd docs/
+        sphinx-build -b html . htmldir
+        cd ..
     - name: Run unit tests
       run: |
         # Create Aerospike server

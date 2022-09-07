@@ -17,7 +17,6 @@ classifiers = [
 dependencies = [
   "jsonpath-ng @ git+https://github.com/aerospike-community/jsonpath-ng.git",
   "aerospike==7.0.2",
-  "sphinx_rtd_theme==1.0.0"
 ]
 
 [project.urls]
