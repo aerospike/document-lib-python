@@ -13,7 +13,7 @@ import re
 
 from typing import Any, List, Tuple, Union
 
-from .exception import JsonPathMissingRootError, JsonPathParseError, ObjectNotFoundError
+from .exception import JsonPathMissingRootError, JsonPathParseError, JSONNotFoundError
 
 ADVANCED_OP_TOKENS = [
     r"\[\*\]",                              # [*]
@@ -250,7 +250,7 @@ class DocumentClient:
         except (ex.OpNotApplicable, ex.InvalidRequest):
             # OpNotApplicable: deleting from missing list/map, out of bounds index
             # InvalidRequest: deleting index from map or key from list
-            raise ObjectNotFoundError(jsonPath)
+            raise JSONNotFoundError(jsonPath)
 
     # Helper functions
 
@@ -423,12 +423,12 @@ class DocumentClient:
             fetchedDocument = bins[binName]
             if fetchedDocument is None:
                 # Caused by using a key that doesn't exist in a map
-                raise ObjectNotFoundError(jsonPath)
+                raise JSONNotFoundError(jsonPath)
         except (ex.BinIncompatibleType, ex.InvalidRequest, ex.OpNotApplicable):
             # InvalidRequest: index get() on a map or primitive
             # BinIncompatibleType: key get() on a list or primitive
             # OpNotApplicable: get() from missing list/map or out of bounds index
-            raise ObjectNotFoundError(jsonPath)
+            raise JSONNotFoundError(jsonPath)
         return fetchedDocument
 
     def sendSmallestDocument(self, key, op, operatePolicy, jsonPath):
@@ -439,4 +439,4 @@ class DocumentClient:
             # - put() into map as list
             # - put() into list as map
             # - put() into missing list/map
-            raise ObjectNotFoundError(jsonPath)
+            raise JSONNotFoundError(jsonPath)

@@ -6,7 +6,7 @@ import json
 import aerospike
 
 from documentapi import DocumentClient
-from documentapi.exception import JsonPathMissingRootError, JsonPathParseError, ObjectNotFoundError
+from documentapi.exception import JsonPathMissingRootError, JsonPathParseError, JSONNotFoundError
 
 # Bins to insert JSON documents
 LIST_BIN_NAME = "testList"
@@ -407,28 +407,28 @@ class TestIncorrectGets(TestGets):
     # Access errors
 
     def testGetIndexFromMap(self):
-        self.assertRaises(ObjectNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.map[0]")
+        self.assertRaises(JSONNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.map[0]")
 
     def testGetKeyFromList(self):
-        self.assertRaises(ObjectNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list.nonExistentKey")
+        self.assertRaises(JSONNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list.nonExistentKey")
 
     def testGetIndexFromPrimitive(self):
-        self.assertRaises(ObjectNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list[0].int[0]")
+        self.assertRaises(JSONNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list[0].int[0]")
 
     def testGetKeyFromPrimitive(self):
-        self.assertRaises(ObjectNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list[0].int.nonExistentKey")
+        self.assertRaises(JSONNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list[0].int.nonExistentKey")
 
     def testGetFromMissingMap(self):
-        self.assertRaises(ObjectNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.map.nonExistentMap.item")
+        self.assertRaises(JSONNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.map.nonExistentMap.item")
 
     def testGetFromMissingList(self):
-        self.assertRaises(ObjectNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.map.nonExistentList[0]")
+        self.assertRaises(JSONNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.map.nonExistentList[0]")
 
     def testGetOutOfBoundsIndex(self):
-        self.assertRaises(ObjectNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list[1000]")
+        self.assertRaises(JSONNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.list[1000]")
 
     def testGetMissingKey(self):
-        self.assertRaises(ObjectNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.map.nonExistentKey")
+        self.assertRaises(JSONNotFoundError, documentClient.get, keyTuple, MAP_BIN_NAME, "$.map.nonExistentKey")
 
 
 class TestWrites(unittest.TestCase):
@@ -496,16 +496,16 @@ class TestPutsAdvancedOps(TestWrites):
 class TestIncorrectPuts(TestWrites):
 
     def testPutIntoMissingMap(self):
-        self.assertRaises(ObjectNotFoundError, documentClient.put, keyTuple, MAP_BIN_NAME, "$.map.nonExistentMap.item", 4)
+        self.assertRaises(JSONNotFoundError, documentClient.put, keyTuple, MAP_BIN_NAME, "$.map.nonExistentMap.item", 4)
 
     def testPutIntoMissingList(self):
-        self.assertRaises(ObjectNotFoundError, documentClient.put, keyTuple, MAP_BIN_NAME, "$.map.nonExistentList[0]", 4)
+        self.assertRaises(JSONNotFoundError, documentClient.put, keyTuple, MAP_BIN_NAME, "$.map.nonExistentList[0]", 4)
 
     def testPutIntoMapAsList(self):
-        self.assertRaises(ObjectNotFoundError, documentClient.put, keyTuple, MAP_BIN_NAME, "$.map.nonExistentMap[0]", 4)
+        self.assertRaises(JSONNotFoundError, documentClient.put, keyTuple, MAP_BIN_NAME, "$.map.nonExistentMap[0]", 4)
 
     def testPutIntoListAsMap(self):
-        self.assertRaises(ObjectNotFoundError, documentClient.put, keyTuple, MAP_BIN_NAME, "$.map.nonExistentList.item", 4)
+        self.assertRaises(JSONNotFoundError, documentClient.put, keyTuple, MAP_BIN_NAME, "$.map.nonExistentList.item", 4)
 
 
 class TestCorrectAppend(TestWrites):
@@ -525,7 +525,7 @@ class TestCorrectAppend(TestWrites):
 class TestIncorrectAppend(TestWrites):
 
     def testAppendMissingList(self):
-        self.assertRaises(ObjectNotFoundError, documentClient.append, keyTuple, MAP_BIN_NAME, "$.map.nonExistentList", 4)
+        self.assertRaises(JSONNotFoundError, documentClient.append, keyTuple, MAP_BIN_NAME, "$.map.nonExistentList", 4)
 
     # TODO: replace with custom errors?
 
@@ -623,19 +623,19 @@ class TestIncorrectDelete(TestWrites):
         documentClient.delete(keyTuple, MAP_BIN_NAME, "$.map.nonExistentKey")
 
     def testDeleteOutOfBoundsIndex(self):
-        self.assertRaises(ObjectNotFoundError, documentClient.delete, keyTuple, MAP_BIN_NAME, "$.list[1000]")
+        self.assertRaises(JSONNotFoundError, documentClient.delete, keyTuple, MAP_BIN_NAME, "$.list[1000]")
 
     def testDeleteKeyInList(self):
-        self.assertRaises(ObjectNotFoundError, documentClient.delete, keyTuple, MAP_BIN_NAME, "$.list.nonExistentKey")
+        self.assertRaises(JSONNotFoundError, documentClient.delete, keyTuple, MAP_BIN_NAME, "$.list.nonExistentKey")
 
     def testDeleteIndexInMap(self):
-        self.assertRaises(ObjectNotFoundError, documentClient.delete, keyTuple, MAP_BIN_NAME, "$.map[0]")
+        self.assertRaises(JSONNotFoundError, documentClient.delete, keyTuple, MAP_BIN_NAME, "$.map[0]")
 
     def testDeleteFromMissingMap(self):
-        self.assertRaises(ObjectNotFoundError, documentClient.delete, keyTuple, MAP_BIN_NAME, "$.map.nonExistentMap.item")
+        self.assertRaises(JSONNotFoundError, documentClient.delete, keyTuple, MAP_BIN_NAME, "$.map.nonExistentMap.item")
 
     def testDeleteFromMissingList(self):
-        self.assertRaises(ObjectNotFoundError, documentClient.delete, keyTuple, MAP_BIN_NAME, "$.map.nonExistentList[0]")
+        self.assertRaises(JSONNotFoundError, documentClient.delete, keyTuple, MAP_BIN_NAME, "$.map.nonExistentList[0]")
 
 
 if __name__ == "__main__":
