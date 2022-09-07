@@ -13,10 +13,6 @@ from jsonpath_ng.ext import parse
 
 from .exception import JsonPathMissingRootError, JsonPathParseError, JSONNotFoundError
 
-# This module implements the DocumentClient API
-# It is not meant to be imported directly because it contains helper functions.
-# Please import the DocumentClient from the documentapi package
-
 
 class DocumentClient:
     """Client to run JSON queries"""
