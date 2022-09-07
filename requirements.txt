@@ -1,4 +1,4 @@
-flake8
-build
-twine
-sphinx_rtd_theme
+flake8==5.0.4
+build==0.8.0
+twine==4.0.1
+sphinx_rtd_theme==1.0.0
