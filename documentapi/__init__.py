@@ -1,5 +1,5 @@
 # Can retrieve DocumentClient directly from api module
 # The implementation details are not available in this package
-from .api import DocumentClient
+from .api import DocumentClient  # noqa: F401
 # Have exceptions available by default when importing this package
-from . import exception
+from . import exception  # noqa: F401

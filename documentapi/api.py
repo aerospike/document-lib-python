@@ -240,6 +240,7 @@ class DocumentClient:
             # InvalidRequest: deleting index from map or key from list
             raise JSONNotFoundError(jsonPath)
 
+
 ADVANCED_OP_TOKENS = [
     r"\[\*\]",                              # [*]
     r"\.\.",                                # ..
@@ -252,11 +253,13 @@ ADVANCED_OP_TOKENS = [
 
 # Helper functions for the api module
 
+
 def preprocessJsonPath(jsonPath: str) -> str:
     # Replace any .length() calls with .`len`
     # Our JSONPath library only processes the latter
     jsonPath = re.sub(r"\.length\(\)", ".`len`", jsonPath)
     return jsonPath
+
 
 # Check for syntax errors and gather metadata about JSON path
 def checkSyntax(jsonPath: str) -> Tuple[str, bool]:
@@ -271,6 +274,7 @@ def checkSyntax(jsonPath: str) -> Tuple[str, bool]:
         raise JsonPathParseError(jsonPath)
 
     return jsonPath
+
 
 # Divide JSON path into two parts
 # The first part does not have advanced operations
@@ -298,6 +302,7 @@ def divideJsonPath(jsonPath: str) -> Tuple[str, Union[str, None]]:
         jsonPath = jsonPath[:startIndex]
 
     return jsonPath, advancedJsonPath
+
 
 # Split up JSON path without advanced operations
 # into map and list access tokens
@@ -344,6 +349,7 @@ def tokenize(firstJsonPath: str) -> List[str]:
             results.append(smallToken)
     return results
 
+
 def buildContextArray(tokens: list) -> Union[List[str], None]:
     ctxs = []
     for token in tokens:
@@ -364,6 +370,7 @@ def buildContextArray(tokens: list) -> Union[List[str], None]:
 
     return ctxs
 
+
 def createGetOperation(binName: str, ctxs: list, lastToken: str) -> dict:
     # Create get operation using last token
     if type(lastToken) == int:
@@ -376,6 +383,7 @@ def createGetOperation(binName: str, ctxs: list, lastToken: str) -> dict:
 
     return op
 
+
 def createPutOperation(binName: str, ctxs: list, lastToken: str, obj: object) -> dict:
     # Create put operation
     if type(lastToken) == int:
@@ -387,6 +395,7 @@ def createPutOperation(binName: str, ctxs: list, lastToken: str, obj: object) ->
         op = map_operations.map_put(binName, lastToken, obj, ctx=ctxs)
 
     return op
+
 
 def convertToOperatePolicy(policy: dict) -> Union[dict, None]:
     if policy is None:
@@ -407,6 +416,7 @@ def convertToOperatePolicy(policy: dict) -> Union[dict, None]:
 # These functions handle possible errors from calling operate()
 # Pass in JSON path in case we throw an error
 
+
 def getSmallestDocument(client, key, binName, op, operatePolicy, jsonPath):
     try:
         _, _, bins = client.operate(key, [op], operatePolicy)
@@ -420,6 +430,7 @@ def getSmallestDocument(client, key, binName, op, operatePolicy, jsonPath):
         # OpNotApplicable: get() from missing list/map or out of bounds index
         raise JSONNotFoundError(jsonPath)
     return fetchedDocument
+
 
 def sendSmallestDocument(client, key, op, operatePolicy, jsonPath):
     try:
