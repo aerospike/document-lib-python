@@ -7,3 +7,6 @@ Please import ``DocumentClient`` from the ``documentapi`` package as shown in th
 
 .. autoclass:: documentapi.api.DocumentClient
     :members:
+
+.. automodule:: documentapi.exception
+    :members:

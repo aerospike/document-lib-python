@@ -35,9 +35,9 @@ class DocumentClient:
         :param dict readPolicy: the read policy for get() operation
 
         :return: :py:obj:`Any`
-        :raises: :exc:`JsonPathMissingRootError` when the JSON path doesn't start with a ``$``
-        :raises: :exc:`JsonPathParseError` when the JSON path has a syntax error
-        :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
+        :raises: :exc:`~documentapi.exception.JsonPathMissingRootError` when the JSON path doesn't start with a ``$``
+        :raises: :exc:`~documentapi.exception.JsonPathParseError` when the JSON path has a syntax error
+        :raises: :exc:`~documentapi.exception.JSONNotFoundError` when there are no matches with the JSON path
         """
         jsonPath = preprocessJsonPath(jsonPath)
 
@@ -90,9 +90,9 @@ class DocumentClient:
         :param str jsonPath: JSON path location to store the object
         :param dict writePolicy: the write policy for put() operation
 
-        :raises: :exc:`JsonPathMissingRootError` when the JSON path doesn't start with a ``$``
-        :raises: :exc:`JsonPathParseError` when the JSON path has a syntax error
-        :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
+        :raises: :exc:`~documentapi.exception.JsonPathMissingRootError` when the JSON path doesn't start with a ``$``
+        :raises: :exc:`~documentapi.exception.JsonPathParseError` when the JSON path has a syntax error
+        :raises: :exc:`~documentapi.exception.JSONNotFoundError` when there are no matches with the JSON path
         """
         jsonPath = preprocessJsonPath(jsonPath)
 
@@ -136,9 +136,9 @@ class DocumentClient:
         :param str jsonPath: JSON path ending with a list
         :param dict writePolicy: the write policy for operate() operation
 
-        :raises: :exc:`JsonPathMissingRootError` when the JSON path doesn't start with a ``$``
-        :raises: :exc:`JsonPathParseError` when the JSON path has a syntax error
-        :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
+        :raises: :exc:`~documentapi.exception.JsonPathMissingRootError` when the JSON path doesn't start with a ``$``
+        :raises: :exc:`~documentapi.exception.JsonPathParseError` when the JSON path has a syntax error
+        :raises: :exc:`~documentapi.exception.JSONNotFoundError` when there are no matches with the JSON path
         """
         jsonPath = preprocessJsonPath(jsonPath)
 
@@ -186,9 +186,9 @@ class DocumentClient:
         :param str jsonPath: JSON path of object to delete
         :param dict writePolicy: the write policy for operate() operation
 
-        :raises: :exc:`JsonPathMissingRootError` when the JSON path doesn't start with a ``$``
-        :raises: :exc:`JsonPathParseError` when the JSON path has a syntax error
-        :raises: :exc:`ObjectNotFoundError` when there are no matches with the JSON path
+        :raises: :exc:`~documentapi.exception.JsonPathMissingRootError` when the JSON path doesn't start with a ``$``
+        :raises: :exc:`~documentapi.exception.JsonPathParseError` when the JSON path has a syntax error
+        :raises: :exc:`~documentapi.exception.JSONNotFoundError` when there are no matches with the JSON path
         """
         jsonPath = preprocessJsonPath(jsonPath)
 
