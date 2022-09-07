@@ -40,7 +40,7 @@ jobs:
     - name: Build documentation
       run: |
         cd docs/
-        sphinx-build -b html . htmldir
+        sphinx-build -b html . htmldir -W
         cd ..
     - name: Run unit tests
       run: |
