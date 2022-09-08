@@ -7,16 +7,16 @@ from aerospike_helpers.operations import operations
 from aerospike_helpers import cdt_ctx
 
 import re
-from typing import Any, List, Tuple, Union
+from typing import Any, List, Dict, Tuple, Union
 
 from jsonpath_ng.ext import parse
 
 from .exception import JsonPathMissingRootError, JsonPathParseError, JSONNotFoundError
 
 
-Policy = dict[str, Any]
+Policy = Dict[str, Any]
 # TODO: not the precise definition of a key
-Key = tuple[str, str, Union[str, int, bytearray]]
+Key = Tuple[str, str, Union[str, int, bytearray]]
 
 
 class DocumentClient:
@@ -352,7 +352,7 @@ def tokenize(firstJsonPath: str) -> List[str]:
     return tokens
 
 
-def buildContextArray(tokens: list[str]) -> Union[List[str], None]:
+def buildContextArray(tokens: List[str]) -> Union[List[str], None]:
     ctxs = []
     for token in tokens:
         if type(token) == int:
