@@ -1,4 +1,4 @@
-import aerospike
+from aerospike import MAP_RETURN_NONE, MAP_RETURN_VALUE, LIST_RETURN_VALUE
 from aerospike import Client
 from aerospike import exception as ex
 from aerospike_helpers.operations import map_operations
@@ -227,7 +227,7 @@ class DocumentClient:
             # Replace bin with empty dict
             op = operations.write(binName, {})
         else:
-            op = map_operations.map_remove_by_key(binName, lastToken, aerospike.MAP_RETURN_NONE, ctx=ctxs)
+            op = map_operations.map_remove_by_key(binName, lastToken, MAP_RETURN_NONE, ctx=ctxs)
 
         # Tada
         try:
@@ -373,12 +373,12 @@ def buildContextArray(tokens: list) -> Union[List[str], None]:
 def createGetOperation(binName: str, ctxs: list, lastToken: str) -> dict:
     # Create get operation using last token
     if type(lastToken) == int:
-        op = list_operations.list_get_by_index(binName, lastToken, aerospike.LIST_RETURN_VALUE, ctxs)
+        op = list_operations.list_get_by_index(binName, lastToken, LIST_RETURN_VALUE, ctxs)
     elif lastToken == "$":
         # Get whole document
         op = operations.read(binName)
     else:
-        op = map_operations.map_get_by_key(binName, lastToken, aerospike.MAP_RETURN_VALUE, ctxs)
+        op = map_operations.map_get_by_key(binName, lastToken, MAP_RETURN_VALUE, ctxs)
 
     return op
 
