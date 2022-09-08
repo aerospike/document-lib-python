@@ -240,7 +240,7 @@ class DocumentClient:
             raise JSONNotFoundError(jsonPath)
 
 
-ADVANCED_OP_TOKENS = [
+ADVANCED_OP_TOKENS = (
     r"\[\*\]",                              # [*]
     r"\.\.",                                # ..
     r"\[\?",                                # [?
@@ -248,7 +248,7 @@ ADVANCED_OP_TOKENS = [
     r"\[(-?\d+)?\:(-?\d+)?(\:-?\d+)?\]",    # start:(end)?(:step)?
     r"\[-?\d+(\,-?\d+)+\]",                 # [idx1,idx2,...]
     r"\.`len`"                              # .`len`
-]
+)
 
 # Helper functions for the api module
 
@@ -393,6 +393,11 @@ def createPutOperation(binName: str, ctxs: list, lastToken: str, obj: object) ->
 
     return op
 
+OPERATE_CONFIG_KEYS = (
+    "max_retries", "sleep_between_retries", "socket_timeout", "total_timeout", "compress", "key", "gen", "replica",
+    "commit_level", "read_mode_ap", "read_mode_sc", "exists", "durable_delete", "expressions"
+)
+
 
 def convertToOperatePolicy(policy: dict) -> Union[dict, None]:
     if policy is None:
@@ -400,10 +405,6 @@ def convertToOperatePolicy(policy: dict) -> Union[dict, None]:
 
     # Filter out non-operate policies
     operatePolicy = policy.copy()
-    OPERATE_CONFIG_KEYS = [
-        "max_retries", "sleep_between_retries", "socket_timeout", "total_timeout", "compress", "key", "gen", "replica",
-        "commit_level", "read_mode_ap", "read_mode_sc", "exists", "durable_delete", "expressions"
-    ]
     for key in operatePolicy:
         if key not in OPERATE_CONFIG_KEYS:
             operatePolicy.pop(key)
