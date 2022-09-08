@@ -14,13 +14,18 @@ from jsonpath_ng.ext import parse
 from .exception import JsonPathMissingRootError, JsonPathParseError, JSONNotFoundError
 
 
+Policy = dict[str, Any]
+# TODO: not the precise definition of a key
+Key = tuple[str, str, Union[str, int, bytearray]]
+
+
 class DocumentClient:
     """Client to run JSON queries"""
 
     def __init__(self, client: Client):
         self.client = client
 
-    def get(self, key: tuple, binName: str, jsonPath: str, readPolicy: dict = None) -> Any:
+    def get(self, key: Key, binName: str, jsonPath: str, readPolicy: Policy = None) -> Any:
         """
         Get object(s) from a JSON document using JSON path.
 
@@ -81,7 +86,7 @@ class DocumentClient:
 
         return fetchedDocument
 
-    def put(self, key: tuple, binName: str, jsonPath: str, obj: Any, writePolicy: dict = None):
+    def put(self, key: Key, binName: str, jsonPath: str, obj: Any, writePolicy: Policy = None):
         """
         Put an object into a JSON document using JSON path.
 
@@ -127,7 +132,7 @@ class DocumentClient:
         putOp = createPutOperation(binName, ctxs, lastToken, smallestDocument)
         sendSmallestDocument(self.client, key, putOp, operatePolicy, jsonPath)
 
-    def append(self, key: tuple, binName: str, jsonPath: str, obj, writePolicy: dict = None):
+    def append(self, key: Key, binName: str, jsonPath: str, obj: Any, writePolicy: Policy = None):
         """
         Append an object to a list in a JSON document using JSON path.
 
@@ -174,7 +179,7 @@ class DocumentClient:
         op = createPutOperation(binName, ctxs, lastToken, smallestDocument)
         sendSmallestDocument(self.client, key, op, operatePolicy, jsonPath)
 
-    def delete(self, key: tuple, binName: str, jsonPath: str, writePolicy: dict = None):
+    def delete(self, key: Key, binName: str, jsonPath: str, writePolicy: Policy = None):
         """
         Delete an object in a JSON document using JSON path.
 
@@ -261,7 +266,7 @@ def preprocessJsonPath(jsonPath: str) -> str:
 
 
 # Check for syntax errors and gather metadata about JSON path
-def checkSyntax(jsonPath: str) -> Tuple[str, bool]:
+def checkSyntax(jsonPath: str) -> str:
     # JSON path must start at document root
     if not jsonPath or jsonPath.startswith("$") is False:
         raise JsonPathMissingRootError(jsonPath)
@@ -347,7 +352,7 @@ def tokenize(firstJsonPath: str) -> List[str]:
     return tokens
 
 
-def buildContextArray(tokens: list) -> Union[List[str], None]:
+def buildContextArray(tokens: list[str]) -> Union[List[str], None]:
     ctxs = []
     for token in tokens:
         if type(token) == int:
@@ -381,7 +386,7 @@ def createGetOperation(binName: str, ctxs: list, lastToken: str) -> dict:
     return op
 
 
-def createPutOperation(binName: str, ctxs: list, lastToken: str, obj: object) -> dict:
+def createPutOperation(binName: str, ctxs: list, lastToken: str, obj: Any) -> dict:
     # Create put operation
     if type(lastToken) == int:
         op = list_operations.list_set(binName, lastToken, obj, ctx=ctxs)
@@ -400,7 +405,7 @@ OPERATE_CONFIG_KEYS = (
 )
 
 
-def convertToOperatePolicy(policy: dict) -> Union[dict, None]:
+def convertToOperatePolicy(policy: Policy) -> Union[Policy, None]:
     if policy is None:
         return None
 
@@ -416,7 +421,7 @@ def convertToOperatePolicy(policy: dict) -> Union[dict, None]:
 # Pass in JSON path in case we throw an error
 
 
-def getSmallestDocument(client, key, binName, op, operatePolicy, jsonPath):
+def getSmallestDocument(client: Client, key: Key, binName: str, op: Any, operatePolicy: Policy, jsonPath: str):
     try:
         _, _, bins = client.operate(key, [op], operatePolicy)
         fetchedDocument = bins[binName]
@@ -431,7 +436,7 @@ def getSmallestDocument(client, key, binName, op, operatePolicy, jsonPath):
     return fetchedDocument
 
 
-def sendSmallestDocument(client, key, op, operatePolicy, jsonPath):
+def sendSmallestDocument(client: Client, key: Key, op, operatePolicy: Policy, jsonPath: str):
     try:
         _, _, _ = client.operate(key, [op], operatePolicy)
     except ex.OpNotApplicable:
