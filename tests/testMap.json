@@ -1,4 +1,6 @@
 {
+    "key.with.dots": 4,
+    "key[with.brackets]": 5,
     "map": {
         "map": {
             "int": 1

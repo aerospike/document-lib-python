@@ -306,47 +306,45 @@ def divideJsonPath(jsonPath: str) -> Tuple[str, Union[str, None]]:
 # Split up JSON path without advanced operations
 # into map and list access tokens
 def tokenize(firstJsonPath: str) -> List[str]:
-    # First divide JSON path into "big" tokens
-    # using "." separator
-    # Example:
-    # "$[1].b.c['test']" -> ["$[1]", "b", "c['test']]"
-    bigTokens = firstJsonPath.split(".")
+    tokens = []
+    token = ""
+    quoteCount = 0
 
-    # Edge case:
-    # Treat * as fetching the whole data, not just its members
-    if bigTokens[-1] == "*":
-        bigTokens.pop()
+    for c in firstJsonPath:
+        if c in ".[]" and quoteCount % 2 == 0:
+            # Finished reading token
+            # We know if the token is a finished quote if every quotation has a match
+            if token is "":
+                # No token found
+                continue
 
-    # Then divide each big token into "small" tokens
-    # using  "[]" separator
-    # Example:
-    # [$[1], b, c['test']] -> ["$", "1", "b", "c", "'test'"]
-    results = []
-    for bigToken in bigTokens:
-        smallTokens = re.split(r"\[|\]", bigToken)
-        # Remove empty small tokens
-        while "" in smallTokens:
-            smallTokens.remove("")
+            if c == ']':
+                # Bracket notation
+                if quoteCount > 0:
+                    # Just finished reading a map key
+                    token = token[1:-1]
+                else:
+                    # Assume we read an index
+                    token = int(token)
 
-        # Parse small tokens
-        # Keys are encoded as strings
-        # Indices are encoded as integers
-        parsedFirstToken = False
-        for smallToken in smallTokens:
-            if not parsedFirstToken:
-                # By default, encode first token as string
-                # Since it is always either $ or a key
-                parsedFirstToken = True
-            elif smallToken.startswith("'") and smallToken.endswith("'"):
-                # Keys can also be enclosed in brackets
-                # if they are surrounded by single quotes
-                # Remove quotes from key
-                smallToken = smallToken[1:-1]
-            else:
-                # Otherwise assume list access inside square brackets
-                smallToken = int(smallToken)
-            results.append(smallToken)
-    return results
+            # Save token
+            tokens.append(token)
+            token = ""
+        else:
+            if c == '\'':
+                quoteCount += 1
+            token = token + c
+
+    # Flush out the rest of the buffer into last token
+    # This is a map access (in dot notation)
+    if token:
+        tokens.append(token)
+
+    # Special case: path ending with * returns the previous object
+    if tokens[-1] == '*':
+        tokens.pop()
+
+    return tokens
 
 
 def buildContextArray(tokens: list) -> Union[List[str], None]:
