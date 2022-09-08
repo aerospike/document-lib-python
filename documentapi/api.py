@@ -265,7 +265,6 @@ def preprocessJsonPath(jsonPath: str) -> str:
     return jsonPath
 
 
-# Check for syntax errors and gather metadata about JSON path
 def checkSyntax(jsonPath: str) -> str:
     # JSON path must start at document root
     if not jsonPath or jsonPath.startswith("$") is False:
