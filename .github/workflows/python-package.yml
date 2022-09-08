@@ -36,20 +36,19 @@ jobs:
         # The GitHub editor is 127 chars wide
         cd documentapi/
         flake8 . --count --max-complexity=10 --show-source --max-line-length=127
-        cd ..
     - name: Build documentation
       run: |
         cd docs/
         sphinx-build -b html . htmldir -W
     - name: Test cookbook example
       run: |
+        cd docs/
         # Create Aerospike server
         docker pull aerospike/aerospike-server
         docker run --name aerospike -d -p 3000:3000 aerospike/aerospike-server
         # Wait for server to fully start up
         sleep 3
         python3 cookbook-ex.py
-        cd ..
     - name: Run unit tests
       run: |
         cd tests/
