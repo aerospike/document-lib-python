@@ -17,7 +17,8 @@ sphinx:
 
 version: 2
 
-# Install dependencies to use the package
+# Install dependencies to import source code
+# This is required to retrieve the docstrings
 python:
   install:
     - method: pip
