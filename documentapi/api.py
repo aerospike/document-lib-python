@@ -314,7 +314,7 @@ def tokenize(firstJsonPath: str) -> List[str]:
         if c in ".[]" and quoteCount % 2 == 0:
             # Finished reading token
             # We know if the token is a finished quote if every quotation has a match
-            if token is "":
+            if token == "":
                 # No token found
                 continue
 
@@ -392,6 +392,7 @@ def createPutOperation(binName: str, ctxs: list, lastToken: str, obj: object) ->
         op = map_operations.map_put(binName, lastToken, obj, ctx=ctxs)
 
     return op
+
 
 OPERATE_CONFIG_KEYS = (
     "max_retries", "sleep_between_retries", "socket_timeout", "total_timeout", "compress", "key", "gen", "replica",
