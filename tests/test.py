@@ -36,8 +36,8 @@ def setUpModule():
     global client, documentClient, keyTuple
 
     # Open JSON test files
-    TEST_MAP_FILE_PATH = os.path.join(sys.path[0], "testMap.json")
-    TEST_LIST_FILE_PATH = os.path.join(sys.path[0], "testList.json")
+    TEST_MAP_FILE_PATH = os.path.join(os.path.dirname(__file__), "testMap.json")
+    TEST_LIST_FILE_PATH = os.path.join(os.path.dirname(__file__), "testList.json")
     mapJsonFile = open(TEST_MAP_FILE_PATH)
     listJsonFile = open(TEST_LIST_FILE_PATH)
     # Parse them into Python objects
