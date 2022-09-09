@@ -13,6 +13,8 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
+# Add this so we can import jsonpath-ng when Sphinx imports documentapi
+sys.path.insert(0, os.path.abspath('..documentapi'))
 
 # -- Project information -----------------------------------------------------
 
