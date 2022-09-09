@@ -58,7 +58,7 @@ This code uses [flake8](https://github.com/pycqa/flake8) for codestyle checking.
 To run codestyle tests:
 ```
 cd documentapi/
-flake8 . --count --max-complexity=10 --show-source --max-line-length=127 --statistics
+flake8 *.py --count --max-complexity=10 --show-source --max-line-length=127
 ```
 
 ## Adding features

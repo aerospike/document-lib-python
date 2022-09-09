@@ -29,9 +29,9 @@ import os
 import sys
 jsonPathDir = os.path.join(os.path.dirname(__file__), "jsonpath-ng")
 sys.path.insert(0, jsonPathDir)
-from jsonpath_ng.ext import parse
+from jsonpath_ng.ext import parse  # noqa: E402
 
-from .exception import JsonPathMissingRootError, JsonPathParseError, JSONNotFoundError
+from .exception import JsonPathMissingRootError, JsonPathParseError, JSONNotFoundError  # noqa: E402
 
 
 Policy = Dict[str, Any]
