@@ -25,6 +25,10 @@ from aerospike_helpers import cdt_ctx
 import re
 from typing import Any, List, Dict, Tuple, Union
 
+import os
+import sys
+jsonPathDir = os.path.join(os.path.dirname(__file__), "jsonpath-ng")
+sys.path.insert(0, jsonPathDir)
 from jsonpath_ng.ext import parse
 
 from .exception import JsonPathMissingRootError, JsonPathParseError, JSONNotFoundError

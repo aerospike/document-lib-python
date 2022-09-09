@@ -14,10 +14,11 @@ requires-python = ">=3.7.0, <=3.9.13"
 classifiers = [
     "Programming Language :: Python :: 3",
 ]
-dependencies = [
-  "jsonpath-ng @ git+https://github.com/aerospike-community/jsonpath-ng.git@5de7e0709e90f0a50eb410d022fdadeaaf0a72c9",
-  "aerospike==7.0.2",
-]
+
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt", "documentapi/jsonpath-ng/requirements.txt"]}
 
 [project.urls]
 "Homepage" = "https://github.com/aerospike/document-lib-python"

@@ -2,7 +2,7 @@
 
 To install dependencies for development:
 ```
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 ```
 
 ## Documentation
@@ -64,3 +64,7 @@ flake8 . --count --max-complexity=10 --show-source --max-line-length=127 --stati
 ## Adding features
 
 This project depends on a [fork](https://github.com/aerospike-community/jsonpath-ng) (i.e custom version) of the jsonpath-ng library. To add features, you may have to create a pull request in the fork as well as in this repository. Then, the project will use the latest commit of the forked library in the following release.
+
+## Custom JSONPath library
+
+The project's code directly imports the library's modules. Because of this, the project needs to install the library's dependencies on top of it's own.
