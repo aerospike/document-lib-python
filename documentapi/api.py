@@ -343,6 +343,7 @@ def tokenize(firstJsonPath: str) -> List[str]:
                 if quoteCount > 0:
                     # Just finished reading a map key
                     token = token[1:-1]
+                    quoteCount = 0
                 else:
                     # Assume we read an index
                     token = int(token)
