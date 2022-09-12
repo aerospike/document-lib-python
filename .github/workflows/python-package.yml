@@ -40,19 +40,13 @@ jobs:
       run: |
         cd docs/
         sphinx-build -b html . htmldir -W
+    - name: Set up Aerospike Database
+      uses: reugn/github-action-aerospike@v1
     - name: Test cookbook example
       run: |
         cd docs/
-        # Create Aerospike server
-        docker pull aerospike/aerospike-server
-        docker run --name aerospike -d -p 3000:3000 aerospike/aerospike-server
-        # Wait for server to fully start up
-        sleep 3
         python3 cookbook-ex.py
     - name: Run unit tests
       run: |
         cd tests/
         python3 test.py
-        # Cleanup
-        docker container stop aerospike
-        docker container rm aerospike
