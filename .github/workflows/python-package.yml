@@ -44,6 +44,8 @@ jobs:
       uses: reugn/github-action-aerospike@v1
     - name: Test cookbook example
       run: |
+        # Wait for server to finish startup
+        sleep 3
         cd docs/
         python3 cookbook-ex.py
     - name: Run unit tests
