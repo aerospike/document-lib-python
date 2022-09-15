@@ -37,8 +37,7 @@ docker run --name aerospike -d -p 3000:3000 aerospike/aerospike-server
 Wait a few seconds for Aerospike server to fully start.
 Then run the tests:
 ```
-cd tests/
-python3 test.py
+python3 tests/test.py
 ```
 
 Once you are done testing:
