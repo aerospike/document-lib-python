@@ -26,6 +26,14 @@ results = documentClient.get(key, "documentBin", "$.key2[1]")
 print(results)
 # 4
 
+# Checking for exceptions
+from documentapi.exception import JSONNotFoundError
+try:
+    documentClient.get(key, "documentBin", "$.key3")
+except JSONNotFoundError as e:
+    print("Error:", e)
+# Error: Unable to access document object with JSON path $.key3
+
 # Cleanup
 client.remove(key)
 client.close()
