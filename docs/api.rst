@@ -5,9 +5,10 @@ Document Client
 ---------------
 
 .. note::
-    Although the :py:class:`DocumentClient` is implemented in the :py:mod:`api` module,
-    :py:mod:`api` is not meant to be imported directly because it contains helper functions.
-    Please import :py:class:`DocumentClient` from the :py:mod:`documentapi` package as shown in the cookbook.
+    Although :py:class:`~documentapi.api.DocumentClient` is implemented in the :py:mod:`documentapi.api` module,
+    :py:mod:`documentapi.api` is not meant to be imported directly because it contains helper functions.
+    Please import :py:class:`~documentapi.api.DocumentClient` from the :py:mod:`documentapi` package
+    as shown in the :ref:`cookbook`.
 
 .. autoclass:: documentapi.api.DocumentClient
     :members:
