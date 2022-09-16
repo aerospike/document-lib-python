@@ -3,7 +3,7 @@ requires = ["setuptools >= 64.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "document_lib_python"
+name = "document-lib-python"
 version = "0.1.0"
 authors = [
   { name="Julian Nguyen", email="jnguyen@aerospike.com" },
@@ -15,7 +15,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-  "jsonpath-ng @ git+https://github.com/aerospike-community/jsonpath-ng.git@5de7e0709e90f0a50eb410d022fdadeaaf0a72c9",
+  "jsonpath-ng-aerospike==1.5.3",
   "aerospike==7.0.2",
 ]
 
