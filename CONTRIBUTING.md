@@ -13,14 +13,6 @@ To install dependencies for development:
 pip install -r requirements.txt
 ```
 
-## Documentation
-
-To build documentation:
-```
-cd docs/
-sphinx-build -b html . htmldir
-```
-
 ## Unit testing
 
 The tests use a locally built and installed module for this code:
@@ -43,6 +35,14 @@ Wait a few seconds for Aerospike server to fully start.
 Then run the tests:
 ```
 python3 tests/test.py
+```
+
+## Documentation
+
+To build documentation:
+```
+cd docs/
+sphinx-build -b html . htmldir -W
 ```
 
 ## Codestyle
