@@ -62,7 +62,7 @@ class DocumentClient:
         """
         jsonPath = preprocessJsonPath(jsonPath)
 
-        jsonPath = checkSyntax(jsonPath)
+        checkSyntax(jsonPath)
 
         jsonPath, advancedJsonPath = divideJsonPath(jsonPath)
 
@@ -117,7 +117,7 @@ class DocumentClient:
         """
         jsonPath = preprocessJsonPath(jsonPath)
 
-        jsonPath = checkSyntax(jsonPath)
+        checkSyntax(jsonPath)
 
         jsonPath, advancedJsonPath = divideJsonPath(jsonPath)
 
@@ -163,7 +163,7 @@ class DocumentClient:
         """
         jsonPath = preprocessJsonPath(jsonPath)
 
-        jsonPath = checkSyntax(jsonPath)
+        checkSyntax(jsonPath)
 
         jsonPath, advancedJsonPath = divideJsonPath(jsonPath)
 
@@ -212,7 +212,7 @@ class DocumentClient:
         """
         jsonPath = preprocessJsonPath(jsonPath)
 
-        jsonPath = checkSyntax(jsonPath)
+        checkSyntax(jsonPath)
 
         jsonPath, advancedJsonPath = divideJsonPath(jsonPath)
 
@@ -281,7 +281,7 @@ def preprocessJsonPath(jsonPath: str) -> str:
     return jsonPath
 
 
-def checkSyntax(jsonPath: str) -> str:
+def checkSyntax(jsonPath: str):
     # JSON path must start at document root
     if not jsonPath or jsonPath.startswith("$") is False:
         raise JsonPathMissingRootError(jsonPath)
@@ -291,8 +291,6 @@ def checkSyntax(jsonPath: str) -> str:
         parse(jsonPath)
     except Exception:
         raise JsonPathParseError(jsonPath)
-
-    return jsonPath
 
 
 # Divide JSON path into two parts
