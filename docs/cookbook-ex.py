@@ -1,4 +1,6 @@
 import aerospike
+from documentapi import DocumentClient
+from documentapi.exception import JSONNotFoundError
 
 # Configure Aerospike client to connect to Aerospike server
 config = {
@@ -19,7 +21,6 @@ client.put(key, {"documentBin": jsonDocument})
 
 # A document client acts as an adapter for the normal client
 # to perform operations on JSON documents using JSONPath queries
-from documentapi import DocumentClient
 documentClient = DocumentClient(client)
 
 results = documentClient.get(key, "documentBin", "$.key2[1]")
@@ -27,7 +28,6 @@ print(results)
 # 4
 
 # Checking for exceptions
-from documentapi.exception import JSONNotFoundError
 try:
     documentClient.get(key, "documentBin", "$.key3")
 except JSONNotFoundError as e:
