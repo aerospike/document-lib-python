@@ -35,7 +35,7 @@ jobs:
       run: |
         # The GitHub editor is 127 chars wide
         cd documentapi/
-        alias flake8 = flake8 --count --max-complexity=10 --show-source --max-line-length=127
+        alias flake8="flake8 --count --max-complexity=10 --show-source --max-line-length=127"
         flake8 .
         # Lint the doc example
         flake8 cookbook-ex.py
