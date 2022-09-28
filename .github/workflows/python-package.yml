@@ -33,8 +33,10 @@ jobs:
         pip install --editable .
     - name: Lint with flake8
       run: |
-        # The GitHub editor is 127 chars wide
         cd documentapi/
+        # Allow for aliases
+        shopt -s expand_aliases
+        # The GitHub editor is 127 chars wide
         alias flake8="flake8 --count --max-complexity=10 --show-source --max-line-length=127"
         flake8 .
         # Lint the doc example
