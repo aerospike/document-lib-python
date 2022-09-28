@@ -42,6 +42,7 @@ jobs:
     - name: Build documentation
       run: |
         cd docs/
+        sphinx-build -b spelling . build -W
         sphinx-build -b html . htmldir -W
     - name: Set up Aerospike Database
       uses: reugn/github-action-aerospike@v1
