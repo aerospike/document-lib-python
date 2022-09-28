@@ -45,6 +45,11 @@ cd docs/
 sphinx-build -b html . htmldir -W
 ```
 
+Spelling errors must be corrected using:
+```
+sphinx-build -b spelling . build -W
+```
+
 ## Codestyle
 
 This code uses [flake8](https://github.com/pycqa/flake8) for codestyle checking.
