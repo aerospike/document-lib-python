@@ -10,7 +10,7 @@ authors = [
 ]
 description = "Document Library API for Python"
 readme = "README.md"
-requires-python = ">=3.7, <=3.9"
+requires-python = ">=3.7, <=3.9.x"
 classifiers = [
     "Programming Language :: Python :: 3",
 ]
