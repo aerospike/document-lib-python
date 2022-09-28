@@ -38,6 +38,7 @@ jobs:
         alias flake8="flake8 --count --max-complexity=10 --show-source --max-line-length=127"
         flake8 .
         # Lint the doc example
+        cd ../docs
         flake8 cookbook-ex.py
     - name: Build documentation
       run: |
