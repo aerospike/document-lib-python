@@ -9,7 +9,7 @@ This is currently in beta, so there may be bugs or features that aren't supporte
 - [PyPI Package](https://pypi.org/project/document-lib-python/)
 
 ## Compatibility
-- Python 3.7.x - 3.9.13.
+- Python 3.7 - 3.9
 - Aerospike Python Client 7.0.2
 
 ## Features
