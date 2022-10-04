@@ -17,7 +17,6 @@ limitations under the License.
 import sys
 import os
 import unittest
-from pytest import monkeypatch
 import copy
 import json
 import aerospike
@@ -45,17 +44,30 @@ def setUpModule():
     mapJsonObj = json.load(mapJsonFile)
     listJsonObj = json.load(listJsonFile)
 
-    # Setup client
+    unittest.mock.patch(aerospike.Client.operate, buggedOperate)
+
     # Use real client
     config = {
         "hosts": [("127.0.0.1", 3000)]
     }
     client = aerospike.client(config).connect()
-    mockClient = unittest.mock.create_autospec(client, spec_set=True, instance=True)
-    def buggedOperate(key: tuple, operations: list, **kwargs):
-        result = client.operate(key, operations, kwargs)
 
-    monkeypatch.setattr(client, "operate", buggedOperate)
+    # mockClient = unittest.mock.create_autospec(client, spec_set=True, instance=True)
+
+    global ioLog
+    ioLog = []
+    def buggedOperate(key: tuple, operations: list, **kwargs):
+        try:
+            result = client.operate(key, operations, **kwargs)
+        except Exception as e:
+            # Only save input and exception thrown
+            entry = ((key, operations, kwargs), e)
+            ioLog.append(entry)
+            raise e
+
+        # Save input and output as usual
+        entry = ((key, operations, kwargs), result)
+        ioLog.append(entry)
 
     documentClient = DocumentClient(client)
 
@@ -70,6 +82,7 @@ def tearDownModule():
     # Close client connection
     client.close()
 
+    print(ioLog)
 
 # Helper function for all tests
 
