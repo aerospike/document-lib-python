@@ -51,4 +51,4 @@ jobs:
       run: |
         poetry run coverage run -m unittest tests/test.py
     - name: Run coverage test
-      run: coverage report --fail-under=100 --skip-covered
+      run: poetry run coverage report --fail-under=100 --skip-covered
