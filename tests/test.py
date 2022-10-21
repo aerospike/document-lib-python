@@ -215,6 +215,15 @@ class TestCorrectGets(TestGets):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$['key[with.brackets]']")
         self.assertEqual(results, mapJsonObj["key[with.brackets]"])
 
+    def testGetWithInvalidOperatePolicy(self):
+        # This read policy should be filtered out
+        # Since it can't be used in an operate policy
+        readPolicy = {
+            "deserialize": False
+        }
+        results = documentClient.get(keyTuple, MAP_BIN_NAME, "$['key[with.brackets]']", readPolicy)
+        self.assertEqual(results, mapJsonObj["key[with.brackets]"])
+
 
 class TestGetAdvancedOps(TestGets):
 

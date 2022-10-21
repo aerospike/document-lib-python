@@ -49,5 +49,6 @@ jobs:
         poetry run python3 cookbook-ex.py
     - name: Run unit tests
       run: |
-        cd tests/
-        poetry run python3 test.py
+        poetry run coverage run -m unittest tests/test.py
+    - name: Run coverage test
+      run: poetry run coverage report --fail-under=100 --include=documentapi/api.py

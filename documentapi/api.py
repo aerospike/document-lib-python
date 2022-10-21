@@ -425,7 +425,7 @@ def convertToOperatePolicy(policy: Policy) -> Union[Policy, None]:
 
     # Filter out non-operate policies
     operatePolicy = policy.copy()
-    for key in operatePolicy:
+    for key in policy:
         if key not in OPERATE_CONFIG_KEYS:
             operatePolicy.pop(key)
 
