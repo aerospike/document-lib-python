@@ -224,6 +224,7 @@ class TestCorrectGets(TestGets):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$['key[with.brackets]']", readPolicy)
         self.assertEqual(results, mapJsonObj["key[with.brackets]"])
 
+
 class TestGetAdvancedOps(TestGets):
 
     # get() may return multiple matches in any order
