@@ -24,12 +24,14 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install Poetry
-      run: curl -sSL https://install.python-poetry.org | python3 -
-    - name: Install developer dependencies and DocumentAPI
+    - name: Setup Poetry
+      run: |
+        # Install poetry
+        curl -sSL https://install.python-poetry.org | python3 -
+        # Run poetry
+        poetry shell -n
+    - name: Install developer dependencies and documentapi
       run: poetry install
-    - name: Activate Poetry shell
-      run: poetry shell
     - name: Lint with flake8
       run: |
         cd documentapi/
