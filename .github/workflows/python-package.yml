@@ -28,26 +28,17 @@ jobs:
       run: |
         # Install poetry
         curl -sSL https://install.python-poetry.org | python3 -
-        # Run poetry
-        poetry shell -n
     - name: Install developer dependencies and documentapi
       run: poetry install
     - name: Lint with flake8
       run: |
-        cd documentapi/
-        # Allow for aliases
-        shopt -s expand_aliases
         # The GitHub editor is 127 chars wide
-        alias flake8="flake8 --count --max-complexity=10 --show-source --max-line-length=127"
-        flake8 .
-        # Lint the doc example
-        cd ../docs
-        flake8 cookbook-ex.py
+        poetry run flake8 --count --max-complexity=10 --show-source --max-line-length=127 documentapi/ docs/cookbook-ex.py
     - name: Build documentation
       run: |
         cd docs/
-        sphinx-build -b spelling . build -W
-        sphinx-build -b html . htmldir -W
+        poetry run sphinx-build -b spelling . build -W
+        poetry run sphinx-build -b html . htmldir -W
     - name: Set up Aerospike Database
       uses: reugn/github-action-aerospike@v1
     - name: Test cookbook example
@@ -55,8 +46,8 @@ jobs:
         # Wait for server to finish startup
         sleep 3
         cd docs/
-        python3 cookbook-ex.py
+        poetry run python3 cookbook-ex.py
     - name: Run unit tests
       run: |
         cd tests/
-        python3 test.py
+        poetry run python3 test.py
