@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 '''
 
-import sys
 import os
 import unittest
 import copy
@@ -216,6 +215,7 @@ class TestCorrectGets(TestGets):
         results = documentClient.get(keyTuple, MAP_BIN_NAME, "$['key[with.brackets]']")
         self.assertEqual(results, mapJsonObj["key[with.brackets]"])
 
+
 class TestGetAdvancedOps(TestGets):
 
     # get() may return multiple matches in any order
@@ -399,6 +399,7 @@ class TestGetAdvancedOps(TestGets):
         expected = listJsonObj[1][::2]
         self.assertEqual(expected, results)
 
+
 class TestIncorrectGets(TestGets):
 
     # Syntax errors
@@ -554,6 +555,7 @@ class TestCorrectAppend(TestWrites):
             list.append(44)
 
         self.assertEqual(results, expectedLists)
+
 
 class TestIncorrectAppend(TestWrites):
 

@@ -33,7 +33,7 @@ jobs:
     - name: Lint with flake8
       run: |
         # The GitHub editor is 127 chars wide
-        poetry run flake8 --count --max-complexity=10 --show-source --max-line-length=127 documentapi/ docs/cookbook-ex.py
+        poetry run flake8 --count --max-complexity=10 --show-source --max-line-length=127 documentapi/ docs/cookbook-ex.py tests/
     - name: Build documentation
       run: |
         cd docs/
