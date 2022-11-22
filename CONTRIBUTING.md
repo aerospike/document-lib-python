@@ -2,27 +2,28 @@
 
 ## Setup
 
-Create a new virtual environment to test the code (recommended):
-```bash session
-python3 -m venv .venv
-. .venv/bin/activate
+Please use the supported Python versions of this project for development.
+
+1. Install [Poetry](https://python-poetry.org/docs/#installation).
+2. Create a virtual environment in Poetry and activate it in a new shell:
+
+```
+poetry shell
 ```
 
-To install dependencies for development:
-```bash session
-pip install -r requirements.txt
+3. Install the project and its dependencies in editable mode:
+
 ```
+poetry install
+```
+
+Editable mode allows you to make changes to the project and test those changes without recompiling the code.
 
 ## Unit testing
 
-The tests use a locally built and installed module for this code:
-```bash session
-# Build current code and install package
-pip install --editable .
-```
-
 For now, unit tests rely on an Aerospike server to work.
 Run a local Aerospike server on a Docker container:
+
 ```bash session
 # Get the server image if not already downloaded
 docker pull aerospike/aerospike-server
@@ -33,6 +34,7 @@ docker run --name aerospike -d -p 3000:3000 aerospike/aerospike-server
 
 Wait a few seconds for Aerospike server to fully start.
 Then run the tests:
+
 ```bash session
 python3 tests/test.py
 ```
@@ -40,12 +42,14 @@ python3 tests/test.py
 ## Documentation
 
 To build documentation:
+
 ```bash session
 cd docs/
 sphinx-build -b html . htmldir -W
 ```
 
 Spelling errors must be corrected using:
+
 ```bash session
 sphinx-build -b spelling . build -W
 ```
@@ -54,10 +58,10 @@ sphinx-build -b spelling . build -W
 
 This code uses [flake8](https://github.com/pycqa/flake8) for codestyle checking.
 
-To run codestyle tests:
+To run codestyle tests (already configured in `.flake8` for this project):
+
 ```bash session
-cd documentapi/
-flake8 . --count --max-complexity=10 --show-source --max-line-length=127
+flake8
 ```
 
 ## Adding features
@@ -73,7 +77,6 @@ This project depends on a [fork](https://github.com/aerospike-community/jsonpath
 docker container stop aerospike
 docker container rm aerospike
 
-# Quit and delete virtual environment
-deactivate
-rm -r .venv
+# Deactivate the virtual environment and exit the shell
+exit
 ```

@@ -1,6 +1,2 @@
 [flake8]
 max-line-length = 127
-filename =
-    documentapi/
-    docs/cookbook-ex.py
-    tests/
