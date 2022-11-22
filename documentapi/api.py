@@ -102,6 +102,31 @@ class DocumentClient:
 
         return fetchedDocument
 
+    def get(self, key: Key, binNames: list[str], jsonPath: str, readPolicy: Policy = None) -> Any:
+        """
+        For multiple bins in a record, get object(s) using JSON path
+        and return a map of bin names to objects inside that bin
+
+        For each bin, if multiple objects are matched, they will be stored as a :class:`list` in the map.
+        A list of results does not have a guaranteed order.
+        Otherwise, the object itself is stored.
+
+        :param tuple key: the key of the record
+        :param list[str] binNames: the names of the bins containing JSON documents
+        :param str jsonPath: JSON path to retrieve the object
+        :param dict readPolicy: the read policy for get() operation
+
+        :return: :py:obj:`map[str, Any]`
+        :raises: :exc:`~documentapi.exception.JsonPathMissingRootError`
+        :raises: :exc:`~documentapi.exception.JsonPathParseError`
+        :raises: :exc:`~documentapi.exception.JSONNotFoundError`
+        """
+        binToResults = {}
+        for binName in binNames:
+            results = self.get(key, binName, jsonPath, readPolicy)
+            binToResults[binName] = results
+        return binToResults
+
     def put(self, key: Key, binName: str, jsonPath: str, obj: Any, writePolicy: Policy = None):
         """
         Put an object into a JSON document using JSON path.

@@ -225,6 +225,32 @@ class TestCorrectGets(TestGets):
         self.assertEqual(results, mapJsonObj["key[with.brackets]"])
 
 
+class TestBatchGet(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        # Insert two records with identical JSON documents
+        # but change a value in one of the records
+
+        client.put(keyTuple, {"list1": listJsonObj})
+
+        global listJsonObjCopy
+        listJsonObjCopy = copy.deepcopy(listJsonObj)
+        listJsonObjCopy[0]["map"]["int"] = 2
+        client.put(keyTuple, {"list2": listJsonObj})
+
+    def testBatchGet(self):
+        # Map of bin names to results
+        binNamesToResults = documentClient.get(keyTuple, ["list1", "list2"], "$[0]['map']['int']")
+        self.assertEqual(binNamesToResults["list1"], listJsonObj[0]["map"]["int"])
+        self.assertEqual(binNamesToResults["list2"], listJsonObjCopy[0]["map"]["int"])
+
+    @classmethod
+    def tearDownClass(cls):
+        # Remove record with two documents
+        client.remove(keyTuple)
+
+
 class TestGetAdvancedOps(TestGets):
 
     # get() may return multiple matches in any order
