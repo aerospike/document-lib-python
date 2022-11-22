@@ -102,7 +102,7 @@ class DocumentClient:
 
         return fetchedDocument
 
-    def get(self, key: Key, binNames: list[str], jsonPath: str, readPolicy: Policy = None) -> Any:
+    def getMultipleBins(self, key: Key, binNames: list[str], jsonPath: str, readPolicy: Policy = None) -> Any:
         """
         For multiple bins in a record, get object(s) using JSON path
         and return a map of bin names to objects inside that bin

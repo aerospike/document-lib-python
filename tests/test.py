@@ -237,11 +237,11 @@ class TestBatchGet(unittest.TestCase):
         global listJsonObjCopy
         listJsonObjCopy = copy.deepcopy(listJsonObj)
         listJsonObjCopy[0]["map"]["int"] = 2
-        client.put(keyTuple, {"list2": listJsonObj})
+        client.put(keyTuple, {"list2": listJsonObjCopy})
 
     def testBatchGet(self):
         # Map of bin names to results
-        binNamesToResults = documentClient.get(keyTuple, ["list1", "list2"], "$[0]['map']['int']")
+        binNamesToResults = documentClient.getMultipleBins(keyTuple, ["list1", "list2"], "$[0]['map']['int']")
         self.assertEqual(binNamesToResults["list1"], listJsonObj[0]["map"]["int"])
         self.assertEqual(binNamesToResults["list2"], listJsonObjCopy[0]["map"]["int"])
 
