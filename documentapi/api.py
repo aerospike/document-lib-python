@@ -173,6 +173,11 @@ class DocumentClient:
         putOp = createPutOperation(binName, ctxs, lastToken, smallestDocument)
         sendSmallestDocument(self.client, key, putOp, operatePolicy, jsonPath)
 
+    def putMultipleBins(self, key: Key, binNames: List[str], jsonPath: str, obj: Any, writePolicy: Policy = None):
+        # Run put operation on every bin
+        for binName in binNames:
+            self.put(key, binName, jsonPath, obj, writePolicy)
+
     def append(self, key: Key, binName: str, jsonPath: str, obj: Any, writePolicy: Policy = None):
         """
         Append an object to a list in a JSON document using JSON path.
@@ -219,6 +224,10 @@ class DocumentClient:
         # Send new document to server
         op = createPutOperation(binName, ctxs, lastToken, smallestDocument)
         sendSmallestDocument(self.client, key, op, operatePolicy, jsonPath)
+
+    def appendMultipleBins(self, key: Key, binNames: List[str], jsonPath: str, obj: Any, writePolicy: Policy = None):
+        for binName in binNames:
+            self.append(key, binName, jsonPath, obj, writePolicy)
 
     def delete(self, key: Key, binName: str, jsonPath: str, writePolicy: Policy = None):
         """
@@ -285,6 +294,9 @@ class DocumentClient:
             # InvalidRequest: deleting index from map or key from list
             raise JSONNotFoundError(jsonPath)
 
+    def deleteMultipleBins(self, key: Key, binNames: List[str], jsonPath: str, writePolicy: Policy = None):
+        for binName in binNames:
+            self.delete(key, binName, jsonPath, writePolicy)
 
 ADVANCED_OP_TOKENS = (
     r"\[\*\]",                              # [*]

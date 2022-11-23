@@ -225,25 +225,40 @@ class TestCorrectGets(TestGets):
         self.assertEqual(results, mapJsonObj["key[with.brackets]"])
 
 
-class TestBatchGet(unittest.TestCase):
+class TestBatchOps(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         # Insert two records with identical JSON documents
         # but change a value in one of the records
 
-        client.put(keyTuple, {"list1": listJsonObj})
+        global FIRST_BIN_NAME
+        global SECOND_BIN_NAME
+        FIRST_BIN_NAME = "list1"
+        SECOND_BIN_NAME = "list2"
+        client.put(keyTuple, {FIRST_BIN_NAME: listJsonObj})
 
         global listJsonObjCopy
         listJsonObjCopy = copy.deepcopy(listJsonObj)
         listJsonObjCopy[0]["map"]["int"] = 2
-        client.put(keyTuple, {"list2": listJsonObjCopy})
+        client.put(keyTuple, {SECOND_BIN_NAME: listJsonObjCopy})
 
     def testBatchGet(self):
         # Map of bin names to results
-        binNamesToResults = documentClient.getMultipleBins(keyTuple, ["list1", "list2"], "$[0]['map']['int']")
-        self.assertEqual(binNamesToResults["list1"], listJsonObj[0]["map"]["int"])
-        self.assertEqual(binNamesToResults["list2"], listJsonObjCopy[0]["map"]["int"])
+        binNamesToResults = documentClient.getMultipleBins(keyTuple, [FIRST_BIN_NAME, SECOND_BIN_NAME], "$[0]['map']['int']")
+        self.assertEqual(binNamesToResults[FIRST_BIN_NAME], listJsonObj[0]["map"]["int"])
+        self.assertEqual(binNamesToResults[SECOND_BIN_NAME], listJsonObjCopy[0]["map"]["int"])
+
+    def testBatchPut(self):
+        # Put this value into both bins at the same location in the document
+        newValue = 3
+        documentClient.putMultipleBins(keyTuple, [FIRST_BIN_NAME, SECOND_BIN_NAME], "$[0]['map']['int']", newValue)
+
+        # Compare real results with expected
+        actualFirstValue = documentClient.get(keyTuple, FIRST_BIN_NAME, "$[0]['map']['int']")
+        actualSecondValue = documentClient.get(keyTuple, SECOND_BIN_NAME, "$[0]['map']['int']")
+        self.assertEqual(actualFirstValue, newValue)
+        self.assertEqual(actualSecondValue, newValue)
 
     @classmethod
     def tearDownClass(cls):
