@@ -246,7 +246,11 @@ class TestBatchOps(unittest.TestCase):
 
     def testBatchGet(self):
         # Map of bin names to results
-        binNamesToResults = documentClient.getFromMultipleBins(keyTuple, [FIRST_BIN_NAME, SECOND_BIN_NAME], "$[0]['map']['int']")
+        binNamesToResults = documentClient.getFromMultipleBins(
+                                keyTuple,
+                                [FIRST_BIN_NAME, SECOND_BIN_NAME],
+                                "$[0]['map']['int']"
+                            )
         self.assertEqual(binNamesToResults[FIRST_BIN_NAME], firstBinObj[0]["map"]["int"])
         self.assertEqual(binNamesToResults[SECOND_BIN_NAME], secondBinObj[0]["map"]["int"])
 
@@ -295,7 +299,6 @@ class TestBatchOps(unittest.TestCase):
         actualSecondBinValue = documentClient.get(keyTuple, SECOND_BIN_NAME, "$")
         self.assertEqual(actualFirstBinValue, expectedFirstBinValue)
         self.assertEqual(actualSecondBinValue, expectedSecondBinValue)
-
 
     @classmethod
     def tearDown(cls):
