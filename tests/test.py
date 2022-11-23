@@ -246,7 +246,7 @@ class TestBatchOps(unittest.TestCase):
 
     def testBatchGet(self):
         # Map of bin names to results
-        binNamesToResults = documentClient.getFromMultipleBins(
+        binNamesToResults = documentClient.getBins(
                                 keyTuple,
                                 [FIRST_BIN_NAME, SECOND_BIN_NAME],
                                 "$[0]['map']['int']"
@@ -258,7 +258,7 @@ class TestBatchOps(unittest.TestCase):
         # Put this value into both bins at the same location in the document
         # Previous values were 1 and 2 for both bins, respectively
         newValue = 3
-        documentClient.putWithMultipleBins(keyTuple, [FIRST_BIN_NAME, SECOND_BIN_NAME], "$[0]['map']['int']", newValue)
+        documentClient.putBins(keyTuple, [FIRST_BIN_NAME, SECOND_BIN_NAME], "$[0]['map']['int']", newValue)
 
         # Simulate behavior for expected results
         expectedFirstBinValue = copy.deepcopy(firstBinObj)
@@ -275,7 +275,7 @@ class TestBatchOps(unittest.TestCase):
     def testBatchAppend(self):
         # Append this value into both bins at the same location in the document
         newValue = 3
-        documentClient.appendWithMultipleBins(keyTuple, [FIRST_BIN_NAME, SECOND_BIN_NAME], "$[1]", newValue)
+        documentClient.appendBins(keyTuple, [FIRST_BIN_NAME, SECOND_BIN_NAME], "$[1]", newValue)
 
         expectedFirstBinValue = copy.deepcopy(firstBinObj)
         expectedSecondBinValue = copy.deepcopy(secondBinObj)
@@ -288,7 +288,7 @@ class TestBatchOps(unittest.TestCase):
         self.assertEqual(actualSecondBinValue, expectedSecondBinValue)
 
     def testBatchDelete(self):
-        documentClient.deleteFromMultipleBins(keyTuple, [FIRST_BIN_NAME, SECOND_BIN_NAME], "$[1]")
+        documentClient.deleteBins(keyTuple, [FIRST_BIN_NAME, SECOND_BIN_NAME], "$[1]")
 
         expectedFirstBinValue = copy.deepcopy(firstBinObj)
         expectedSecondBinValue = copy.deepcopy(secondBinObj)

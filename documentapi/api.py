@@ -102,7 +102,7 @@ class DocumentClient:
 
         return fetchedDocument
 
-    def getFromMultipleBins(self, key: Key, binNames: List[str], jsonPath: str, readPolicy: Policy = None) -> Any:
+    def getBins(self, key: Key, binNames: List[str], jsonPath: str, readPolicy: Policy = None) -> Any:
         """
         Get object(s) from multiple bins using JSON path
         and return a map of bin names to objects inside each bin.
@@ -173,7 +173,7 @@ class DocumentClient:
         putOp = createPutOperation(binName, ctxs, lastToken, smallestDocument)
         sendSmallestDocument(self.client, key, putOp, operatePolicy, jsonPath)
 
-    def putWithMultipleBins(self, key: Key, binNames: List[str], jsonPath: str, obj: Any, writePolicy: Policy = None):
+    def putBins(self, key: Key, binNames: List[str], jsonPath: str, obj: Any, writePolicy: Policy = None):
         """
         Put an object into multiple bins using JSON path.
 
@@ -236,7 +236,7 @@ class DocumentClient:
         op = createPutOperation(binName, ctxs, lastToken, smallestDocument)
         sendSmallestDocument(self.client, key, op, operatePolicy, jsonPath)
 
-    def appendWithMultipleBins(self, key: Key, binNames: List[str], jsonPath: str, obj: Any, writePolicy: Policy = None):
+    def appendBins(self, key: Key, binNames: List[str], jsonPath: str, obj: Any, writePolicy: Policy = None):
         """
         Append an object to a list in multiple bins using JSON path.
 
@@ -317,7 +317,7 @@ class DocumentClient:
             # InvalidRequest: deleting index from map or key from list
             raise JSONNotFoundError(jsonPath)
 
-    def deleteFromMultipleBins(self, key: Key, binNames: List[str], jsonPath: str, writePolicy: Policy = None):
+    def deleteBins(self, key: Key, binNames: List[str], jsonPath: str, writePolicy: Policy = None):
         """
         Delete an object in multiple bins using JSON path.
 
