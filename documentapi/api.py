@@ -102,7 +102,7 @@ class DocumentClient:
 
         return fetchedDocument
 
-    def getMultipleBins(self, key: Key, binNames: List[str], jsonPath: str, readPolicy: Policy = None) -> Any:
+    def getFromMultipleBins(self, key: Key, binNames: List[str], jsonPath: str, readPolicy: Policy = None) -> Any:
         """
         For multiple bins in a record, get object(s) using JSON path
         and return a map of bin names to objects inside that bin
@@ -173,7 +173,7 @@ class DocumentClient:
         putOp = createPutOperation(binName, ctxs, lastToken, smallestDocument)
         sendSmallestDocument(self.client, key, putOp, operatePolicy, jsonPath)
 
-    def putMultipleBins(self, key: Key, binNames: List[str], jsonPath: str, obj: Any, writePolicy: Policy = None):
+    def putWithMultipleBins(self, key: Key, binNames: List[str], jsonPath: str, obj: Any, writePolicy: Policy = None):
         # Run put operation on every bin
         for binName in binNames:
             self.put(key, binName, jsonPath, obj, writePolicy)
@@ -225,7 +225,7 @@ class DocumentClient:
         op = createPutOperation(binName, ctxs, lastToken, smallestDocument)
         sendSmallestDocument(self.client, key, op, operatePolicy, jsonPath)
 
-    def appendMultipleBins(self, key: Key, binNames: List[str], jsonPath: str, obj: Any, writePolicy: Policy = None):
+    def appendWithMultipleBins(self, key: Key, binNames: List[str], jsonPath: str, obj: Any, writePolicy: Policy = None):
         for binName in binNames:
             self.append(key, binName, jsonPath, obj, writePolicy)
 
@@ -294,9 +294,10 @@ class DocumentClient:
             # InvalidRequest: deleting index from map or key from list
             raise JSONNotFoundError(jsonPath)
 
-    def deleteMultipleBins(self, key: Key, binNames: List[str], jsonPath: str, writePolicy: Policy = None):
+    def deleteFromMultipleBins(self, key: Key, binNames: List[str], jsonPath: str, writePolicy: Policy = None):
         for binName in binNames:
             self.delete(key, binName, jsonPath, writePolicy)
+
 
 ADVANCED_OP_TOKENS = (
     r"\[\*\]",                              # [*]
