@@ -225,6 +225,87 @@ class TestCorrectGets(TestGets):
         self.assertEqual(results, mapJsonObj["key[with.brackets]"])
 
 
+class TestBatchOps(unittest.TestCase):
+
+    @classmethod
+    def setUp(cls):
+        # Insert two records with identical JSON documents
+        # but change a value in one of the records
+
+        global FIRST_BIN_NAME
+        global SECOND_BIN_NAME
+        FIRST_BIN_NAME = "list1"
+        SECOND_BIN_NAME = "list2"
+
+        global firstBinObj, secondBinObj
+        firstBinObj = copy.deepcopy(listJsonObj)
+        secondBinObj = copy.deepcopy(listJsonObj)
+
+        client.put(keyTuple, {FIRST_BIN_NAME: firstBinObj})
+        client.put(keyTuple, {SECOND_BIN_NAME: secondBinObj})
+
+    def testBatchGet(self):
+        # Map of bin names to results
+        binNamesToResults = documentClient.getBins(
+                                keyTuple,
+                                [FIRST_BIN_NAME, SECOND_BIN_NAME],
+                                "$[0]['map']['int']"
+                            )
+        self.assertEqual(binNamesToResults[FIRST_BIN_NAME], firstBinObj[0]["map"]["int"])
+        self.assertEqual(binNamesToResults[SECOND_BIN_NAME], secondBinObj[0]["map"]["int"])
+
+    def testBatchPut(self):
+        # Put this value into both bins at the same location in the document
+        # Previous values were 1 and 2 for both bins, respectively
+        newValue = 3
+        documentClient.putBins(keyTuple, [FIRST_BIN_NAME, SECOND_BIN_NAME], "$[0]['map']['int']", newValue)
+
+        # Simulate behavior for expected results
+        expectedFirstBinValue = copy.deepcopy(firstBinObj)
+        expectedSecondBinValue = copy.deepcopy(secondBinObj)
+        expectedFirstBinValue[0]["map"]["int"] = newValue
+        expectedSecondBinValue[0]["map"]["int"] = newValue
+
+        # Compare real results with expected
+        actualFirstBinValue = documentClient.get(keyTuple, FIRST_BIN_NAME, "$")
+        actualSecondBinValue = documentClient.get(keyTuple, SECOND_BIN_NAME, "$")
+        self.assertEqual(actualFirstBinValue, expectedFirstBinValue)
+        self.assertEqual(actualSecondBinValue, expectedSecondBinValue)
+
+    def testBatchAppend(self):
+        # Append this value into both bins at the same location in the document
+        newValue = 3
+        documentClient.appendBins(keyTuple, [FIRST_BIN_NAME, SECOND_BIN_NAME], "$[1]", newValue)
+
+        expectedFirstBinValue = copy.deepcopy(firstBinObj)
+        expectedSecondBinValue = copy.deepcopy(secondBinObj)
+        expectedFirstBinValue[1].append(newValue)
+        expectedSecondBinValue[1].append(newValue)
+
+        actualFirstBinValue = documentClient.get(keyTuple, FIRST_BIN_NAME, "$")
+        actualSecondBinValue = documentClient.get(keyTuple, SECOND_BIN_NAME, "$")
+        self.assertEqual(actualFirstBinValue, expectedFirstBinValue)
+        self.assertEqual(actualSecondBinValue, expectedSecondBinValue)
+
+    def testBatchDelete(self):
+        documentClient.deleteBins(keyTuple, [FIRST_BIN_NAME, SECOND_BIN_NAME], "$[1]")
+
+        expectedFirstBinValue = copy.deepcopy(firstBinObj)
+        expectedSecondBinValue = copy.deepcopy(secondBinObj)
+        del expectedFirstBinValue[1]
+        del expectedSecondBinValue[1]
+
+        actualFirstBinValue = documentClient.get(keyTuple, FIRST_BIN_NAME, "$")
+        actualSecondBinValue = documentClient.get(keyTuple, SECOND_BIN_NAME, "$")
+        self.assertEqual(actualFirstBinValue, expectedFirstBinValue)
+        self.assertEqual(actualSecondBinValue, expectedSecondBinValue)
+
+    @classmethod
+    def tearDown(cls):
+        # Remove record with two documents
+        client.remove(keyTuple)
+
+
 class TestGetAdvancedOps(TestGets):
 
     # get() may return multiple matches in any order

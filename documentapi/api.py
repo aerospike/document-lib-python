@@ -102,6 +102,31 @@ class DocumentClient:
 
         return fetchedDocument
 
+    def getBins(self, key: Key, binNames: List[str], jsonPath: str, readPolicy: Policy = None) -> Any:
+        """
+        Get object(s) from multiple bins using JSON path
+        and return a map of bin names to objects inside each bin.
+
+        For each bin, if multiple objects are matched, they will be stored in the map as a :class:`list`.
+        A list of results does not have a guaranteed order.
+        Otherwise, the object itself is stored.
+
+        :param tuple key: the key of the record
+        :param List[str] binNames: the names of the bins containing JSON documents
+        :param str jsonPath: JSON path to retrieve the object(s) from each bin
+        :param dict readPolicy: the read policy for this operation
+
+        :return: :py:obj:`map[str, Any]`
+        :raises: :exc:`~documentapi.exception.JsonPathMissingRootError`
+        :raises: :exc:`~documentapi.exception.JsonPathParseError`
+        :raises: :exc:`~documentapi.exception.JSONNotFoundError`
+        """
+        binToResults = {}
+        for binName in binNames:
+            results = self.get(key, binName, jsonPath, readPolicy)
+            binToResults[binName] = results
+        return binToResults
+
     def put(self, key: Key, binName: str, jsonPath: str, obj: Any, writePolicy: Policy = None):
         """
         Put an object into a JSON document using JSON path.
@@ -147,6 +172,22 @@ class DocumentClient:
         # Send updated document to server
         putOp = createPutOperation(binName, ctxs, lastToken, smallestDocument)
         sendSmallestDocument(self.client, key, putOp, operatePolicy, jsonPath)
+
+    def putBins(self, key: Key, binNames: List[str], jsonPath: str, obj: Any, writePolicy: Policy = None):
+        """
+        Put an object into multiple bins using JSON path.
+
+        :param tuple key: the key of the record
+        :param List[str] binNames: the names of the bins containing JSON documents
+        :param str jsonPath: JSON path location to store the object in each bin
+        :param dict writePolicy: the write policy for this operation
+
+        :raises: :exc:`~documentapi.exception.JsonPathMissingRootError`
+        :raises: :exc:`~documentapi.exception.JsonPathParseError`
+        :raises: :exc:`~documentapi.exception.JSONNotFoundError`
+        """
+        for binName in binNames:
+            self.put(key, binName, jsonPath, obj, writePolicy)
 
     def append(self, key: Key, binName: str, jsonPath: str, obj: Any, writePolicy: Policy = None):
         """
@@ -194,6 +235,22 @@ class DocumentClient:
         # Send new document to server
         op = createPutOperation(binName, ctxs, lastToken, smallestDocument)
         sendSmallestDocument(self.client, key, op, operatePolicy, jsonPath)
+
+    def appendBins(self, key: Key, binNames: List[str], jsonPath: str, obj: Any, writePolicy: Policy = None):
+        """
+        Append an object to a list in multiple bins using JSON path.
+
+        :param tuple key: the key of the record
+        :param List[str] binNames: the names of the bins containing JSON documents
+        :param str jsonPath: JSON path ending with a list
+        :param dict writePolicy: the write policy for this operation
+
+        :raises: :exc:`~documentapi.exception.JsonPathMissingRootError`
+        :raises: :exc:`~documentapi.exception.JsonPathParseError`
+        :raises: :exc:`~documentapi.exception.JSONNotFoundError`
+        """
+        for binName in binNames:
+            self.append(key, binName, jsonPath, obj, writePolicy)
 
     def delete(self, key: Key, binName: str, jsonPath: str, writePolicy: Policy = None):
         """
@@ -259,6 +316,24 @@ class DocumentClient:
             # OpNotApplicable: deleting from missing list/map, out of bounds index
             # InvalidRequest: deleting index from map or key from list
             raise JSONNotFoundError(jsonPath)
+
+    def deleteBins(self, key: Key, binNames: List[str], jsonPath: str, writePolicy: Policy = None):
+        """
+        Delete an object in multiple bins using JSON path.
+
+        Deleting the root element causes a bin to contain an empty dictionary.
+
+        :param tuple key: the key of the record
+        :param List[str] binNames: the names of the bins containing JSON documents
+        :param str jsonPath: JSON path of object to delete
+        :param dict writePolicy: the write policy for this operation
+
+        :raises: :exc:`~documentapi.exception.JsonPathMissingRootError`
+        :raises: :exc:`~documentapi.exception.JsonPathParseError`
+        :raises: :exc:`~documentapi.exception.JSONNotFoundError`
+        """
+        for binName in binNames:
+            self.delete(key, binName, jsonPath, writePolicy)
 
 
 ADVANCED_OP_TOKENS = (
