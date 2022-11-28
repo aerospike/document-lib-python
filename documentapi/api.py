@@ -107,7 +107,7 @@ class DocumentClient:
         Get object(s) from multiple bins using JSON path
         and return a map of bin names to objects inside each bin.
 
-        For each bin, if multiple objects are matched, they will be stored as a :class:`list`.
+        For each bin, if multiple objects are matched, they will be stored in the map as a :class:`list`.
         A list of results does not have a guaranteed order.
         Otherwise, the object itself is stored.
 
