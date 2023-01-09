@@ -1,6 +1,6 @@
 [[package]]
 name = "aerospike"
-version = "8.0.0"
+version = "9.0.0"
 description = "Aerospike Client Library for Python"
 category = "main"
 optional = false
@@ -731,24 +731,22 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = ">= 3.7, < 3.10"
-content-hash = "80eb8bce0f80062dcc4385f269f9366fa3566257dfc914b718b084a105a496d2"
+content-hash = "f5b658bff96926274f0b87881602e983a6ea3f3d88c8d3da4a6475644f9a015d"
 
 [metadata.files]
 aerospike = [
-    {file = "aerospike-8.0.0-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:b88943864f66f42417c7e89343b855f7f521bb414ce25df7a17caea0696a91c2"},
-    {file = "aerospike-8.0.0-cp37-cp37m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3afc7cadd92482e5698755f62e17f3790b0f12d2d05d3ea058d90011733d297d"},
-    {file = "aerospike-8.0.0-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ce45dff3657f9bf00af96072005d4676ddbb912ec7d26a6b00269b753107f8fd"},
-    {file = "aerospike-8.0.0-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:44974809d7c16645b9db09d7ea06afaeb7c9915a87803cab46966b3456f3e709"},
-    {file = "aerospike-8.0.0-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:b3cf29d71176460893a9f331177f74e95637b48aa0dd1a887c91d9f6c4c170bf"},
-    {file = "aerospike-8.0.0-cp38-cp38-macosx_12_0_arm64.whl", hash = "sha256:bb16af423268b3bb7fea6ebd6d6d890f7ae2bd3032205ac2ba58d1feb32dce90"},
-    {file = "aerospike-8.0.0-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:7b610dc7ab8b8cf604f96c02e6e31297c69a29f8c3057922ef14b69192f825db"},
-    {file = "aerospike-8.0.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7364d35c81b092a851cc707858d1fc01ac2a8b8db59e83dccb0286e331c7576f"},
-    {file = "aerospike-8.0.0-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:340412ea0ae2fe32c796578dc05a5812a14afb1b40c88ddde3687ddd666e4dbf"},
-    {file = "aerospike-8.0.0-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:260b15f58c5bb4110b934523ba8162a6a92828f6a87ed27cfa9f33304591dbf2"},
-    {file = "aerospike-8.0.0-cp39-cp39-macosx_12_0_arm64.whl", hash = "sha256:64d346b83af14d4d4c95e5464dbd314279860b3d510a48d55eda0639f400752f"},
-    {file = "aerospike-8.0.0-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:7eb9dfb9d4cb81fcc2b52340a8c9ff9d1d7a8832d75bde07d62f72760cd0fc2e"},
-    {file = "aerospike-8.0.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c175e6ea24b60fc6ab9020ec9a5ec8a085af8437cec3f8695c3b38783ff67b62"},
-    {file = "aerospike-8.0.0.tar.gz", hash = "sha256:7e9e6ab91940ada632b3ae743ddbb0de5975855945d3082ba6f77bd6a2ce8031"},
+    {file = "aerospike-9.0.0-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:84a1404880fc35c3679c6f2b14c2c9095a9189088303b281b1af7c98b5b77652"},
+    {file = "aerospike-9.0.0-cp37-cp37m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:5ff5a284a33d6becc5fe4af77ed12740fdf7a65f17af6e96058638679f356911"},
+    {file = "aerospike-9.0.0-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b1cb119237d40a96ad498005363f068b75926a6447322a683e21311d2717390d"},
+    {file = "aerospike-9.0.0-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:32b398650bf9545a6fbeae9d9aa5ac64a8c584ffb1e382f5d44dd0511bdb58a3"},
+    {file = "aerospike-9.0.0-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:73a5c3f4407a7616875af3d8ffd05c12f25eca1b74035c62a48fd7351b122f37"},
+    {file = "aerospike-9.0.0-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:84d267b29183c1dfe477b2851f33265e2734e759212d761dc76b12e41657fff5"},
+    {file = "aerospike-9.0.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:849713c6fe9bb4b10610e2e481e7f4232384ff76d8b20f8f7b156d7396a40c95"},
+    {file = "aerospike-9.0.0-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:487cf210917160c857664d29010072851c6f707c1b02e810dd634dedbd7ddd75"},
+    {file = "aerospike-9.0.0-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:9f2c1d7f676c038d909252827e20a93aacdeff9697c8c8e1f72432cd1c05f8a2"},
+    {file = "aerospike-9.0.0-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:7b8b94f17df8f98c0e8355499db72a42d8147801d13e85cc1d70282ff8ebbbf3"},
+    {file = "aerospike-9.0.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:bf210a61501ef41ec4cf610d84c4b8a4ec4c2cb5330e0c94e2842a6966490789"},
+    {file = "aerospike-9.0.0.tar.gz", hash = "sha256:2abb6c877e683890ab1b5df84046e75c62b333fec659b831481345e11349553f"},
 ]
 alabaster = [
     {file = "alabaster-0.7.12-py2.py3-none-any.whl", hash = "sha256:446438bdcca0e05bd45ea2de1668c1d9b032e1a9154c2c259092d77031ddd359"},
