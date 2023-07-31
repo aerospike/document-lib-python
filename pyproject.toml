@@ -13,7 +13,7 @@ packages = [{include = "documentapi"}]
 [tool.poetry.dependencies]
 python = ">= 3.7, < 3.10"
 jsonpath-ng-aerospike = "^1.5.3"
-aerospike = ">= 6.0, < 9.0"
+aerospike = ">=6.0,<13.0"
 coverage = "^6.5.0"
 
 [tool.poetry.group.dev.dependencies]
