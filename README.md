@@ -2,7 +2,9 @@
 
 Python port of the Aerospike Document API in [Java](https://github.com/aerospike/aerospike-document-lib).
 
-This is currently in beta, so there may be bugs or features that aren't supported yet.
+**Aerospike Document API is a community OSS project**. As described on the [Product Stages](https://aerospike.com/docs/database/reference/product-stages#open-source-products-tools-and-libraries) page, this means that Aerospike will no longer provide support for the Document API library, including vulnerability patching. If you are interested in contributing to the project please open an issue or a pull request.
+
+**For an actively developed alternative**, see [Expression DSL](https://github.com/aerospike/expression-dsl-java).
 
 ## More Info
 - [API Documentation](https://document-library-python.readthedocs.io/en/latest/)
